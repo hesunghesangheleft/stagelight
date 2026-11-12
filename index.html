@@ -4016,7 +4016,8 @@ function rbResume(){
   $('#pResume').textContent = 'Resume';
   if (RBE.band){
     const live = RBE.pauseAt + (performance.now() - RBE.pausePerf) / 1000;
-    RBE.chords.forEach(c => { if (!c.state && c.t < live + 0.5){ c.state = 'skip'; c.gems.forEach(g => { g.state = 'miss'; }); } });
+    if (RBE.vox){ voxResumed(); RBE.vox.noCredit = live; }
+    else RBE.chords.forEach(c => { if (!c.state && c.t < live + 0.5){ c.state = 'skip'; c.gems.forEach(g => { g.state = 'miss'; }); } });
     rbStartAudio(live);
     return;
   }
@@ -4218,7 +4219,7 @@ function rbWire(){
 function rbView(view, msg){
   if (view !== 'load') rbxPreviewStop();
   const lbMic = LBS.vox.n > 0 && ['lbsetup', 'lbkit', 'lbresults', 'loading'].includes(view);
-  if (!lbMic && (!isVox(RBE.part) || !['setup', 'loading', 'results'].includes(view))) voxMicsStop();
+  if (!lbMic && (!isVox(RBE.part) || !['setup', 'loading', 'results', 'band', 'bandres'].includes(view))) voxMicsStop();
   RBE.view = view;
   rbBody.classList.toggle('wide', view === 'load');
   if (view === 'load') RBE.loadMsg = msg;
@@ -4852,6 +4853,7 @@ async function rbbJoin(code, asHost){
   Object.assign(RBB, { br, code, host:!!asHost, st:null, peers:[], hostSeen:false, epochSeen:-1, playEpoch:-1, lineup:[], myFin:null, finAt:0, mySv:0, startArm:0, prep:{ id:'', part:'', st:'', pct:0, err:'' }, prepKey:'' });
   if (asHost) RBB.st = { rev:1, epoch:0, phase:'lobby', song:null, noFail:true, lineup:[] };
   RBB.unsub.push(br.onPeers(rbbOnPeers, () => rbbLost()));
+  if (br.onMsg) RBB.unsub.push(br.onMsg(p2pServe));
   rbbPres({ inBand:true, jt:Date.now(), nick:bandNickNow(), role:asHost ? 'host' : 'member', st:RBB.st, part:RBE.part, diff:RBE.diff, prep:null, live:null, fin:null, at:'lobby' });
   RBB.timer = setInterval(rbbTick, 500);
   if (asHost) rbbAdvertise();
@@ -4861,7 +4863,7 @@ async function rbbJoin(code, asHost){
       if (RBB.br !== br || RBB.hostSeen) return;
       toast(`No band found with code ${code}.`);
       rbbLeave().then(() => rbView('bandfind'));
-    }, 7000);
+    }, BAND.p2p ? 15000 : 7000);
   }
 }
 async function rbbLeave(quiet){
@@ -4934,6 +4936,9 @@ function rbbTick(){
   if (RBB.host) rbbHostTick();
   // A gig's verdict can land while you're still finishing; pick it up once you're off the stage.
   if (RBB.st && RBB.st.tour && RBB.st.tour.v) rbtSyncBand();
+  // A singer's mic turning on or off changes whether they're ready.
+  const pr = RBB.prep;
+  if (!RBE.on && RBB.st && RBB.st.song && pr.id === RBB.st.song.id && ((pr.st === 'ok' && !rbbMicOk()) || (pr.st === 'mic' && rbbMicOk()))) rbbPrepSet(RBB.prepRun, pr.id, rbbMicOk() ? 'ok' : 'mic', 1, '', pr);
   rbbXferCheck();
 }
 function rbbHostTick(){
@@ -4944,9 +4949,11 @@ function rbbHostTick(){
   if (done || (RBB.finAt && Date.now() - RBB.finAt > 30000)) rbbSet(Object.assign({ phase:'lobby' }, rbtHostVerdict(st, mem)));
 }
 // Keep my copy of the band's song, chart and audio ready for my part.
+// A singer is ready once their mic is on.
+const rbbMicOk = () => !isVox(RBE.part) || !!RBE.voxBot || VOXM.live.length > 0;
 function rbbReady(){
   const st = RBB.st, s = st && st.song;
-  return !!s && !(RBE.on && !RBE.band) && RBB.prep.st === 'ok' && RBB.prep.id === s.id && RBB.prep.part === RBE.part && !!RBE.song && RBE.song.bid === s.id
+  return !!s && !(RBE.on && !RBE.band) && rbbMicOk() && RBB.prep.st === 'ok' && RBB.prep.id === s.id && RBB.prep.part === RBE.part && !!RBE.song && RBE.song.bid === s.id
     && !!RBE.audio && RBE.audioKey === rbAudioKey(RBE.song, RBE.part) && !!RBE.charts && !!RBE.charts[RBE.diff];
 }
 function rbbPrepSet(run, id, stt, pct, err, ex){
@@ -4954,7 +4961,7 @@ function rbbPrepSet(run, id, stt, pct, err, ex){
   ex = ex || {};
   RBB.prep = { id, part:RBE.part, st:stt, pct:pct || 0, err:err || '', x:ex.x ? 1 : 0, idx:ex.idx ? 1 : 0 };
   const now = performance.now(), pc = Math.round((pct || 0) * 100);
-  if (stt !== 'dl' || now - RBB.presAt > 700 || pc >= 100){ RBB.presAt = now; rbbPres({ prep:{ id, part:RBE.part, st:stt, pct:pc, x:ex.x ? 1 : 0, up:RBLIB.canSend ? 1 : 0 } }); }
+  if (stt !== 'dl' || now - RBB.presAt > 700 || pc >= 100){ RBB.presAt = now; rbbPres({ prep:{ id, part:RBE.part, st:stt, pct:pc, x:ex.x ? 1 : 0, up:rbCanSend() ? 1 : 0 } }); }
   if (!RBE.on && RBE.view === 'band') rbbPrepUI();
 }
 async function rbbPrepare(force){
@@ -4974,7 +4981,7 @@ async function rbbPrepare(force){
       if (run !== RBB.prepRun) return;
     }
     song.bid = id;
-    if (!RBE.parts.includes(RBE.part)){ RBE.part = RBE.parts.includes('guitar') ? 'guitar' : RBE.parts[0]; RBE.charts = rbChartsFor(RBE.midi, RBE.part, song.hopo); RBB.prepKey = id + ':' + RBE.part; rbbPres({ part:RBE.part }); }
+    if (!RBE.parts.concat(RBE.voxParts || []).includes(RBE.part)){ RBE.part = RBE.parts.includes('guitar') ? 'guitar' : RBE.parts[0] || RBE.voxParts[0]; RBE.charts = rbChartsFor(RBE.midi, RBE.part, song.hopo); RBB.prepKey = id + ':' + RBE.part; rbbPres({ part:RBE.part }); }
     if (!RBE.charts[RBE.diff]){ const have = Object.keys(RB_DIFF_LABEL).filter(k => RBE.charts[k]); RBE.diff = have[have.length - 1]; rbbPres({ diff:RBE.diff }); }
     if (!RBE.audio || RBE.audioKey !== rbAudioKey(song, RBE.part)){
       rbbPrepSet(run, id, 'mix', 0);
@@ -4983,7 +4990,7 @@ async function rbbPrepare(force){
       if (run !== RBB.prepRun) return;
       RBE.audio = audio; RBE.audioKey = rbAudioKey(song, RBE.part);
     }
-    rbbPrepSet(run, id, 'ok', 1);
+    rbbPrepSet(run, id, rbbMicOk() ? 'ok' : 'mic', 1);
     const st2 = RBB.st;
     if (st2 && st2.phase === 'play' && st2.epoch === RBB.epochSeen && st2.lineup.includes(rbbMe()) && !RBE.on && RBB.playEpoch !== st2.epoch) rbbGo();
   } catch (e){
@@ -5036,7 +5043,7 @@ function rbbPeerReady(p){
 function rbbPrepText(pr, st){
   if (!st || !st.song) return '';
   if (!pr || pr.id !== st.song.id) return 'Getting the song';
-  return pr.st === 'dl' ? `Downloading ${pr.pct | 0}%` : pr.st === 'load' ? 'Reading the song' : pr.st === 'mix' ? 'Mixing the audio' : pr.st === 'ok' ? 'Ready' : pr.st === 'need' ? (pr.x ? 'Needs the song' : 'Can’t get the song') : pr.st === 'err' ? 'Couldn’t load it' : 'Getting the song';
+  return pr.st === 'dl' ? `Downloading ${pr.pct | 0}%` : pr.st === 'load' ? 'Reading the song' : pr.st === 'mix' ? 'Mixing the audio' : pr.st === 'mic' ? 'Turning on the mic' : pr.st === 'ok' ? 'Ready' : pr.st === 'need' ? (pr.x ? 'Needs the song' : 'Can’t get the song') : pr.st === 'err' ? 'Couldn’t load it' : 'Getting the song';
 }
 function rbbStart(){
   const st = RBB.st; if (!RBB.host || !st || !st.song || st.phase === 'play') return;
@@ -5075,6 +5082,11 @@ const rbbLiveOf = p => { const l = p.presence && p.presence.live; return l && l.
 const rbbOthers = () => rbbMembers().filter(p => !p.sameTab && RBB.lineup.includes(p.peer) && !(p.presence.fin && p.presence.fin.e === RBB.playEpoch));
 function rbbLive(){
   RBB.lastLive = performance.now();
+  if (RBE.vox){
+    const V = RBE.vox, closed = V.ch.phrases.slice(0, V.pi).filter(ph => ph.sing), passed = closed.filter(ph => ph.res && ph.res.pass).length;
+    rbbPres({ live:{ e:RBB.playEpoch, s:Math.round(V.score), c:V.combo, m:voxMult(V), r:+V.rock.toFixed(2), od:+V.od.toFixed(2), on:!!V.odActive, dn:!!RBE.down, sv:RBB.mySv, p:closed.length ? Math.round(passed / closed.length * 100) : 100 } });
+    return;
+  }
   const judged = RBE.hits + RBE.misses;
   rbbPres({ live:{ e:RBB.playEpoch, s:Math.round(RBE.score), c:RBE.combo, m:rbMult(), r:+RBE.rock.toFixed(2), od:+RBE.od.toFixed(2), on:!!RBE.odActive, dn:!!RBE.down, sv:RBB.mySv, p:judged ? Math.round(RBE.hits / judged * 100) : 100 } });
 }
@@ -5087,6 +5099,7 @@ function rbbFrame(now){
       if (l && !l.dn && (l.sv | 0) > (RBB.saveSeen[p.peer] | 0)){
         RBE.down = false; RBE.rock = 0.5; if (RBE.tm) RBE.life = RBE.lifeMax * 0.5; canvas.classList.remove('down'); rbStemOn(true);
         RBE.soloMsg = { text:'SAVED!', sub:`${bName(p.peer)} brought you back`, at:performance.now() };
+        if (RBE.vox){ RBE.vox.rock = 0.5; RBE.vox.pop = Object.assign({ col:'#7dffb0' }, RBE.soloMsg); }
         if (typeof ripSound === 'function') ripSound('glint');
         rbbLive();
         break;
@@ -5097,8 +5110,8 @@ function rbbFrame(now){
     else RBB.allDownAt = 0;
   } else RBB.allDownAt = 0;
   const alive = others.filter(p => { const l = rbbLiveOf(p); return l && !l.dn; });
-  const uni = RBE.odActive && !RBE.down && alive.length >= 1 && alive.every(p => rbbLiveOf(p).on);
-  if (uni && !RBE.unison) RBE.soloMsg = { text:'BAND UNISON!', sub:'Overdrive ×3 while you’re all in it', at:performance.now() };
+  const uni = (RBE.vox ? RBE.vox.odActive : RBE.odActive) && !RBE.down && alive.length >= 1 && alive.every(p => rbbLiveOf(p).on);
+  if (uni && !RBE.unison){ RBE.soloMsg = { text:'BAND UNISON!', sub:RBE.vox ? 'Everyone’s in Overdrive' : 'Overdrive ×3 while you’re all in it', at:performance.now() }; if (RBE.vox) RBE.vox.pop = Object.assign({ col:COL.tungsten }, RBE.soloMsg); }
   RBE.unison = uni;
   if (now - RBB.hudAt > 200){ RBB.hudAt = now; rbbHud(); }
 }
@@ -5115,11 +5128,11 @@ function rbbSave(){
   if (!down.length) return;
   RBB.mySv++;
   const msg = { text:'BAND SAVE!', sub:down.length > 1 ? `You saved ${down.length} bandmates` : `You saved ${bName(down[0].peer)}`, at:performance.now() };
-  if (G.rbBand){ G.soloMsg = msg; RBB.lastLive = 0; } else { RBE.soloMsg = msg; rbbLive(); }
+  if (G.rbBand){ G.soloMsg = msg; RBB.lastLive = 0; } else { RBE.soloMsg = msg; if (RBE.vox) RBE.vox.pop = Object.assign({ col:'#7dffb0' }, msg); rbbLive(); }
 }
 function rbbHud(){
   const el = $('#bandHud'); if (!el) return;
-  const pad = !!G.rbBand, others = rbbMembers().filter(p => !p.sameTab && RBB.lineup.includes(p.peer)), myOd = pad ? !G.odActive && G.od >= 0.5 : !RBE.odActive && RBE.od >= 0.5 && !RBE.down;
+  const pad = !!G.rbBand, others = rbbMembers().filter(p => !p.sameTab && RBB.lineup.includes(p.peer)), myOd = pad ? !G.odActive && G.od >= 0.5 : RBE.vox ? !RBE.vox.odActive && RBE.vox.od >= 0.5 && !RBE.down : !RBE.odActive && RBE.od >= 0.5 && !RBE.down;
   let total = Math.round(pad ? G.score : RBE.score);
   const rows = others.map(p => {
     const l = rbbLiveOf(p), f = p.presence.fin && p.presence.fin.e === RBB.playEpoch ? p.presence.fin : null, r = l ? clamp(+l.r || 0, 0, 1) : 0.5;
@@ -5180,21 +5193,23 @@ function rbbMeHTML(){
   const st = RBB.st || {}, s = st.song, pr = RBB.prep;
   if (!s) return '';
   const mine = !!RBE.song && RBE.song.bid === s.id;
-  const parts = mine && RBE.parts ? RBE.parts : s.parts.concat(s.parts.length ? ['gamepad'] : []), ready = rbbReady();
+  const parts = mine && RBE.parts ? RBE.parts.concat(RBE.voxParts || []) : s.parts.concat(s.parts.length ? ['gamepad'] : []), ready = rbbReady();
   const mem = rbbMembers(), others = mem.filter(p => !p.sameTab);
   const has = others.filter(p => p.presence.prep && p.presence.prep.id === s.id && p.presence.prep.st === 'ok'), canSend = has.filter(p => p.presence.prep.up);
   const wanting = others.filter(p => p.presence.prep && p.presence.prep.id === s.id && p.presence.prep.x && (p.presence.prep.st === 'need' || p.presence.prep.st === 'dl'));
   let status = '';
   if (ready){
     status = '<p class="t-sub ok-line">Ready to play.</p>';
-    if (RBB.xferBusy) status += `<div class="rb-prog"><i style="width:${Math.round(RBB.xferPct * 100)}%"></i></div><p class="t-sub">Sending the song to ${wanting.map(p => escH(bName(p.peer))).join(' and ') || 'your band'} · ${Math.round(RBB.xferPct * 100)}%. It’s deleted from Stagelight’s storage once they have it.</p>`;
-    else if (RBB.xfer) status += `<p class="t-sub">${wanting.length ? wanting.map(p => escH(bName(p.peer))).join(' and ') + (wanting.length > 1 ? ' are' : ' is') + ' downloading the song from you.' : 'Everyone has it. Clearing it out of Stagelight’s storage.'}</p>`;
+    if (RBB.xferBusy && BAND.p2p) status += `<p class="t-sub">Getting the song ready to send to ${wanting.map(p => escH(bName(p.peer))).join(' and ') || 'your band'}…</p>`;
+    else if (RBB.xferBusy) status += `<div class="rb-prog"><i style="width:${Math.round(RBB.xferPct * 100)}%"></i></div><p class="t-sub">Sending the song to ${wanting.map(p => escH(bName(p.peer))).join(' and ') || 'your band'} · ${Math.round(RBB.xferPct * 100)}%. It’s deleted from Stagelight’s storage once they have it.</p>`;
+    else if (RBB.xfer) status += `<p class="t-sub">${wanting.length ? wanting.map(p => escH(bName(p.peer))).join(' and ') + (wanting.length > 1 ? ' are' : ' is') + ' downloading the song from you.' : BAND.p2p ? 'Everyone has it.' : 'Everyone has it. Clearing it out of Stagelight’s storage.'}</p>`;
     else if (RBB.xferFail) status += `<p class="rb-err">${rbEsc(RBB.xferFail)}</p>`;
-    else if (wanting.length && !RBLIB.canSend) status += `<p class="fine">${wanting.map(p => escH(bName(p.peer))).join(' and ')} ${wanting.length > 1 ? 'don’t' : 'doesn’t'} have this song. Only someone who can edit Stagelight can send songs.</p>`;
+    else if (wanting.length && !rbCanSend()) status += `<p class="fine">${wanting.map(p => escH(bName(p.peer))).join(' and ')} ${wanting.length > 1 ? 'don’t' : 'doesn’t'} have this song. Only someone who can edit Stagelight can send songs.</p>`;
   }
   else if (pr.id === s.id && pr.st === 'dl') status = `<div class="rb-prog"><i style="width:${Math.round(pr.pct * 100)}%"></i></div><p class="t-sub">Downloading the song · ${Math.round(pr.pct * 100)}%. It stays on this device, so next time it loads right away.</p>`;
   else if (pr.id === s.id && pr.st === 'load') status = '<p class="t-sub">Reading the song from your files…</p>';
   else if (pr.id === s.id && pr.st === 'mix') status = '<p class="t-sub">Mixing the audio for your part…</p>';
+  else if (pr.id === s.id && pr.st === 'mic') status = '<p class="t-sub warn">Turn on your microphone below to be ready.</p>';
   else if (pr.id === s.id && pr.st === 'need' && pr.x){
     const busy = others.filter(p => p.presence.prep && p.presence.prep.id === s.id && ['load', 'mix', 'dl'].includes(p.presence.prep.st) && !p.presence.prep.x);
     const xs = canSend.length && canSend[0].presence.xs, xp = xs && xs.id === s.id ? clamp(+xs.pct || 0, 0, 100) : -1;
@@ -5205,9 +5220,10 @@ function rbbMeHTML(){
   else if (pr.id === s.id && (pr.st === 'need' || pr.st === 'err')) status = `<p class="rb-err" role="alert">${rbEsc(pr.err)}</p><div class="row"><button type="button" class="btn small" id="rbbRetry">Try again</button><button type="button" class="btn small" id="rbbOwn">Use my own copy of the CON</button></div>`;
   else status = '<p class="t-sub">Getting the song…</p>';
   return `<span class="label">Your part</span>
-    ${parts.length > 1 ? `<div class="seg" style="grid-template-columns:repeat(${parts.length},1fr)" role="radiogroup" aria-label="Part">${parts.map(p => `<button type="button" role="radio" data-bp="${p}" aria-checked="${RBE.part === p}">${RB_PARTS[p]}</button>`).join('')}</div>` : `<p class="t-sub">${RB_PARTS[parts[0]] || 'Guitar'}</p>`}
+    ${parts.length > 1 ? `<div class="seg" style="grid-template-columns:repeat(${Math.min(parts.length, 4)},1fr)" role="radiogroup" aria-label="Part">${parts.map(p => `<button type="button" role="radio" data-bp="${p}" aria-checked="${RBE.part === p}">${RB_PARTS[p]}</button>`).join('')}</div>` : `<p class="t-sub">${RB_PARTS[parts[0]] || 'Guitar'}</p>`}
     <div class="seg seg4" role="radiogroup" aria-label="Difficulty">${Object.keys(RB_DIFF_LABEL).map(d => `<button type="button" role="radio" data-bd="${d}" aria-checked="${RBE.diff === d}" ${mine && RBE.charts && !RBE.charts[d] ? 'disabled' : ''}>${RB_DIFF_LABEL[d]}</button>`).join('')}</div>
-    ${status}`;
+    ${status}
+    ${mine && isVox(RBE.part) && !(RBE.on && RBE.band) ? voxMicsHTML(RBE.part === 'harmonies', voxSingers(), !!RBE.voxBot, RBE.part === 'harmonies') : ''}`;
 }
 function rbbMeWire(){
   rbBody.querySelectorAll('[data-bp]').forEach(b => b.addEventListener('click', () => {
@@ -5216,8 +5232,11 @@ function rbbMeWire(){
     if (RBE.midi && RBE.song && RBB.st && RBB.st.song && RBE.song.bid === RBB.st.song.id) RBE.charts = rbChartsFor(RBE.midi, RBE.part, RBE.song.hopo);
     rbbPres({ part:RBE.part });
     rbbPrepare();
-    rbView('band');
+    if (isVox(RBE.part) && VOXM.state === 'on') voxApply().then(() => rbView('band'));
+    else rbView('band');
   }));
+  rbBody.querySelectorAll('#rbbMe [data-vn]').forEach(b => b.addEventListener('click', () => { VOXM.n = +b.dataset.vn; store.set('voxSingers', VOXM.n); if (VOXM.state === 'on') voxApply().then(() => rbView('band')); else rbView('band'); }));
+  if ($('#rbbMe .vx-mics')) voxMicsWire('band');
   rbBody.querySelectorAll('[data-bd]').forEach(b => b.addEventListener('click', () => { RBE.diff = b.dataset.bd; rbbPres({ diff:RBE.diff }); rbView('band'); }));
   const r = $('#rbbRetry'); if (r) r.addEventListener('click', () => rbbPrepare(true));
   const o = $('#rbbOwn'); if (o) o.addEventListener('click', () => { const i = $('#rbFile'); i.value = ''; RBL.ownCopy = true; i.click(); });
@@ -5242,6 +5261,7 @@ function rbbWhy(){
     : BAND.why === 'denied' ? 'Co-op is switched off for you on Stagelight. Turn it back on in the Permissions panel.'
     : BAND.why === 'signin' ? 'Co-op needs you signed in to Claude and invited to Stagelight by email. Ask whoever shared it to invite your email, then sign in with that email and open the invite.'
     : BAND.why === 'noroom' ? 'You’re signed in, but this copy can’t connect to bands. Open Stagelight from your email invite, then reload.'
+    : BAND.why === 'p2pload' ? 'Online play couldn’t load its connection library. Check your internet connection, then reload the page.'
     : 'Co-op only works when Stagelight is opened on claude.ai.';
 }
 function rbBandViews(view, msg){
@@ -5249,13 +5269,13 @@ function rbBandViews(view, msg){
     if (!BAND.tried) bandInit();
     if (!BAND.done) setTimeout(() => { if (RBE.view === 'bandfind' && !rbEl.hidden) rbView('bandfind'); }, 600);
     rbBody.innerHTML = `<p class="eyebrow">Rock Band charts · band</p><h2 class="card-title">Play with friends</h2>
-      <p class="t-sub">Everyone plays the same song together, each on their own device and on the part they pick. The leader picks from the song library and it loads for the whole band. If your rock meter runs out, a bandmate’s Overdrive brings you back, and if you all hit Overdrive at once it’s worth even more.</p>
+      <p class="t-sub">Everyone plays the same song together, each on their own device and on the part they pick, singers included. ${BAND.p2p ? 'The leader picks from their songs folder, and anyone who doesn’t have the song gets it sent straight from the leader.' : 'The leader picks from the song library and it loads for the whole band.'} If your rock meter runs out, a bandmate’s Overdrive brings you back, and if you all hit Overdrive at once it’s worth even more.</p>
       ${msg ? `<p class="rb-err" role="alert">${rbEsc(msg)}</p>` : ''}
       ${BAND.ok ? `<label class="field"><span class="label">Your name in the band</span><input type="text" id="rbbNick" maxlength="20" autocomplete="off" spellcheck="false" value="${escH(bandNickNow())}"></label>
         <button type="button" class="btn primary" id="rbbCreate">Start a band</button>
-        <div><span class="label">Bands looking for players</span><div class="bfind" id="rbbFind"></div></div>
+        ${BAND.p2p ? '' : '<div><span class="label">Bands looking for players</span><div class="bfind" id="rbbFind"></div></div>'}
         <div class="bjoin"><input type="text" id="rbbCode" maxlength="4" placeholder="CODE" autocomplete="off" spellcheck="false" autocapitalize="characters" aria-label="Band code"><button type="button" class="btn" id="rbbJoinB">Join with code</button></div>
-        <p class="fine">Friends need access to Stagelight first. Share it with them from the Share menu at the top of this page.</p>`
+        ${BAND.p2p ? '<p class="fine">Bands on this website are private: there’s no public list. Friends open this same page and join with your band’s code. You connect to each other directly.</p>' : '<p class="fine">Friends need access to Stagelight first. Share it with them from the Share menu at the top of this page.</p>'}`
       : `<p class="t-sub warn">${rbbWhy()}</p>${BAND.done && BAND.why === 'ask' ? '<button type="button" class="btn primary" id="rbbAllow">Allow co-op</button>' : ''}${BAND.done && BAND.why === 'denied' ? '<button type="button" class="btn primary" id="rbbPerms">Open permissions</button>' : ''}`}
       <div class="row"><button type="button" class="btn" id="rbbBack">Back</button></div>`;
     $('#rbbBack').addEventListener('click', () => rbView('load'));
@@ -5278,15 +5298,16 @@ function rbBandViews(view, msg){
     const ptab = RBB.pickTab || (RBLOC.index.length || !RBLIB.list.length ? 'mine' : 'lib');
     const live = RBLOC.files.size > 0;
     const touring = !!(st.tour && !st.tour.over);
-    const picker = host && !playing && !touring ? `<div class="tabs rb-tabs" role="tablist"><button type="button" role="tab" data-ptab="mine" aria-selected="${ptab === 'mine'}">Your songs</button><button type="button" role="tab" data-ptab="lib" aria-selected="${ptab === 'lib'}">Song library</button></div>`
-      + (ptab === 'mine'
-        ? (RBLOC.index.length ? `${live ? '' : '<p class="fine">Pick your songs folder again to play from it this visit.</p>'}<div class="row rb-locbtn"><button type="button" class="btn small${live ? '' : ' primary'}" id="rbbDir">${live ? 'Scan the folder again' : 'Pick your songs folder'}</button></div>${RBLOC.index.length > 8 ? `<input type="search" id="rbbQ" class="rb-q" placeholder="Search ${RBLOC.index.length} songs" value="${rbEsc(RBLOC.q)}" autocomplete="off" aria-label="Search your songs">` : ''}<ul class="rb-songs pick" id="rbbLocList">${rbbLocRows()}</ul><p class="fine">Bandmates who don’t have your pick get it sent over, then it’s cleared out of Stagelight’s storage.</p>`
+    const noLib = RBLIB.err === 'nohost' || BAND.p2p;
+    const picker = host && !playing && !touring ? (noLib ? '' : `<div class="tabs rb-tabs" role="tablist"><button type="button" role="tab" data-ptab="mine" aria-selected="${ptab === 'mine'}">Your songs</button><button type="button" role="tab" data-ptab="lib" aria-selected="${ptab === 'lib'}">Song library</button></div>`)
+      + (ptab === 'mine' || noLib
+        ? (RBLOC.index.length ? `${live ? '' : '<p class="fine">Pick your songs folder again to play from it this visit.</p>'}<div class="row rb-locbtn"><button type="button" class="btn small${live ? '' : ' primary'}" id="rbbDir">${live ? 'Scan the folder again' : 'Pick your songs folder'}</button></div>${RBLOC.index.length > 8 ? `<input type="search" id="rbbQ" class="rb-q" placeholder="Search ${RBLOC.index.length} songs" value="${rbEsc(RBLOC.q)}" autocomplete="off" aria-label="Search your songs">` : ''}<ul class="rb-songs pick" id="rbbLocList">${rbbLocRows()}</ul><p class="fine">${BAND.p2p ? 'Bandmates who don’t have your pick get it sent straight from this device.' : 'Bandmates who don’t have your pick get it sent over, then it’s cleared out of Stagelight’s storage.'}</p>`
           : `<p class="t-sub">Scan your songs folder to pick from your own songs.</p><div class="row rb-locbtn"><button type="button" class="btn small primary" id="rbbDir">Choose your songs folder</button></div>`)
         : (RBLIB.list.length ? `<ul class="rb-songs pick">${RBLIB.list.map(d => rbLibRow(d, 'data-pick', s && s.id === d.id)).join('')}</ul>` : `<p class="t-sub">${RBLIB.ready ? 'The song library is empty.' : 'Opening the song library…'}</p>`)) : '';
     rbBody.innerHTML = `<p class="eyebrow">Rock Band charts · band</p><h2 class="card-title">Band ${escH(RBB.code)}</h2>
       ${msg ? `<p class="rb-err" role="alert">${rbEsc(msg)}</p>` : ''}
       <div class="bcode" aria-label="Band code ${escH(RBB.code)}">${escH(RBB.code).split('').map(c => `<span>${c}</span>`).join('')}</div>
-      <p class="t-sub">${host ? 'Give your friends this code, or they can find your band under Play with friends.' : st.rev ? 'You’re in. The band leader picks the song.' : 'Looking for the band…'}</p>
+      <p class="t-sub">${host ? (BAND.p2p ? 'Give your friends this code. They open this same page, choose Play with friends, and join with it.' : 'Give your friends this code, or they can find your band under Play with friends.') : st.rev ? 'You’re in. The band leader picks the song.' : 'Looking for the band…'}</p>
       <div><span class="label">Band · up to ${BAND_MAX}</span><div class="broster" id="rbbRoster">${rbbRosterHTML()}</div></div>
       ${playing ? `<div class="next"><b>${escH(s ? s.name : '')}</b><span>${inLine ? 'Your band is playing.' : 'The band is playing this one. You’ll be in the next song.'}</span></div>` : ''}
       ${rbtBandHTML()}
@@ -5322,7 +5343,8 @@ function rbBandViews(view, msg){
     rbBody.innerHTML = `<p class="eyebrow">${rbEsc(RBE.song ? RBE.song.name : '')} · band</p><h2 class="card-title">${r.failed ? 'Band failed' : waiting ? 'Set done' : 'Band results'}</h2>
       <div class="r-score">${fmtNum(total)}</div><p class="t-sub">${waiting ? 'Waiting for the rest of the band to finish.' : 'Band score'}</p>
       <div class="lines bandres">${rows.map(x => `<div><span>${escH(x.name)}${x.mine ? ' (you)' : ''}<small>${RB_PARTS[x.part] || 'Guitar'} · ${RB_DIFF_LABEL[x.diff] || ''}${x.f ? ` · ${x.f.pct | 0}%${x.f.fc ? ' · FC' : ''}${x.f.l ? ' · left' : x.f.f ? ' · failed' : x.f.st ? ' · ' + '★'.repeat(clamp(x.f.st | 0, 0, 5)) : ''}` : ''}</small></span><b>${x.f ? fmtNum(x.f.s | 0) : 'Playing…'}</b></div>`).join('')}</div>
-      ${RBE.result ? `<div class="lines"><div><span>Your notes hit</span><b>${r.hit} of ${r.total} · ${r.pct}%</b></div><div><span>Longest streak</span><b>${r.best}</b></div><div><span>Overdrive phrases</span><b>${r.phrases}</b></div>${r.unis ? `<div><span>Unison bonuses</span><b>${r.unis}</b></div>` : ''}</div>` : ''}
+      ${RBE.result && RBE.result.vox ? `<div class="lines"><div><span>Your phrases passed</span><b>${r.vox.passed} of ${r.vox.scored}</b></div><div><span>Longest phrase streak</span><b>${r.vox.best}</b></div><div><span>Average best meter</span><b>${r.vox.acc}%</b></div>${r.vox.perc ? `<div><span>Percussion</span><b>${r.vox.perc}</b></div>` : ''}</div>`
+      : RBE.result ? `<div class="lines"><div><span>Your notes hit</span><b>${r.hit} of ${r.total} · ${r.pct}%</b></div><div><span>Longest streak</span><b>${r.best}</b></div><div><span>Overdrive phrases</span><b>${r.phrases}</b></div>${r.unis ? `<div><span>Unison bonuses</span><b>${r.unis}</b></div>` : ''}</div>` : ''}
       <div class="row"><button type="button" class="btn primary" id="rbbBackB">Back to the band</button><button type="button" class="btn" id="rbbLeaveB">Leave band</button></div>`;
     $('#rbbBackB').addEventListener('click', () => { rbbPres({ at:'lobby' }); rbView('band'); });
     $('#rbbLeaveB').addEventListener('click', () => { rbbLeave().then(() => rbView('load')); });
@@ -6154,6 +6176,7 @@ async function rbbFindSong(s, run, id){
 }
 function rbbCleanX(x){
   if (!x || typeof x !== 'object' || typeof x.id !== 'string' || typeof x.sha !== 'string' || !/^[0-9a-f]{32,64}$/.test(x.sha)) return null;
+  if (x.via === 'p2p'){ const size = Math.floor(+x.size); return size > 0 && size < 4e9 ? { id:x.id, sha:x.sha, via:'p2p', size } : null; }
   if (x.via === 'db'){
     const n = Math.floor(+x.n);
     if (typeof x.xid !== 'string' || !/^[0-9a-f]{16}$/.test(x.xid) || !(n >= 1 && n <= 2000)) return null;
@@ -6246,7 +6269,7 @@ function rbbXferCheck(){
   }
   // Offering it: start, keep, or delete the temporary copy.
   if (RBB.xfer && (!s || RBB.xfer.id !== s.id)) rbbXferDrop();
-  if (!s || !RBLIB.canSend) return;
+  if (!s || !rbCanSend()) return;
   const wants = mem.filter(p => !p.sameTab && p.presence.prep && p.presence.prep.id === s.id && p.presence.prep.x && (p.presence.prep.st === 'need' || p.presence.prep.st === 'dl'));
   if (RBB.xfer){
     if (wants.length){ RBB.xferIdle = 0; return; }
@@ -6270,6 +6293,14 @@ async function rbbXferSend(s){
   try {
     const song = RBE.song; if (!song || song.bid !== s.id) return;
     const pack = await rbPackSong(song), sha = await rbSha(pack);
+    if (p2pOn()){
+      // The website: bandmates ask this device for the song's pieces directly.
+      if (!live()) return;
+      P2P.pack = { sha, u8:pack };
+      RBB.xfer = { id:s.id, sha, via:'p2p', size:pack.length }; RBB.xferIdle = 0;
+      rbbPres({ xfer:RBB.xfer, xs:null });
+      return;
+    }
     let x = null, dbErr = null;
     try {
       const put = await rbDbPut(pack, prog);
@@ -6297,8 +6328,9 @@ async function rbbXferSend(s){
 function rbbXferDrop(){
   const x = RBB.xfer; RBB.xfer = null; RBB.xferIdle = 0;
   if (RBB.br) rbbPres({ xfer:null });
-  if (x && x.via === 'db') rbDbDrop(x.xid, x.n);
-  else if (x && RBLIB.assets) x.chunks.forEach(c => RBLIB.assets.delete(c).catch(() => {}));
+  if (x && x.via === 'p2p') P2P.pack = null;
+  else if (x && x.via === 'db') rbDbDrop(x.xid, x.n);
+  else if (x && RBLIB.assets && x.chunks) x.chunks.forEach(c => RBLIB.assets.delete(c).catch(() => {}));
   if (!RBE.on && RBE.view === 'band') rbbPrepUI();
 }
 async function rbbXferFetch(x, peer){
@@ -6309,7 +6341,11 @@ async function rbbXferFetch(x, peer){
     rbbPrepSet(run, id, 'dl', 0, '', { x:1 });
     const d = { id, sha:x.sha, chunks:x.chunks || [], clen:x.clen || [], size:x.size, name:s.name, mh:s.mh, key:'mh:' + s.mh };
     let pk;
-    if (x.via === 'db'){
+    if (x.via === 'p2p'){
+      const u8 = await p2pFetch(peer, x, p => rbbPrepSet(run, id, 'dl', p, '', { x:1 }));
+      pk = rbUnpack(u8);
+      await RBDB.put(d.key, u8.buffer);
+    } else if (x.via === 'db'){
       const u8 = await rbDbGetPack(x, p => rbbPrepSet(run, id, 'dl', p, '', { x:1 }));
       pk = rbUnpack(u8);
       await RBDB.put(d.key, u8.buffer);
@@ -7010,12 +7046,14 @@ function voxQ(m, tg, cfg){
 }
 const voxMult = V => Math.min(V.combo + 1, 4) * (V.odActive ? 2 : 1);
 async function voxPlay(){
-  const song = RBE.song, chart = RBE.charts && RBE.charts[RBE.diff];
-  if (!song || !chart) return;
+  const song = RBE.song, chart = RBE.charts && RBE.charts[RBE.diff], band = !!RBE.band;
+  // In an online band, a part that can't start sits this song out.
+  const sitOut = msg => { RBE.band = false; rbbFinish({ score:0, pct:0, best:0, stars:0, failed:true, left:true }); rbView('band', msg); };
+  if (!song || !chart){ if (band) sitOut('Your part couldn’t load, so you sat this one out.'); return; }
   ensureCtx();
   if (!RBE.voxBot && !VOXM.live.length){
     rbView('loading', 'Turning on the microphone');
-    if (!(await voxMicsOn())){ rbView('setup', VOXM.err); return; }
+    if (!(await voxMicsOn())){ if (band) sitOut(VOXM.err || 'The microphone didn’t turn on, so you sat this one out.'); else rbView('setup', VOXM.err); return; }
   }
   rbView('loading', `Loading ${song.name}`);
   try {
@@ -7026,18 +7064,19 @@ async function voxPlay(){
     }
   } catch (err){
     console.warn(err);
+    if (band) return sitOut('Your part couldn’t load, so you sat this one out.');
     rbView('setup', err.message === 'encrypted' ? `“${song.name}” has encrypted audio (official DLC is locked). Custom songs normally work.` : `I couldn’t decode the audio for “${song.name}”.` + rbErrDetail(err));
     return;
   }
   RBE.tm = null; RBE.tour = null;
   RBE.vox = voxState(chart, RBE.diff);
-  RBE.st = -1e9; RBE.vt = null; RBE.score = 0;
+  RBE.st = -1e9; RBE.vt = null; RBE.score = 0; RBE.down = false; RBE.unison = false;
   RBE.geo = layout(5, false, RB_COLORS);
   RBE.on = true; RBE.mode = 'play'; RBE.view = 'play';
   $('#rbx').hidden = true; menuEl.hidden = true;
   showScreen('play');
-  $('#hudTitle').textContent = `${song.name} · ${RBV_PARTS[RBE.part]} ${RB_DIFF_LABEL[RBE.diff]}${RBE.vox.bot ? ' · bot' : ''}`;
-  $('#hudLife').hidden = true; $('#hudGoal').hidden = true; $('#bandHud').hidden = true; canvas.classList.remove('down');
+  $('#hudTitle').textContent = `${band ? 'Band ' + RBB.code + ' · ' : ''}${song.name} · ${RBV_PARTS[RBE.part]} ${RB_DIFF_LABEL[RBE.diff]}${RBE.vox.bot ? ' · bot' : ''}`;
+  $('#hudLife').hidden = true; $('#hudGoal').hidden = true; $('#bandHud').hidden = !band; $('#bandHud').innerHTML = ''; RBB.hudHTML = ''; canvas.classList.remove('down');
   hudProg.style.width = '0%'; RBE.prog = -1; RBE.hudScore = -1;
   $('#hudScore').textContent = '0'; setStars($('#hudStars'), 0);
   rbStartPolling();
@@ -7046,9 +7085,13 @@ async function voxPlay(){
 function voxResumed(V = RBE.vox){ if (!V) return; V.noCredit = RBE.pauseAt; V.ptrs.forEach(p => { p.ptr = 0; }); V.mics.forEach(m => { if (m.ptr) m.ptr.ptr = 0; m.trail = []; }); }
 function voxOD(how, V = RBE.vox){
   if (!V || !RBE.on || RBE.mode !== 'play' || V.odActive || V.od < 0.5) return;
+  const band = RBE.band && V === RBE.vox;
+  if (band && RBE.down) return;
   V.odActive = true; V.odUsed++;
   V.pop = { text:'OVERDRIVE', sub:'Double points for what you fill', col:COL.tungsten, at:performance.now() };
   if (typeof ripSound === 'function') ripSound('shock');
+  // In a band, a singer's Overdrive brings back anyone who's down.
+  if (band) rbbSave();
 }
 function voxInZone(V, t){ return V.ch.zones.some(z => t >= z[0] && t <= z[1]); }
 function voxTap(perf, src, V = RBE.vox){
@@ -7097,10 +7140,17 @@ function voxUpdate(dt, now){
   if (RBE.vt == null || Math.abs(aud - RBE.vt) > 0.1) RBE.vt = aud;
   else { RBE.vt += dt; RBE.vt += (aud - RBE.vt) * Math.min(1, dt * 4); }
   const st = RBE.vt; RBE.st = st;
+  const s0 = V.score, od0 = V.od;
   voxTick(V, st, dt, now);
+  // Down in a band: nothing counts until a bandmate's Overdrive saves you.
+  if (RBE.down){ V.score = s0; V.od = Math.min(V.od, od0); V.combo = 0; V.rock = 0; }
   RBE.score = V.score;
-  if (!rbNoFail() && V.rock <= 0) return voxFinish(true);
+  if (!rbNoFail() && V.rock <= 0 && !RBE.down){
+    if (RBE.band && rbbOthers().length){ rbDown(); V.combo = 0; V.odActive = false; V.pop = { text:'YOU’RE DOWN', sub:'A bandmate’s Overdrive can save you', col:COL.miss, at:performance.now() }; }
+    else return voxFinish(true);
+  }
   if (st > ch.end){ voxFinish(false); return; }
+  if (RBE.band && RBB.br) rbbFrame(now);
 }
 // One frame of singing: listen to every mic, credit the parts, close finished phrases.
 function voxTick(V, st, dt, now){
@@ -7161,7 +7211,14 @@ function voxFinish(failed){
   const S = V.stats, passed = S.awesome + S.dbl + S.tri;
   RBE.result = { failed:!!failed, score, ratio, stars:failed ? 0 : starCount(ratio), gold:ratio >= GOLD_T, prevBest, newBest:!failed && !V.bot && score > prevBest && prevBest > 0,
     vox:{ harm:V.harm, passed, scored:S.scored, awesome:S.awesome, dbl:S.dbl, tri:S.tri, best:V.best, perc:S.percTot ? `${S.percHit} of ${S.percTot}` : '', acc:Math.round(S.fillSum / Math.max(1, S.scored) * 100), od:V.odUsed, bot:V.bot, singers:V.singers } };
-  setTimeout(() => { if (RBE.mode !== 'done') return; RBE.on = false; RBE.vox = null; btnOD.classList.remove('ready', 'active'); showScreen('none'); menuEl.hidden = false; rbOpen('results'); }, failed ? 1200 : 1600);
+  const band = RBE.band;
+  if (band) rbbFinish(Object.assign({}, RBE.result, { pct:Math.round(passed / Math.max(1, S.scored) * 100), best:V.best, fc:!failed && passed === S.scored && S.scored > 0 }));
+  setTimeout(() => {
+    if (RBE.mode !== 'done') return;
+    RBE.on = false; RBE.vox = null; btnOD.classList.remove('ready', 'active');
+    if (band){ RBE.band = false; RBE.down = false; canvas.classList.remove('down'); $('#bandHud').hidden = true; btnOD.classList.remove('save'); }
+    showScreen('none'); menuEl.hidden = false; rbOpen(band && RBB.br ? 'bandres' : 'results');
+  }, failed ? 1200 : 1600);
 }
 
 /* ---------- drawing the vocal track ---------- */
@@ -7336,8 +7393,10 @@ function voxRender(g, R, V, st, now, opt){
 }
 function voxDraw(now){
   const V = RBE.vox, st = RBE.st, g = g2;
-  const w = W - insets.l - insets.r - 24, h = clamp(H * 0.5, 210, 460), y = clamp((H - h) / 2 - 40, insets.t + 66, H - h - 120);
-  const R = { x:insets.l + 12, y, w, h };
+  // In a band, the bandmates' cards sit at the left, so the track starts after them.
+  const side = RBE.band && !$('#bandHud').hidden ? Math.min(158, W * 0.36 + 8) : 0;
+  const w = W - insets.l - insets.r - 24 - side, h = clamp(H * 0.5, 210, 460), y = clamp((H - h) / 2 - 40, insets.t + 66, H - h - 120);
+  const R = { x:insets.l + 12 + side, y, w, h };
   const L = voxRender(g, R, V, st, now);
   // rating popup over the track
   if (V.pop){
@@ -8504,6 +8563,304 @@ function lbDraw(now){
   const pg = Math.floor(clamp(st / LB.end, 0, 1) * 500) / 5;
   if (pg !== RBE.prog){ RBE.prog = pg; hudProg.style.width = pg + '%'; }
 }
+
+/* ---------- online bands on the website copy ----------
+   On claude.ai, bands meet in the page's shared room. The website copy (GitHub Pages, or a saved file) has no
+   room, so bandmates' browsers connect to each other directly over WebRTC, using PeerJS's free public server
+   only to find each other. Each band has a hub: the browser holding the band's address ("stagelight-v1-r-CODE").
+   Everyone else connects to the hub, and the hub passes each player's presence on to the rest, so the band code
+   sees the same peers and presence it gets from the claude.ai room. If the hub leaves, the others race to take
+   over the address and reconnect. A song a bandmate doesn't have goes straight from a bandmate who does, in
+   pieces, over the same connections. Bands here are private: there's no public list, you join with the code. */
+const P2P_SRC = ['https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js', 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js'];
+const P2P_PREFIX = 'stagelight-v1-';
+const P2P_CH = 15000, P2P_BATCH = 24;
+const P2P = { loadP:null, pack:null, fetches:new Map() };
+const p2pOn = () => !!(BAND.p2p && RBB.br && RBB.br.p2p);
+function p2pLoad(){
+  if (window.Peer) return Promise.resolve(true);
+  if (P2P.loadP) return P2P.loadP;
+  P2P.loadP = (async () => {
+    for (const src of P2P_SRC){
+      const ok = await new Promise(res => {
+        const s = document.createElement('script');
+        s.src = src; s.async = true;
+        const t = setTimeout(() => res(false), 15000);
+        s.onload = () => { clearTimeout(t); res(typeof window.Peer === 'function'); };
+        s.onerror = () => { clearTimeout(t); s.remove(); res(false); };
+        document.head.appendChild(s);
+      });
+      if (ok) return true;
+    }
+    P2P.loadP = null;
+    return false;
+  })();
+  return P2P.loadP;
+}
+// The website has no shared lobby: this stands in for it, holding only you.
+function p2pLobby(){
+  const me = { peer:'me', by:null, isMe:true, sameTab:true, kind:'viewer', guest:false, presence:{}, updatedAt:Date.now() };
+  const fns = new Set();
+  const tell = (joined) => fns.forEach(fn => { try { fn({ peers:[me], joined:joined ? [me] : [], left:[], updated:[me] }); } catch (e){ console.warn(e); } });
+  return {
+    p2p:true,
+    connected:() => true,
+    onConnection(){ return () => {}; },
+    presence(patch){ for (const k in patch){ if (patch[k] === null) delete me.presence[k]; else me.presence[k] = patch[k]; } me.updatedAt = Date.now(); setTimeout(() => tell(false), 0); return Promise.resolve(); },
+    onPeers(fn){ fns.add(fn); setTimeout(() => { if (fns.has(fn)) fn({ peers:[me], joined:[me], left:[], updated:[me] }); }, 0); return () => fns.delete(fn); }
+  };
+}
+const p2pObj = v => v && typeof v === 'object' && !Array.isArray(v) && !(v instanceof ArrayBuffer) && !ArrayBuffer.isView(v);
+const p2pId = v => typeof v === 'string' && /^p[0-9a-f]{16}$/.test(v);
+// A band over direct connections, shaped like the room the band code already uses.
+function p2pBand(code, key){
+  const PeerC = window.Peer;
+  const hubId = P2P_PREFIX + key + '-' + String(code).toLowerCase();
+  const me = 'p' + rbXid();
+  const R = { live:true, peer:null, hub:false, up:null, peers:new Map(), mine:{}, sent:'', fns:[], errs:[], msgs:new Set(), prev:new Set(), heard:0, dirty:0, hold:0, ready:false, ever:false, fails:0, swapping:false, tick:0 };
+  R.peers.set(me, { p:{}, at:Date.now() });
+  const send = (c, m) => { try { if (c && c.open) c.send(m); } catch (e){ console.warn('p2p send', e); } };
+  const toAll = (m, except) => { for (const x of R.peers.values()) if (x.c && x.c !== except) send(x.c, m); };
+  const peerOf = (id, x) => ({ peer:id, by:null, isMe:id === me, sameTab:id === me, kind:'viewer', guest:false, presence:x.p, updatedAt:x.at });
+  // Tell the band code who's here, batched, and held back while a new hub settles in.
+  function deliver(){
+    R.dirty = 0;
+    if (!R.live || !R.ready) return;
+    const wait = R.hold - Date.now();
+    if (wait > 0){ R.dirty = setTimeout(deliver, wait + 20); return; }
+    const peers = [...R.peers].map(([id, x]) => peerOf(id, x)), now = new Set(peers.map(p => p.peer));
+    const joined = peers.filter(p => !R.prev.has(p.peer)), left = [...R.prev].filter(k => !now.has(k)).map(k => ({ peer:k }));
+    R.prev = now;
+    const ch = { peers, joined, left, updated:peers };
+    R.fns.slice().forEach(fn => { try { fn(ch); } catch (e){ console.warn(e); } });
+  }
+  const changed = () => { if (R.live && !R.dirty) R.dirty = setTimeout(deliver, 40); };
+  const onMsg = (from, m) => { if (p2pObj(m)) R.msgs.forEach(fn => { try { fn(from, m); } catch (e){ console.warn(e); } }); };
+  function fail(why){
+    if (!R.live) return;
+    R.live = false; clearInterval(R.tick); clearTimeout(R.dirty);
+    try { if (R.peer) R.peer.destroy(); } catch (e){}
+    BAND.err = 'p2p ' + (why || 'lost');
+    R.errs.slice().forEach(fn => { try { fn({ code:why || 'p2p' }); } catch (e){} });
+  }
+  function retry(why){
+    if (!R.live) return;
+    R.fails++;
+    // Can't reach the PeerJS server at all, or kept failing to connect: give up and let the band code say so.
+    if (R.fails > 8 || (!R.ever && R.fails > 3 && /network|server|socket|browser|ssl/.test(why || ''))) return fail(why);
+    setTimeout(start, 400 + Math.random() * 700 * R.fails);
+  }
+  /* the hub: holds the band's address and passes presence and messages around */
+  function hubData(c, m){
+    if (!p2pObj(m)) return;
+    const id = c.__id, x = id ? R.peers.get(id) : null;
+    if (x) x.heard = Date.now();
+    if (m.t === 'hi'){
+      if (!p2pId(m.id) || m.id === me || [...R.peers.values()].filter(y => y.c).length >= 8){ try { c.close(); } catch (e){} return; }
+      const old = R.peers.get(m.id); if (old && old.c && old.c !== c){ old.c.__id = null; try { old.c.close(); } catch (e){} }
+      c.__id = m.id;
+      const p = p2pObj(m.p) ? m.p : {}, at = Date.now();
+      R.peers.set(m.id, { p, at, c, heard:at });
+      send(c, { t:'snap', list:[...R.peers].filter(([k]) => k !== m.id).map(([k, y]) => ({ id:k, p:y.p })) });
+      toAll({ t:'u', id:m.id, p }, c);
+      changed();
+    } else if (!x) return;
+    else if (m.t === 'p'){ if (!p2pObj(m.p)) return; x.p = m.p; x.at = Date.now(); toAll({ t:'u', id, p:m.p }, c); changed(); }
+    else if (m.t === 'to'){ if (m.to === me) onMsg(id, m.m); else { const y = R.peers.get(m.to); if (y && y.c) send(y.c, { t:'m', from:id, m:m.m }); } }
+    else if (m.t === 'bye') hubDrop(c);
+  }
+  function hubDrop(c){
+    const id = c.__id; c.__id = null;
+    try { c.close(); } catch (e){}
+    const x = id && R.peers.get(id);
+    if (x && x.c === c){ R.peers.delete(id); toAll({ t:'gone', id }); changed(); }
+  }
+  function beHub(peer){
+    R.hub = true; R.up = null; R.ready = true; R.ever = true; R.fails = 0;
+    // Everyone else reconnects to this hub; until they have, they're not here.
+    const mine = R.peers.get(me); R.peers.clear(); R.peers.set(me, mine);
+    if (R.swapping){ R.hold = Date.now() + 3200; R.swapping = false; }
+    peer.on('connection', c => {
+      c.on('data', m => { if (R.peer === peer) hubData(c, m); });
+      c.on('close', () => { if (R.peer === peer) hubDrop(c); });
+      c.on('error', () => { if (R.peer === peer) hubDrop(c); });
+    });
+    peer.on('disconnected', () => setTimeout(() => { try { if (R.live && R.peer === peer && !peer.destroyed && peer.disconnected) peer.reconnect(); } catch (e){} }, 1500));
+    changed();
+  }
+  /* a member: connects to the hub */
+  function upData(m){
+    if (!p2pObj(m)) return;
+    R.heard = Date.now();
+    if (m.t === 'snap'){
+      const mine = R.peers.get(me); R.peers.clear(); R.peers.set(me, mine);
+      (Array.isArray(m.list) ? m.list : []).forEach(y => { if (p2pObj(y) && p2pId(y.id) && y.id !== me) R.peers.set(y.id, { p:p2pObj(y.p) ? y.p : {}, at:Date.now() }); });
+      R.ready = true; R.ever = true; R.fails = 0;
+      changed();
+    } else if (m.t === 'u'){ if (p2pId(m.id) && m.id !== me && p2pObj(m.p)){ R.peers.set(m.id, { p:m.p, at:Date.now() }); changed(); } }
+    else if (m.t === 'gone'){ if (m.id !== me && R.peers.delete(m.id)) changed(); }
+    else if (m.t === 'm') onMsg(m.from, m.m);
+  }
+  function hubLost(){
+    if (!R.live || R.swapping) return;
+    R.swapping = true; R.up = null; R.hold = Date.now() + 60000;   // say nothing about who's here until the band has a hub again
+    const old = R.peer; R.peer = null;
+    try { if (old) old.destroy(); } catch (e){}
+    // A short random wait, so bandmates don't all grab the address at once.
+    setTimeout(start, 250 + Math.random() * 1200);
+  }
+  function member(){
+    if (!R.live) return;
+    let peer;
+    try { peer = new PeerC({ debug:0 }); } catch (e){ return fail('nopeer'); }
+    R.peer = peer; R.hub = false;
+    let opened = false;
+    const stuck = setTimeout(() => { if (R.peer === peer && !opened){ try { peer.destroy(); } catch (e){} R.peer = null; retry('timeout'); } }, 12000);
+    peer.on('open', () => {
+      if (R.peer !== peer) return;
+      const c = peer.connect(hubId, { reliable:true });
+      R.up = c;
+      c.on('open', () => {
+        if (R.up !== c) return;
+        opened = true; clearTimeout(stuck); R.heard = Date.now();
+        if (R.swapping){ R.hold = Date.now() + 3200; R.swapping = false; }
+        send(c, { t:'hi', id:me, p:R.peers.get(me).p });
+      });
+      c.on('data', m => { if (R.up === c) upData(m); });
+      c.on('close', () => { if (R.up === c) hubLost(); });
+      c.on('error', () => { if (R.up === c) hubLost(); });
+    });
+    peer.on('error', err => {
+      if (R.peer !== peer || opened) return;
+      clearTimeout(stuck);
+      try { peer.destroy(); } catch (e){}
+      R.peer = null;
+      retry(err && err.type);
+    });
+  }
+  function start(){
+    if (!R.live) return;
+    // Try to be the hub first; if the address is taken, the hub is already there, so join it.
+    let peer;
+    try { peer = new PeerC(hubId, { debug:0 }); } catch (e){ return fail('nopeer'); }
+    R.peer = peer;
+    let done = false;
+    peer.on('open', () => { if (R.peer !== peer || done) return; done = true; beHub(peer); });
+    peer.on('error', err => {
+      if (R.peer !== peer) return;
+      const t = err && err.type;
+      if (done) return;   // a hub keeps its bandmates' connections when the PeerJS server blips
+      done = true;
+      try { peer.destroy(); } catch (e){}
+      R.peer = null;
+      if (t === 'unavailable-id') member(); else retry(t);
+    });
+  }
+  R.tick = setInterval(() => {
+    if (!R.live) return;
+    const now = Date.now();
+    if (R.hub){
+      toAll({ t:'hb' });
+      for (const x of [...R.peers.values()]) if (x.c && now - (x.heard || 0) > 10000) hubDrop(x.c);
+    } else if (R.up && R.up.open){
+      send(R.up, { t:'hb' });
+      if (now - R.heard > 10000) hubLost();
+    }
+  }, 2000);
+  start();
+  return {
+    name:'band:' + code, p2p:true, me,
+    presence(patch){
+      if (!R.live) return Promise.resolve();
+      for (const k in patch){ if (patch[k] === null) delete R.mine[k]; else R.mine[k] = patch[k]; }
+      R.mine.code = code;
+      const js = JSON.stringify(R.mine);
+      if (js === R.sent) return Promise.resolve();
+      R.sent = js;
+      const p = JSON.parse(js);
+      R.peers.set(me, { p, at:Date.now() });
+      if (R.hub) toAll({ t:'u', id:me, p });
+      else if (R.up && R.up.open) send(R.up, { t:'p', p });
+      changed();
+      return Promise.resolve();
+    },
+    onPeers(fn, onErr){
+      R.fns.push(fn); if (onErr) R.errs.push(onErr);
+      if (R.ready) changed();
+      return () => { R.fns = R.fns.filter(f => f !== fn); R.errs = R.errs.filter(f => f !== onErr); };
+    },
+    // Messages to one bandmate (song pieces), passed along by the hub.
+    sendTo(to, m){
+      if (!R.live) return false;
+      if (to === me){ setTimeout(() => onMsg(me, m), 0); return true; }
+      if (R.hub){ const y = R.peers.get(to); if (!y || !y.c) return false; send(y.c, { t:'m', from:me, m }); return true; }
+      if (!R.up || !R.up.open) return false;
+      send(R.up, { t:'to', to, m }); return true;
+    },
+    onMsg(fn){ R.msgs.add(fn); return () => R.msgs.delete(fn); },
+    leave(){
+      if (!R.live) return Promise.resolve();
+      R.live = false; clearInterval(R.tick); clearTimeout(R.dirty);
+      if (R.hub) toAll({ t:'gone', id:me }); else if (R.up) send(R.up, { t:'bye' });
+      const peer = R.peer; R.peer = null;
+      // A moment for the goodbye to go out before the connections close.
+      setTimeout(() => { try { if (peer) peer.destroy(); } catch (e){} }, 200);
+      return Promise.resolve();
+    }
+  };
+}
+/* Songs, straight from a bandmate: the sender keeps the packed song in memory while anyone needs it and answers
+   requests for its pieces; the receiver asks for a couple of batches at a time and checks the whole at the end. */
+function p2pServe(from, m){
+  const br = RBB.br; if (!br || !br.sendTo || typeof m.sha !== 'string') return;
+  if (m.t === 'xget'){
+    const pk = P2P.pack;
+    if (!pk || pk.sha !== m.sha){ br.sendTo(from, { t:'xno', sha:m.sha }); return; }
+    const n = Math.ceil(pk.u8.length / P2P_CH), k0 = clamp(m.k | 0, 0, n), k1 = Math.min(n, k0 + clamp(m.n | 0, 1, 64));
+    for (let k = k0; k < k1; k++){ const a = k * P2P_CH; br.sendTo(from, { t:'xd', sha:pk.sha, k, d:pk.u8.slice(a, Math.min(pk.u8.length, a + P2P_CH)).buffer }); }
+  } else if (m.t === 'xd' || m.t === 'xno'){ const f = P2P.fetches.get(m.sha); if (f) f(from, m); }
+}
+function p2pFetch(from, x, onPct){
+  const br = RBB.br;
+  return new Promise((resolve, reject) => {
+    if (!br || !br.sendTo) return reject(Object.assign(new Error('net'), { why:'net' }));
+    const n = Math.max(1, Math.ceil(x.size / P2P_CH)), parts = new Array(n);
+    let got = 0, asked = 0, last = Date.now(), stalls = 0, done = false;
+    const ask = () => { const k = asked, c = Math.min(P2P_BATCH, n - k); if (c <= 0) return; asked += c; br.sendTo(from, { t:'xget', sha:x.sha, k, n:c }); };
+    const more = () => { while (asked < n && asked - got <= P2P_BATCH) ask(); };
+    const finish = err => {
+      if (done) return; done = true;
+      clearInterval(watch); P2P.fetches.delete(x.sha);
+      if (err) return reject(err);
+      const u8 = new Uint8Array(parts.reduce((a, p) => a + p.length, 0));
+      let o = 0; parts.forEach(p => { u8.set(p, o); o += p.length; });
+      parts.length = 0;
+      rbSha(u8).then(h => { if (h !== x.sha) reject(Object.assign(new Error('corrupt'), { why:'corrupt' })); else { if (onPct) onPct(1); resolve(u8); } }, reject);
+    };
+    P2P.fetches.set(x.sha, (who, m) => {
+      if (who !== from || done) return;
+      if (m.t === 'xno') return finish(Object.assign(new Error('gone'), { why:'gone' }));
+      const k = m.k | 0, d = m.d instanceof ArrayBuffer ? new Uint8Array(m.d) : ArrayBuffer.isView(m.d) ? new Uint8Array(m.d.buffer, m.d.byteOffset, m.d.byteLength) : null;
+      if (!d || k < 0 || k >= n || parts[k]) return;
+      parts[k] = d; got++; last = Date.now(); stalls = 0;
+      if (onPct) onPct(Math.min(0.99, got / n));
+      if (got === n) finish(); else more();
+    });
+    const watch = setInterval(() => {
+      if (done) return;
+      if (RBB.br !== br || !rbbMembers().some(p => p.peer === from)) return finish(Object.assign(new Error('gone'), { why:'gone' }));
+      if (Date.now() - last < 10000) return;
+      // Nothing for a while (the band's hub may have changed): ask again from the first missing piece.
+      if (++stalls > 4) return finish(Object.assign(new Error('net'), { why:'net' }));
+      last = Date.now();
+      let k = 0; while (k < n && parts[k]) k++;
+      asked = k; more();
+    }, 2000);
+    more();
+  });
+}
+// Who can send a song to a bandmate: on claude.ai, someone who can write to Stagelight's storage; on the website, anyone.
+const rbCanSend = () => RBLIB.canSend || p2pOn();
 
 /* ---------- update loop ---------- */
 function update(dt, now){
@@ -10256,6 +10613,15 @@ async function bandInit(force){
   BAND.tried = true; BAND.done = false; BAND.why = 'nohost'; BAND.diag = 'not on claude.ai';
   if (force && BAND.view === 'find' && !tourEl.hidden) viewBand();
   const C = window.claude;
+  if (!C || typeof C.use !== 'function'){
+    // The website copy: bands connect directly, browser to browser.
+    BAND.p2p = true; BAND.diag = 'website · direct connections';
+    if (await p2pLoad()){ BAND.room = p2pLobby(); BAND.conn = true; BAND.ok = true; BAND.why = ''; }
+    else BAND.why = 'p2pload';
+    BAND.done = true;
+    if (BAND.view === 'find' && !tourEl.hidden) viewBand();
+    return;
+  }
   try {
     if (C && typeof C.use === 'function'){
       const get = () => Promise.all([C.use('room').catch(() => null), C.use('user').catch(() => null)]);
@@ -10345,14 +10711,15 @@ function viewBand(){
     <p class="t-sub">Tour together online, each on your own phone. Everyone plays the same gigs, and every gig is a band challenge you can only beat as a team: split the song into parts, nail unison phrases, fire Overdrive together, keep one shared streak, or feed your frontman. If your life runs out you're down, and any bandmate's Overdrive brings you back. A gig fails if the band misses the challenge or everyone is down at once. You each keep your own ${b ? 'picks and guitars' : 'cash and gear'}.</p>
     ${BAND.ok ? `<label class="field"><span class="label">Your name in the band</span><input type="text" id="bNick" maxlength="20" autocomplete="off" spellcheck="false" value="${escH(bandNickNow())}"></label>
       <button type="button" class="btn primary" id="bCreate">Start a band</button>
-      <div><span class="label">Bands looking for players</span><div class="bfind" id="bandFind"></div><p class="fine" id="bandOnline"></p><p class="fine" id="bandDiag"></p></div>
+      ${BAND.p2p ? '' : '<div><span class="label">Bands looking for players</span><div class="bfind" id="bandFind"></div><p class="fine" id="bandOnline"></p><p class="fine" id="bandDiag"></p></div>'}
       <div class="bjoin"><input type="text" id="bCode" maxlength="4" placeholder="CODE" autocomplete="off" spellcheck="false" autocapitalize="characters" aria-label="Band code"><button type="button" class="btn" id="bJoin">Join with code</button></div>
-      <p class="fine">Friends need access to Stagelight first. Share it with them from the Share menu at the top of this page.</p>`
+      ${BAND.p2p ? '<p class="fine">Bands on this website are private: there’s no public list. Friends open this same page and join with your band’s code. You connect to each other directly.</p>' : '<p class="fine">Friends need access to Stagelight first. Share it with them from the Share menu at the top of this page.</p>'}`
     : `<p class="t-sub warn">${!BAND.done ? 'Connecting…'
         : BAND.why === 'ask' ? 'Co-op needs your OK to connect you with other players on Stagelight.'
         : BAND.why === 'denied' ? 'Co-op is switched off for you on Stagelight. Turn it back on in the Permissions panel.'
         : BAND.why === 'signin' ? 'Co-op needs you signed in to Claude and invited to Stagelight by email. Ask whoever shared it to invite your email from the Share menu (a public link can’t join bands), then sign in with that email and open the invite.'
         : BAND.why === 'noroom' ? 'You’re signed in, but this copy can’t connect to bands. Open Stagelight from your email invite instead of a public link, then reload the page.'
+        : BAND.why === 'p2pload' ? 'Online play couldn’t load its connection library. Check your internet connection, then reload the page.'
         : 'Co-op only works when Stagelight is opened on claude.ai. Open it from the link you were invited with.'}</p>
       ${BAND.done && BAND.why === 'ask' ? '<button type="button" class="btn primary" id="bAllow">Allow co-op</button>' : ''}
       ${BAND.done && BAND.why === 'denied' ? '<button type="button" class="btn primary" id="bPerms">Open permissions</button>' : ''}
@@ -10393,6 +10760,7 @@ function bandFindList(){
 /* A band lives inside the shared lobby room: each player's band state rides in their lobby presence under "b",
    and bandmates are the players whose "b" carries the same code. This looks like a room to the rest of the code. */
 function lobbyBand(code, key = 'b'){
+  if (BAND.p2p) return p2pBand(code, key);
   const room = BAND.room, mine = {};
   let prev = new Set(), live = true, sent = '';
   const pick = peers => peers.filter(p => p.presence && p.presence[key] && p.presence[key].code === code).map(p => ({ peer:p.peer, by:p.by, isMe:p.isMe, sameTab:p.sameTab, kind:p.kind, guest:p.guest, updatedAt:p.updatedAt, presence:p.presence[key] }));
@@ -10444,7 +10812,7 @@ async function bandJoin(code, asHost){
     const n = BAND.lobbyPeers.length, open = BAND.lobbyPeers.filter(p => !p.sameTab && p.presence && p.presence.band).map(p => p.presence.band.code);
     toast(`No band found with code ${code}. Stagelight can see ${n} player${n === 1 ? '' : 's'} online here${open.length ? ` and band${open.length === 1 ? '' : 's'} ${open.join(', ')}` : ''}.`);
     bandLeave().then(viewBand);
-  }, 7000);
+  }, BAND.p2p ? 15000 : 7000);
 }
 async function bandLeave(){
   clearInterval(BAND.timer); BAND.timer = 0;
