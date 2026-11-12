@@ -4245,7 +4245,7 @@ function rbView(view, msg){
     const tab = RBLOC.tab === 'lib' ? 'lib' : 'mine', good = msg && /library now|out of the library|^Removed|^Found \d/.test(msg);
     const pick = RBE.pickFor;
     rbBody.innerHTML = `<p class="eyebrow">${pick === 'lb' ? 'Local band' : pick ? 'Showcase' : 'Rock Band charts · beta'}</p><h2 class="card-title">${pick === 'lb' ? 'Pick a song for the band' : pick ? 'Pick a song to showcase' : 'Play a Rock Band song'}</h2>
-      ${!window.claude ? '<p class="sc-off">You’re on the offline copy: the mic works here, but the song library, uploads and online bands only work in the claude.ai version.</p>' : ''}
+      ${!window.claude ? '<p class="sc-off">This copy isn’t running on claude.ai: the mic and MIDI drum kits work here, but the song library, uploads and online bands only work in the claude.ai version.</p>' : ''}
       ${pick === 'lb' ? '<div class="sc-pick"><span>Everyone plays on this computer: vocals with up to 3 mics, and guitar, drums, bass and keys on their own controllers.</span><div class="row"><button type="button" class="btn small" id="scCancel">Cancel</button></div></div>'
         : pick ? '<div class="sc-pick"><span>Every part plays itself with the song, so you can check the chart.</span><div class="row"><button type="button" class="btn small" id="scSendCon">Send a CON instead</button><button type="button" class="btn small" id="scCancel">Cancel</button></div></div>' : ''}
       ${msg ? `<p class="${good ? 'rb-ok' : 'rb-err'}" role="alert">${rbEsc(msg)}</p>` : ''}
@@ -4310,7 +4310,7 @@ function rbView(view, msg){
       ${RBE.band ? '' : '<div class="row"><button type="button" class="btn small" id="rbShowS">Showcase every part</button><button type="button" class="btn small" id="rbLbS">Play as a local band</button></div>'}
       ${ld ? `<div class="row rb-libact">${RBLIB.cached.has(ld.sha) ? '<button type="button" class="btn small" id="rbForget">Remove the download from this device</button>' : ''}${RBLIB.canAdd ? '<button type="button" class="btn small danger" id="rbRemove">Remove from the library</button>' : ''}</div>`
         : !s.lib && RBLIB.canAdd && (s.src || s.folder) ? `<div class="row rb-libact">${rbInLib(s) ? '<span class="rb-tag ok">In the song library</span>' : '<button type="button" class="btn small" id="rbToLib">Add to the song library</button>'}</div>`
-        : !s.lib && RBLIB.err === 'nohost' ? '<p class="fine">This is the offline copy. Adding songs to the shared song library works in the claude.ai version.</p>' : ''}`;
+        : !s.lib && RBLIB.err === 'nohost' ? '<p class="fine">This copy isn’t running on claude.ai, so adding songs to the shared song library has to be done in the claude.ai version.</p>' : ''}`;
     rbBody.querySelectorAll('[data-d]').forEach(b => b.addEventListener('click', () => { RBE.diff = b.dataset.d; rbView('setup'); }));
     rbBody.querySelectorAll('[data-p]').forEach(b => b.addEventListener('click', () => { if (RBE.part === b.dataset.p) return; RBE.part = b.dataset.p; store.set('rbPart', RBE.part); RBE.charts = rbChartsFor(RBE.midi, RBE.part, s.hopo); rbView('setup'); }));
     const tl = $('#rbToLib'); if (tl) tl.addEventListener('click', () => { uiTick(); rbLibAdd([s], null, 'setup'); });
@@ -7413,7 +7413,7 @@ function voxSetupHTML(msg){
     <div class="row"><button type="button" class="btn small" id="rbShowS">Showcase every part</button><button type="button" class="btn small" id="rbLbS">Play as a local band</button></div>
     ${ld ? `<div class="row rb-libact">${RBLIB.cached.has(ld.sha) ? '<button type="button" class="btn small" id="rbForget">Remove the download from this device</button>' : ''}</div>`
       : !s.lib && RBLIB.canAdd && (s.src || s.folder) ? `<div class="row rb-libact">${rbInLib(s) ? '<span class="rb-tag ok">In the song library</span>' : '<button type="button" class="btn small" id="rbToLib">Add to the song library</button>'}</div>`
-      : !s.lib && RBLIB.err === 'nohost' ? '<p class="fine">This is the offline copy. Adding songs to the shared song library works in the claude.ai version.</p>' : ''}`;
+      : !s.lib && RBLIB.err === 'nohost' ? '<p class="fine">This copy isn’t running on claude.ai, so adding songs to the shared song library has to be done in the claude.ai version.</p>' : ''}`;
 }
 // The microphones: turning them on, a device and channel per singer, live levels and notes, and the mic delay.
 function voxMicsHTML(harm, n, bot, countSeg){
