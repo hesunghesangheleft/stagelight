@@ -989,9 +989,9 @@ html.calm .od.ready{animation:none}html.calm #hudMult.bump{animation:none}html.c
         <li><i style="background:var(--rose)"></i><span>Tap a lane as its gem reaches the line. Two thumbs work best. Easy uses three lanes.</span></li>
         <li><i style="background:var(--teal)"></i><span>Hold sustains until the tail runs out. Miss a note and the lead cuts out until you hit again.</span></li>
         <li><i style="background:var(--green)"></i><span>Whammy a held sustain by wiggling that finger side to side (or moving the mouse). The tail’s twist swings wider the more you wiggle, and whammying an Overdrive sustain tops up your meter.</span></li>
-        <li><i style="background:var(--ink)"></i><span>Your score and stars sit right by the highway. Each star fills from the bottom up as you earn it, and after five they fill again in gold.</span></li>
-        <li><i style="background:var(--tungsten)"></i><span>Clear every white gem in a phrase to charge Overdrive. The meter sits under the strikeline: when it glows, flick a finger up the screen (or tap Overdrive) for double points.</span></li>
-        <li><i style="background:var(--amber)"></i><span>Arrow gems are lifts. Lift your finger off the lane as one crosses the line, or tap it again. Fast repeats in one lane alternate tap, lift, tap, lift.</span></li>
+        <li><i style="background:var(--ink)"></i><span>Your score and stars sit right by the highway. Each star fills from the bottom up as you earn it, and after five they fill again in gold. Five stars takes nearly a full combo; gold takes a full combo with Overdrive used well. Solo bonuses add to your score but not your stars.</span></li>
+        <li><i style="background:var(--tungsten)"></i><span>Clear every white gem in a phrase to charge Overdrive. The meter sits under the strikeline: when it glows, flick a finger up the screen (or tap Overdrive) for double points. Gold runs up the rails while it lasts.</span></li>
+        <li><i style="background:var(--amber)"></i><span>Arrow gems are lifts, the up-strums in fast strumming: lift your finger off the lane as one crosses the line, or tap it again. Fast repeats in one lane alternate tap, lift, tap, lift.</span></li>
         <li><i style="background:var(--iris)"></i><span>The highway turns blue for a solo. Every solo note you hit adds a bonus, and a perfect solo pays half again.</span></li>
         <li><i style="background:#3fa9ff"></i><span>Every 10 notes in a row raises your multiplier, shown in the ring under the strikeline. At the top multiplier the rails light up electric blue.</span></li>
       </ul>
@@ -1550,8 +1550,10 @@ function composeSong(S){
   return { S, spb, st, barLen, ev, beats, sections, odRanges, totalBars, length:totalBars * barLen };
 }
 
+// Lifts belong to fast repeated notes (see liftSpam and flowLanes), the way an up-strum does, not to slow ones at the
+// ends of phrases, so this no longer adds any.
 function addLifts(notes, spb, diff){
-  if (diff !== 'expert' && diff !== 'hard') return notes;
+  if (notes) return notes;
   const times = [], cnt = new Map();
   for (const n of notes){ if (!cnt.has(n.t)){ cnt.set(n.t, 0); times.push(n.t); } cnt.set(n.t, cnt.get(n.t) + 1); }
   const idxOf = new Map(times.map((t, i) => [t, i]));
@@ -1590,12 +1592,15 @@ function liftSpam(notes){
   notes.forEach(n => { delete n._run; });
   return notes;
 }
+// a full combo's average multiplier, from each note's (or chord's) points in the order they're played
+function fcMult(units, cap, step){ let a = 0, s = 0; for (let i = 0; i < units.length; i++){ a += units[i] * Math.min(cap, 1 + Math.floor(i / step)); s += units[i]; } return s > 0 ? a / s : 1; }
 function finishChart(c){
   c.solos = c.solos || [];
   liftSpam(c.notes);
   let pot = 0, last = 0;
   for (const n of c.notes){ pot += (c.ptsPer || 50) + (n.end - n.t) * c.bps * 25; if (n.end > last) last = n.end; }
   c.potential = Math.max(1, pot); c.lastNote = last;
+  c.fcm = fcMult(c.notes.map(n => (c.ptsPer || 50) + (n.end - n.t) * c.bps * 25), 4, 10);
   return c;
 }
 
@@ -2062,7 +2067,12 @@ const FONT_D = '"Big Shoulders Display","Barlow Condensed","Arial Narrow",Impact
 const FONT_B = '"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
 const WIN = { perfect:0.045, great:0.09, good:0.14 };
 const BASE = { perfect:50, great:40, good:25 };
-const STAR_T = [0.21, 0.46, 0.77, 1.85, 3.08], GOLD_T = 4.2;
+// Stars are measured against the chart's own full combo without Overdrive, which is worth STAR_FC on this scale on any
+// chart, at any length, on any instrument: bass's ×6 multiplier and a short song's slow start don't change what a star takes.
+// Five stars takes nearly all of a full combo; gold takes a full combo with Overdrive put to good use. Solo and Big Rock
+// Ending bonuses add to your score but not to your stars, as in Rock Band.
+const STAR_T = [0.3, 0.8, 1.6, 2.6, 3.4], GOLD_T = 4.25, STAR_FC = 3.9;
+const starOf = (pts, base, fcm) => pts / Math.max(1, base * (fcm || STAR_FC) / STAR_FC);
 const DIFF_LABEL = { easy:'Easy', medium:'Medium', hard:'Hard', expert:'Expert' };
 const NEUTRAL = { shield:0, scoreMul:1, perfMul:1, odX:2, net:false, jar:false, step:10, cap:4, odGain:1, odDrainMul:1, susMul:1, soloMul:1, lifeMax:100, healMul:1, drainMul:1, win:0, startOD:0, cashMul:1, keep:0, perfWin:0, secondWind:false };
 const KEYS = { 3:['d','f','j'], 4:['d','f','j','k'], 5:['a','s','d','f','g'] };
@@ -2272,7 +2282,7 @@ function layout(L, menu, colors){
     else { const rv = revealEl.getBoundingClientRect(); hitY = clamp(rv.bottom + menuEl.scrollTop - 14, H * 0.18, H * 0.62); }
     topY = -H * 0.04;
   } else {
-    hitY = H - Math.max(H * 0.16, insets.b + 92);
+    hitY = strikeY();
     // The highway's far end: "Tall" reaches up under the score, "Medium" and "Short" stop lower so it reads flatter.
     const full = Math.max(insets.t + 98, H * 0.12), wide = W > H * 1.15;
     const f = { short:wide ? 0.8 : 0.58, medium:wide ? 0.93 : 0.74, tall:1 }[settings.hwLen] || 0.74;
@@ -2283,6 +2293,9 @@ function layout(L, menu, colors){
   return { L, bw, cx, left:cx - bw / 2, laneW:bw / L, hitY, topY, topScale, K:1 / topScale - 1,
     vpY:(topY - topScale * hitY) / (1 - topScale), trussY:menu ? insets.t + 10 : Math.max(insets.t + 72, topY - 22), menu, colors:colors || paletteFor(null) };
 }
+// The strikeline sits at the same height in every mode (solo, Gamepad, bands, Showcase, Tour), a quarter of the way up
+// the screen, so late notes stay in sight under it and your eyes aren't pulled down to the bottom edge.
+function strikeY(){ return H - Math.max(H * 0.25, insets.b + 150); }
 const sAt = (geo, d) => 1 / (1 + geo.K * Math.max(-0.3, d));
 const yAt = (geo, s) => geo.vpY + (geo.hitY - geo.vpY) * s;
 const xAt = (geo, u, s) => geo.cx + (geo.left + u * geo.laneW - geo.cx) * s;
@@ -2601,6 +2614,7 @@ let hc = { score:-1, mult:0, ratio:-1, od:-1, prog:-1 };
 let menuDim = 0;
 
 const mult = () => Math.min(G.mods.cap, 1 + Math.floor(G.combo / G.mods.step)) * odStack(G.odActive, G.mods.odX, G.bandOd);
+const gStarRatio = scaled => G.chart ? starOf(G.score - G.bonus, G.chart.potential * (scaled === false ? 1 : G.potScale || 1), G.chart.fcm) : 0;
 function muteLead(){ if (!G.leadGain || G.leadMuted || !actx) return; G.leadMuted = true; G.leadGain.gain.cancelScheduledValues(actx.currentTime); G.leadGain.gain.setTargetAtTime(0.06, actx.currentTime, 0.015); }
 function unmuteLead(){ if (!G.leadGain || !actx) return; G.leadMuted = false; G.leadGain.gain.cancelScheduledValues(actx.currentTime); G.leadGain.gain.setTargetAtTime(leadLevel(), actx.currentTime, 0.01); }
 
@@ -3155,7 +3169,8 @@ function rbChart(midi, part, diff, hopoTicks){
   let endTick = 0; midi.tracks.forEach(t => t.notes.forEach(n => { if (n.tick + n.len > endTick) endTick = n.tick + n.len; }));
   const ev = midi.tracks.find(t => t.name.trim().toUpperCase() === 'EVENTS'), endEv = ev && (ev.texts || []).find(x => /\[end\]/.test(x.text));
   const last = chords[chords.length - 1];
-  return { chords, gems, phrases:phrases.filter(p => p.count), solos:solos.filter(s => s.count), beats:midiBeats(midi, toSec, endTick + div * 4), baseScore,
+  const fcm = fcMult(chords.map(c => 25 * c.n + (c.sus ? 12 * c.n * c.beats : 0)), part === 'bass' ? 6 : 4, 10);
+  return { chords, gems, phrases:phrases.filter(p => p.count), solos:solos.filter(s => s.count), beats:midiBeats(midi, toSec, endTick + div * 4), baseScore, fcm,
     bre:bre ? { t0:toSec(bre[0]), t1:toSec(bre[1]) } : null, rolls,
     end:endEv ? toSec(endEv.tick) : last.end + 2, odIdx:null, diff };
 }
@@ -3940,7 +3955,7 @@ window.addEventListener('gamepaddisconnected', () => { if (RBE.on && RBE.mode ==
 var RBE = { on:false, mode:'off', view:'load', song:null, part:'guitar', diff:'expert', noFail:store.get('rbNoFail', true) };
 const RB_WIN = 0.07, RB_STRUM_GRACE = 0.06;
 function rbReset(chart){
-  Object.assign(RBE, { sp:newSP(), down:false, unison:false, bandOd:0, uniB:null, unisHit:0, unisTotal:0, wh:0, sparkAt:0, odFlash:0, pausePerf:0, chart, chords:chart.chords, gems:chart.gems, phrases:chart.phrases, solos:chart.solos, scan:0, drawFrom:0, score:0, combo:0, best:0, hits:0, misses:0, over:0,
+  Object.assign(RBE, { sp:newSP(), down:false, unison:false, bandOd:0, uniB:null, unisHit:0, unisTotal:0, wh:0, sparkAt:0, odFlash:0, pausePerf:0, chart, chords:chart.chords, gems:chart.gems, phrases:chart.phrases, solos:chart.solos, scan:0, drawFrom:0, score:0, bonus:0, combo:0, best:0, hits:0, misses:0, over:0,
     od:0, odActive:false, rock:0.5, failed:false, hold:null, pend:null, hopoTap:null, hopoTapAt:-9, hopoUsed:true, fretAt:-9, lastHitAt:-9, judg:null, soloMsg:null, st:-1e9, vt:null, maxOn:false, maxAt:0, multAt:0, hudM:0, pressed:[0, 0, 0, 0, 0], mask:0, tapAt:-1, endShown:false, odUsed:0, phrasesHit:0 });
   chart.chords.forEach(c => { c.state = null; c.gems.forEach(g => { g.state = null; g.holding = false; }); });
   if (chart.bre){ chart.bre.pts = 0; chart.bre.done = false; }
@@ -3950,6 +3965,7 @@ function rbReset(chart){
   rbtSetup(chart);
 }
 const rbStep = () => RBE.tm ? RBE.tm.mods.step : 10;
+const rbStarRatio = () => RBE.chart ? starOf(RBE.score - (RBE.bonus || 0), RBE.chart.baseScore, RBE.chart.fcm) : 0;
 const rbMult = () => Math.min(RBE.cap, 1 + Math.floor(RBE.combo / rbStep())) * odStack(RBE.odActive, 2 + (RBE.tm ? RBE.tm.mods.odX - 2 : 0), RBE.bandOd);
 // In a band, your own play moves the band's health meter, so your part of it isn't capped at full or empty.
 const rbCoop = () => !!(RBE.band || RBE.lbp);
@@ -4221,10 +4237,10 @@ function rbFinish(failed){
   if (failed) rbStopAudio(); else { const old = RBE.srcs || []; RBE.srcs = []; setTimeout(() => old.forEach(x => { try { x.stop(); } catch (e){} try { x.disconnect(); } catch (e){} }), 1500); }
   rbStopPolling();
   const C = RBE.chords, total = C.length, hit = C.filter(c => c.state === 'hit').length;
-  const ratio = RBE.score / Math.max(1, RBE.chart.baseScore);
+  const ratio = rbStarRatio();
   const key = rbBestKey(RBE.song, RBE.part, RBE.diff), prevBest = store.get(key, 0);
   if (!failed && RBE.score > prevBest) store.set(key, Math.round(RBE.score));
-  { const r = RBE.score / Math.max(1, RBE.chart.baseScore), sv = failed ? 0 : r >= GOLD_T ? 6 : starCount(r); if (sv > store.get(key + ':s', 0)) store.set(key + ':s', sv); }
+  { const r = ratio, sv = failed ? 0 : r >= GOLD_T ? 6 : starCount(r); if (sv > store.get(key + ':s', 0)) store.set(key + ':s', sv); }
   RBE.result = { failed:!!failed, score:Math.round(RBE.score), ratio, stars:failed ? 0 : starCount(ratio), gold:ratio >= GOLD_T, hit, total, pct:Math.round(hit / Math.max(1, total) * 100), best:RBE.best, over:RBE.over, phrases:`${RBE.phrasesHit} of ${RBE.phrases.length}`, unis:RBE.unisTotal ? `${RBE.unisHit} of ${RBE.unisTotal}` : '', fc:!failed && hit === total, solos:RBE.solos.map(s => Math.round(s.hit / Math.max(1, s.count) * 100)), prevBest, newBest:!failed && RBE.score > prevBest && prevBest > 0 };
   if (RBE.tm){ rbtFinish(failed); return; }
   const band = RBE.band;
@@ -4269,7 +4285,7 @@ function rbUpdate(dt, now){
   }
   if (RBE.odActive){ RBE.od -= dt * rbBps(st) / 32 * (RBE.tm ? RBE.tm.mods.odDrainMul : 1); if (RBE.od <= 0){ RBE.od = 0; RBE.odActive = false; } }
   RBE.solos.forEach(so => {
-    if (!so.done && st > so.t1 + 0.1){ so.done = true; const pct = so.hit / so.count; RBE.score += so.hit * 100 * (pct >= 1 ? 2 : 1) * (RBE.tm ? RBE.tm.mods.soloMul : 1); RBE.soloMsg = { text:pct >= 1 ? 'PERFECT SOLO!' : pct >= 0.9 ? 'AWESOME SOLO!' : pct >= 0.6 ? 'GREAT SOLO' : 'SOLO', sub:`${Math.round(pct * 100)}% · +${fmtNum(so.hit * 100 * (pct >= 1 ? 2 : 1))}`, at:performance.now() }; }
+    if (!so.done && st > so.t1 + 0.1){ so.done = true; const pct = so.hit / so.count, sb = so.hit * 100 * (pct >= 1 ? 2 : 1) * (RBE.tm ? RBE.tm.mods.soloMul : 1); RBE.score += sb; RBE.bonus = (RBE.bonus || 0) + sb; RBE.soloMsg = { text:pct >= 1 ? 'PERFECT SOLO!' : pct >= 0.9 ? 'AWESOME SOLO!' : pct >= 0.6 ? 'GREAT SOLO' : 'SOLO', sub:`${Math.round(pct * 100)}% · +${fmtNum(so.hit * 100 * (pct >= 1 ? 2 : 1))}`, at:performance.now() }; }
   });
   rbUniFrame(st, now);
   if (RBE.band){ if (RBB.br) rbbFrame(now); if (RBB.bh && RBB.bh.fail && RBE.mode === 'play') return rbBandFailed(); }
@@ -4300,16 +4316,16 @@ function rbDraw(now){
   btnOD.classList.toggle('ready', RBE.od >= 0.5 && !RBE.odActive); btnOD.classList.toggle('active', RBE.odActive);
   const vis = sp => sp.t1 > st - look * 0.3 && sp.t0 < st + look;
   const health = RBE.band ? (RBB.bh ? RBB.bh.H : 0.6) : RBE.rock;
-  renderScene({ bre:RBE.chart.bre, rolls:RBE.chart.rolls, breFlash:RBE.breFlash, soloSpans:RBE.solos.filter(vis), uniSpans:RBE.phrases.filter(p => p.uni && vis(p)).map(p => ({ t0:p.t0, t1:p.t1, ok:p.live || !!p.done })), geo:RBE.geo, t:st, look, brutal:tm && tm.tmods.has('brutal') ? 0.06 + (tm.tmods.has('fog') ? tm.hfx.brutalFog : tm.hfx.brutal) * Math.min(1, RBE.combo / 60) : null, fog:tm && tm.tmods.has('fog') ? tm.hfx.fog : 0, notes:RBE.gems, phrases:RBE.phrases, beats:RBE.chart.beats, pressed:RBE.pressed, odActive:RBE.odActive, combo:RBE.combo, judg:RBE.judg, keys:false, drawFrom:RBE.drawFrom, solo:so ? { pct:Math.round(so.hit / so.count * 100) } : null, soloMsg:RBE.soloMsg, danger:health < 0.2 && !rbNoFail(), maxed, maxAt:RBE.maxAt, uniB:RBE.uniB, hud, rb:true, wh:RBE.wh }, now);
+  renderScene({ odAt:odEdge(RBE, RBE.odActive, now), bre:RBE.chart.bre, rolls:RBE.chart.rolls, breFlash:RBE.breFlash, soloSpans:RBE.solos.filter(vis), uniSpans:RBE.phrases.filter(p => p.uni && vis(p)).map(p => ({ t0:p.t0, t1:p.t1, ok:p.live || !!p.done })), geo:RBE.geo, t:st, look, brutal:tm && tm.tmods.has('brutal') ? 0.06 + (tm.tmods.has('fog') ? tm.hfx.brutalFog : tm.hfx.brutal) * Math.min(1, RBE.combo / 60) : null, fog:tm && tm.tmods.has('fog') ? tm.hfx.fog : 0, notes:RBE.gems, phrases:RBE.phrases, beats:RBE.chart.beats, pressed:RBE.pressed, odActive:RBE.odActive, combo:RBE.combo, judg:RBE.judg, keys:false, drawFrom:RBE.drawFrom, solo:so ? { pct:Math.round(so.hit / so.count * 100) } : null, soloMsg:RBE.soloMsg, danger:health < 0.2 && !rbNoFail(), maxed, maxAt:RBE.maxAt, uniB:RBE.uniB, hud, rb:true, wh:RBE.wh }, now);
   rbFretFlames(now);
   if (tm) rbtHudFrame();
   if (RBE.band || !tm) hudLifeSet(health, RBE.band || !rbNoFail());
   // In a band the big number is the band's score; yours sits under it.
   if (RBE.band) scorePanel(RBE.geo, rbbBandScore(), rbbBandRatio(), now, RBE.sp, { label:`BAND · YOU ${fmtNum(Math.round(RBE.score))}` });
-  else scorePanel(RBE.geo, Math.round(RBE.score), RBE.score / Math.max(1, RBE.chart.baseScore), now, RBE.sp);
+  else scorePanel(RBE.geo, Math.round(RBE.score), rbStarRatio(), now, RBE.sp);
   // top HUD
   const sc = Math.round(RBE.score);
-  if (sc !== RBE.hudScore){ RBE.hudScore = sc; $('#hudScore').textContent = fmtNum(sc); setStars($('#hudStars'), RBE.score / Math.max(1, RBE.chart.baseScore)); }
+  if (sc !== RBE.hudScore){ RBE.hudScore = sc; $('#hudScore').textContent = fmtNum(sc); setStars($('#hudStars'), rbStarRatio()); }
   const pg = Math.floor(clamp(st / RBE.chart.end, 0, 1) * 500) / 5;
   if (pg > RBE.prog){ RBE.prog = pg; hudProg.style.width = pg + '%'; }
 }
@@ -4528,7 +4544,7 @@ function rbView(view, msg){
       ${parts.length > 1 ? `<div class="seg" style="grid-template-columns:repeat(${parts.length},1fr)" role="radiogroup" aria-label="Part">${parts.map(p => `<button type="button" role="radio" data-p="${p}" aria-checked="${RBE.part === p}">${RB_PARTS[p]}</button>`).join('')}</div>` : ''}
       <div class="seg seg4" role="radiogroup" aria-label="Difficulty">${Object.keys(RB_DIFF_LABEL).map(d => `<button type="button" role="radio" data-d="${d}" aria-checked="${RBE.diff === d}" ${RBE.charts[d] ? '' : 'disabled'}>${RB_DIFF_LABEL[d]}</button>`).join('')}</div>
       <p class="t-sub">${RBE.part === 'gamepad' ? ch.notes.length + ' notes · ' + ch.lanes + ' lanes' + (ch.notes.some(n => n.lift) ? ' · lifts' : '') : ch.chords.length + ' notes'} · ${ch.phrases.length} Overdrive phrases · ${ch.solos.length ? ch.solos.length + ' solo' + (ch.solos.length > 1 ? 's' : '') : 'no solos'}${best ? ` · best ${fmtNum(best)}` : ''}</p>
-      ${RBE.part === 'gamepad' ? `<p class="fine">The ${RB_PARTS[RBE.padSrc] ? RB_PARTS[RBE.padSrc].toLowerCase() : 'guitar'} chart re-charted for keys and thumbs. Play with ${(KEYS[ch.lanes] || KEYS[4]).map(k => k.toUpperCase()).join(' ')} and Space for Overdrive, or tap the lanes on a touchscreen. Lift notes are arrows: let go as they cross the line.</p>`
+      ${RBE.part === 'gamepad' ? `<p class="fine">The ${RB_PARTS[RBE.padSrc] ? RB_PARTS[RBE.padSrc].toLowerCase() : 'guitar'} chart for this difficulty, its frets laid onto ${ch.lanes} lanes. Play with ${(KEYS[ch.lanes] || KEYS[4]).map(k => k.toUpperCase()).join(' ')} and Space for Overdrive, a controller, or tap the lanes on a touchscreen. Lift notes are arrows, the up-strums in fast strumming: let go as they cross the line.</p>`
         : `<label class="rb-tog"><input type="checkbox" id="rbNoFail" ${RBE.noFail ? 'checked' : ''}> <span>No Fail (the rock meter can’t end the song)</span></label>
       ${rbPadPanel()}`}
       <div class="row"><button type="button" class="btn primary" id="rbGo">Play</button><button type="button" class="btn" id="rbBackS">Songs</button></div>
@@ -5309,13 +5325,13 @@ const rbbOthers = () => rbbMembers().filter(p => !p.sameTab && RBB.lineup.includ
 // keeps the band's health meter, the meter itself (H) and whether it ran out (bf).
 const rbbMeId = () => { const m = rbbMembers().find(p => p.sameTab); return m ? m.peer : 'me'; };
 function rbbMine(){
-  if (G.rbBand){ const c = G.counts, h = c.perfect + c.great + c.good; return { s:G.score, c:G.combo, m:mult(), od:G.od, on:G.odActive, p:h + c.miss ? Math.round(h / (h + c.miss) * 100) : 100, hd:h * 0.018 - c.miss * 0.055, rr:(G.score - G.bonus) / Math.max(1, G.chart.potential), w:G.chart.potential }; }
+  if (G.rbBand){ const c = G.counts, h = c.perfect + c.great + c.good; return { s:G.score, c:G.combo, m:mult(), od:G.od, on:G.odActive, p:h + c.miss ? Math.round(h / (h + c.miss) * 100) : 100, hd:h * 0.018 - c.miss * 0.055, rr:gStarRatio(false), w:G.chart.potential }; }
   if (RBE.vox){
     const V = RBE.vox, closed = V.ch.phrases.slice(0, V.pi).filter(ph => ph.sing), passed = closed.filter(ph => ph.res && ph.res.pass).length;
     return { s:V.score, c:V.combo, m:voxMult(V), od:V.od, on:V.odActive, p:closed.length ? Math.round(passed / closed.length * 100) : 100, hd:V.rock - (RBB.rock0 == null ? V.rock : RBB.rock0), rr:voxStarRatio(V.score / V.base), w:V.base };
   }
   const judged = RBE.hits + RBE.misses;
-  return { s:RBE.score, c:RBE.combo, m:rbMult(), od:RBE.od, on:RBE.odActive, p:judged ? Math.round(RBE.hits / judged * 100) : 100, hd:RBE.rock - (RBB.rock0 == null ? RBE.rock : RBB.rock0), rr:RBE.score / Math.max(1, RBE.chart.baseScore), w:RBE.chart.baseScore };
+  return { s:RBE.score, c:RBE.combo, m:rbMult(), od:RBE.od, on:RBE.odActive, p:judged ? Math.round(RBE.hits / judged * 100) : 100, hd:RBE.rock - (RBB.rock0 == null ? RBE.rock : RBB.rock0), rr:rbStarRatio(), w:RBE.chart.baseScore };
 }
 function rbbLive(){
   RBB.lastLive = performance.now();
@@ -6601,14 +6617,11 @@ async function rbOrphans(maxAge){
   if (n) RBLIB.usageAt = 0;
   return n;
 }
-/* ---------- Gamepad: a CON's guitar chart, re-charted for keys and thumbs ----------
+/* ---------- Gamepad: a CON's guitar chart, on keys, a controller or touch ----------
    For anyone without a guitar controller. The guitar part (or bass, or keys, when a song has no guitar) is the
-   source; it's re-charted the way Stagelight's own songs are: four lanes (three on Easy) split between two
-   hands, each difficulty keeping the notes that matter at its density, the frets' rise and fall turned into
-   movement across the lanes, fast passages alternating hands, very fast repeats becoming a press then a lift,
-   lifts at the ends of phrases, chords kept rare and across both hands, and the song's sustains, Overdrive
-   phrases and solos carried over. It plays on the keyboard-and-touch engine, with the guitar track cutting out
-   when you miss, as in Rock Band. */
+   source, at the same difficulty: four lanes (three on Easy), the same notes and chords, the song's sustains,
+   Overdrive phrases and solos. It plays on the keyboard-and-touch engine, with the guitar track cutting out when
+   you miss, as in Rock Band. */
 const RB_PAD_SRC = ['guitar', 'bass', 'keys', 'rhythm'];
 const rbAudioPart = p => p === 'gamepad' ? RBE.padSrc || 'guitar' : isVox(p) ? 'vocals' : p;
 const rbAudioKey = (song, part) => song.key + ':' + rbAudioPart(part);
@@ -6624,7 +6637,99 @@ async function rbMix(song, part, onMsg){
   }
 }
 function rbPadSource(midi){ return RB_PAD_SRC.find(p => { const tr = rbFindTrack(midi, p); return tr && tr.notes.some(n => n.note >= 60 && n.note <= 100); }) || null; }
+/* Gamepad from Rock Band's own chart for the same difficulty: the same notes and chords, in the same places, with the
+   five frets laid onto the lanes. Within a run of notes (up to a rest of about a beat) the frets keep their order and
+   spacing: a run that fits in four frets just slides over, and a run that uses all five shares one lane between two
+   neighbouring frets, the pair the riff moves between least. Chords keep their outside notes. Lifts are the up-strums:
+   strum the same fret (or chord) fast and every other one is a lift. Easy has three lanes. */
 function rbPadChart(midi, srcPart, diff, hopo){
+  const own = rbChart(midi, srcPart, diff, hopo);
+  if (!own || !own.chords.length) return rbPadThin(midi, srcPart, diff, hopo);
+  rbFixPhrases(own, midi, srcPart);
+  const L = diff === 'easy' ? 3 : 4, C = own.chords, bts = own.beats.map(b => b.t);
+  const span = bts.length > 1 ? bts[bts.length - 1] - bts[0] : 0, bpm = span > 0 ? 60 * (bts.length - 1) / span : 120;
+  const spbAt = t => {
+    if (bts.length < 2) return 60 / bpm;
+    let lo = 0, hi = bts.length - 1;
+    while (lo < hi){ const m = (lo + hi + 1) >> 1; if (bts[m] <= t) lo = m; else hi = m - 1; }
+    const i = Math.min(lo, bts.length - 2);
+    return clamp(bts[i + 1] - bts[i], 0.2, 1.5);
+  };
+  const has = (c, f) => (c.mask & (1 << f)) !== 0;
+  // runs of notes, split at rests
+  const runs = []; let cur = [];
+  C.forEach((c, i) => { const p = C[i - 1]; if (p && c.t - Math.max(p.t, p.end) >= Math.max(0.45, spbAt(c.t) * 0.95) && cur.length){ runs.push(cur); cur = []; } cur.push(c); });
+  if (cur.length) runs.push(cur);
+  let lo = 0;
+  for (const run of runs){
+    const used = [0, 1, 2, 3, 4].filter(f => run.some(c => has(c, f))), mn = used[0], mx = used[used.length - 1], map = [-1, -1, -1, -1, -1];
+    if (mx - mn <= L - 1){
+      // it fits: slide it over, staying put if the last run's position still works
+      lo = clamp(lo, Math.max(0, mx - (L - 1)), Math.min(mn, 5 - L));
+      used.forEach(f => { map[f] = f - lo; });
+    } else {
+      // too wide: share a lane between neighbouring frets, choosing the pair the riff jumps between (or chords) least
+      const groups = used.map(f => [f]);
+      const inG = (c, G) => G.some(f => has(c, f));
+      const cost = (A, B) => {
+        let k = 0;
+        run.forEach((c, i) => {
+          const a = inG(c, A), b = inG(c, B);
+          if (a && b) k += 4;
+          if (i){ const p = run[i - 1], pa = inG(p, A), pb = inG(p, B); if ((pa && !pb && b && !a) || (pb && !pa && a && !b)) k += c.t - p.t < 0.25 ? 2 : 1; }
+        });
+        return k;
+      };
+      while (groups.length > L){
+        let bi = 0, bc = Infinity;
+        for (let i = 0; i + 1 < groups.length; i++){ const k = cost(groups[i], groups[i + 1]) + 0.01 * Math.abs(i + 0.5 - (groups.length - 1) / 2); if (k < bc){ bc = k; bi = i; } }
+        groups.splice(bi, 2, groups[bi].concat(groups[bi + 1]));
+      }
+      const m = groups.length, mid = groups.map(G => G.reduce((a, f) => a + f, 0) / G.length);
+      let last = -1;
+      groups.forEach((G, i) => {
+        let ln = m === L ? i : Math.round((mid[i] - mid[0]) / Math.max(1e-6, mid[m - 1] - mid[0]) * (L - 1));
+        ln = Math.min(Math.max(ln, last + 1), L - (m - i)); last = ln;
+        G.forEach(f => { map[f] = ln; });
+      });
+      lo = 0;
+    }
+    run.forEach(c => { c._pad = map; });
+  }
+  // notes: a chord keeps its lowest and highest note; sustains stay, let go just before the next note
+  const out = [], lanesOf = [];
+  C.forEach((c, i) => {
+    const ls = [...new Set([0, 1, 2, 3, 4].filter(f => has(c, f)).map(f => c._pad[f]))].sort((a, b) => a - b);
+    const pick = ls.length > 2 ? [ls[0], ls[ls.length - 1]] : ls, nx = C[i + 1];
+    let end = c.sus ? c.end : c.t;
+    if (nx) end = Math.min(end, nx.t - Math.max(0.06, spbAt(c.t) * 0.12));
+    if (end - c.t < 0.2) end = c.t;
+    lanesOf.push(pick.join());
+    pick.forEach(l => out.push({ t:c.t, end, lane:l, od:c.od, solo:c.solo, _c:i }));
+    delete c._pad;
+  });
+  // lifts: fast strumming on one fret or chord, every other strum (the up-strum) is a lift
+  const FAST = 0.21, lastOn = [];
+  for (const n of out){
+    const p = lastOn[n.lane];
+    if (p && p._c === n._c - 1 && !p.lift && p.end <= p.t + 1e-6 && n.end <= n.t + 1e-6 && n.t - p.t <= FAST + 1e-6 && lanesOf[n._c] === lanesOf[p._c]) n.lift = true;
+    lastOn[n.lane] = n;
+  }
+  out.forEach(n => { delete n._c; });
+  // Overdrive phrases and solos carry over, counted in notes
+  const regroup = (key, src, min, make) => {
+    const groups = new Map(), list = [];
+    out.forEach(n => { const k = n[key]; if (k >= 0){ if (!groups.has(k)) groups.set(k, []); groups.get(k).push(n); } });
+    [...groups.keys()].sort((a, b) => a - b).forEach(k => { const ns = groups.get(k); if (ns.length < min || !src[k]){ ns.forEach(n => { n[key] = -1; }); return; } const idx = list.length; ns.forEach(n => { n[key] = idx; }); list.push(make(src[k], ns.length)); });
+    out.forEach(n => { if (!(n[key] >= 0)) n[key] = -1; });
+    return list;
+  };
+  const phrases = regroup('od', own.phrases, 1, (p, count) => ({ count }));
+  const solos = regroup('solo', own.solos, 1, (s, count) => ({ t0:s.t0, t1:s.t1, count }));
+  return finishChart({ lanes:L, notes:out, phrases, solos, beats:own.beats, bpm, bps:bpm / 60, length:own.end, ptsPer:25 });
+}
+// For a song without this difficulty: its hardest chart, thinned out to this level.
+function rbPadThin(midi, srcPart, diff, hopo){
   let ex = null;
   for (const d of ['expert', 'hard', 'medium', 'easy']){ ex = rbChart(midi, srcPart, d, hopo); if (ex && ex.chords.length) break; }
   if (!ex || !ex.chords.length) return null;
@@ -6696,7 +6801,6 @@ function rbPadChart(midi, srcPart, diff, hopo){
   };
   const phrases = regroup('od', ex.phrases, 2, (p, count) => ({ count }));
   const solos = regroup('solo', ex.solos, 1, (s, count) => ({ t0:s.t0, t1:s.t1, count }));
-  addLifts(out, spb0, diff);
   return finishChart({ lanes:L, notes:out, phrases, solos, beats:ex.beats, bpm, bps:bpm / 60, length:ex.end, ptsPer:25 });
 }
 function rbPadCharts(midi, hopo){
@@ -6748,7 +6852,7 @@ function rbPadExit(view){
 }
 function rbPadFinish(){
   const c = G.counts, total = G.notes.length, hit = c.perfect + c.great + c.good;
-  const score = Math.round(G.score), ratio = (G.score - G.bonus) / G.chart.potential, s = RBE.song;
+  const score = Math.round(G.score), ratio = gStarRatio(false), s = RBE.song;
   const key = rbBestKey(s, 'gamepad', G.diff), prevBest = store.get(key, 0);
   if (score > prevBest) store.set(key, score);
   { const sv = ratio >= GOLD_T ? 6 : starCount(ratio); if (sv > store.get(key + ':s', 0)) store.set(key + ':s', sv); }
@@ -7026,7 +7130,7 @@ const VOX_PART_NAME = ['Harmony 1', 'Harmony 2', 'Harmony 3'];
 const VOX_DIFF = { easy:{ win:1.7, hp:0.325, pts:100 }, medium:{ win:1.4, hp:0.4, pts:200 }, hard:{ win:1.1, hp:0.45, pts:400 }, expert:{ win:0.8, hp:0.575, pts:500 } };
 const VOX_PERFECT = 0.6, VOX_PERC_WIN = 0.12, VOX_PERC_PTS = 25;
 // Vocal star cutoffs, as a share of the score for a perfect run without Overdrive; mapped onto the guitar scale for the star widgets.
-const VOX_STAR = [0, 0.05, 0.11, 0.19, 0.46, 0.77, 1.06], VOX_STAR_G = [0, 0.21, 0.46, 0.77, 1.85, 3.08, 4.2];
+const VOX_STAR = [0, 0.05, 0.11, 0.19, 0.46, 0.77, 1.06], VOX_STAR_G = [0, ...STAR_T, GOLD_T];
 function voxStarRatio(r){
   const V = VOX_STAR, Gs = VOX_STAR_G;
   for (let i = 1; i < V.length; i++) if (r < V[i]) return Gs[i - 1] + (r - V[i - 1]) / (V[i] - V[i - 1]) * (Gs[i] - Gs[i - 1]);
@@ -7672,8 +7776,10 @@ function voxRender(g, R, V, st, now, opt){
     g.fillStyle = x.state === 'hit' ? rgba('#7dffb0', 0.6 * (1 - age)) : x.state === 'miss' ? rgba(COL.miss, 0.35) : rgba(COL.tungsten, 0.85); g.fill();
     if (!x.state){ g.lineWidth = 2; g.strokeStyle = 'rgba(9,8,22,.8)'; g.beginPath(); g.arc(px, midY, r * 0.45, 0, Math.PI * 2); g.stroke(); }
   }
+  // Overdrive: the track glows and its edges run gold from the now line, as the rails do on a highway
+  voxOdFx(g, L, V, now, ch.beats ? beatPulse(ch.beats, st) : 0);
   // now line
-  { const gr = g.createLinearGradient(0, L.y0, 0, L.y1); gr.addColorStop(0, rgba(COL.ink, 0)); gr.addColorStop(0.5, rgba(COL.ink, 0.5)); gr.addColorStop(1, rgba(COL.ink, 0)); g.fillStyle = gr; g.fillRect(L.nowX - 1, L.y0 - 6, 2, L.y1 - L.y0 + 12); }
+  { const gr = g.createLinearGradient(0, L.y0, 0, L.y1); gr.addColorStop(0, rgba(COL.ink, 0)); gr.addColorStop(0.5, rgba(V.odActive ? COL.tungsten : COL.ink, V.odActive ? 0.8 : 0.5)); gr.addColorStop(1, rgba(COL.ink, 0)); g.fillStyle = gr; g.fillRect(L.nowX - 1, L.y0 - 6, 2, L.y1 - L.y0 + 12); }
   // singers' arrows and trails
   if (!o.showcase || o.arrows){
     V.mics.forEach((m, i) => {
@@ -7998,7 +8104,7 @@ function scDrumChart(midi, diff, x2 = true){
   });
   const keep = phrases.filter(p => p.count), idx = phrases.map(p => keep.indexOf(p));
   chords.forEach(c => { c.od = c.od >= 0 ? idx[c.od] : -1; c.notes.forEach(n => { n.od = c.od; }); });
-  return { kind:'drums', notes, chords, phrases:keep, solos:solos.filter(s => s.count), fills:fillR.map(r => ({ t0:r[0], t1:r[1], on:null, fired:false })), bre, rolls, disco:discoR.map(r => ({ t0:r[0], t1:r[1] })) };
+  return { kind:'drums', fcm:fcMult(notes.map(() => 1), 4, 10), notes, chords, phrases:keep, solos:solos.filter(s => s.count), fills:fillR.map(r => ({ t0:r[0], t1:r[1], on:null, fired:false })), bre, rolls, disco:discoR.map(r => ({ t0:r[0], t1:r[1] })) };
 }
 function scFiveChart(midi, part, diff, hopo){
   const c = rbChart(midi, part, diff, hopo); if (!c) return null;
@@ -8243,7 +8349,7 @@ function scStep(S, t, dt){
       }
     }
     // solo bonus: 100 a note, doubled for a perfect solo
-    for (const so of ch.solos){ if (!so.done && t > so.t1 + 0.1){ so.done = true; const pct = so.hit / Math.max(1, so.count), b = so.hit * 100 * (pct >= 1 ? 2 : 1); x.score += b; x.msg = { text:pct >= 1 ? 'PERFECT SOLO' : 'SOLO', sub:'+' + fmtNum(b), at:performance.now() }; } }
+    for (const so of ch.solos){ if (!so.done && t > so.t1 + 0.1){ so.done = true; const pct = so.hit / Math.max(1, so.count), b = so.hit * 100 * (pct >= 1 ? 2 : 1); x.score += b; x.bonus = (x.bonus || 0) + b; x.msg = { text:pct >= 1 ? 'PERFECT SOLO' : 'SOLO', sub:'+' + fmtNum(b), at:performance.now() }; } }
     if (x.odActive){ x.od -= dt * bps / 32; if (x.od <= 0){ x.od = 0; x.odActive = false; } }
     if (x.od >= 0.5 && !x.odActive){ if (x.readyAt === Infinity) x.readyAt = t; } else x.readyAt = Infinity;
     // Without a drum chart there are no fills to wait for, so the others go as soon as they can.
@@ -8359,21 +8465,24 @@ function scCymbal(g, x, y, w, col, od){
 const SC_FILL_COL = '#35d46a';
 function scHighway(S, x, geo, now){
   const g = g2, ch = x.ch, L = geo.L, t = RBE.st, look = lookahead(), drums = ch && ch.kind === 'drums';
-  const sTop = geo.topScale, yT = yAt(geo, sTop), yB = geo.hitY + 22, sBot = (yB - geo.vpY) / (geo.hitY - geo.vpY);
+  const sTop = geo.topScale, yT = yAt(geo, sTop), yB = H + 6, sBot = (yB - geo.vpY) / (geo.hitY - geo.vpY);
+  const odAt = odEdge(x, x.odActive, now), odf = x.odActive ? odFillD(geo, odAt, now, yB) : null, railOD = x.odActive && !odf;
   const hwPath = () => { g.beginPath(); g.moveTo(xAt(geo, 0, sTop), yT); g.lineTo(xAt(geo, L, sTop), yT); g.lineTo(xAt(geo, L, sBot), yB); g.lineTo(xAt(geo, 0, sBot), yB); g.closePath(); };
   hwPath();
   const hg = g.createLinearGradient(0, yT, 0, geo.hitY); hg.addColorStop(0, 'rgba(24,20,48,0)'); hg.addColorStop(0.3, 'rgba(24,20,48,.7)'); hg.addColorStop(1, 'rgba(18,15,36,.96)');
   g.fillStyle = hg; g.fill();
   {
     const pulse = beatPulse(S.beats, t);
-    if (x.odActive){ hwPath(); g.fillStyle = rgba(COL.tungsten, 0.07 + 0.05 * pulse); g.fill(); }
+    if (odf){ hwQuad(geo, 0, L, odf.dBot, odf.d); g.fillStyle = rgba(COL.tungsten, 0.07 + 0.05 * pulse); g.fill(); }
+    else if (x.odActive){ hwPath(); g.fillStyle = rgba(COL.tungsten, 0.07 + 0.05 * pulse); g.fill(); }
     const spanD = sp => [Math.max(-0.1, (sp.t0 - t) / look), Math.min(1, (sp.t1 - t) / look)];
     for (const sp of ch.solos){ const [d0, d1] = spanD(sp); if (d1 <= d0) continue; hwQuad(geo, 0, L, d0, d1); g.fillStyle = rgba(COL.iris, 0.16); g.fill(); }
     for (const sp of ch.phrases){ if (!sp.uni) continue; const [d0, d1] = spanD(sp); if (d1 <= d0) continue; hwQuad(geo, 0, L, d0, d1); g.fillStyle = rgba(UNI_COL, 0.09); g.fill(); }
     g.lineWidth = 1; g.strokeStyle = 'rgba(242,237,251,.08)';
     for (let u = 1; u < L; u++){ g.beginPath(); g.moveTo(xAt(geo, u, sTop), yT); g.lineTo(xAt(geo, u, sBot), yB); g.stroke(); }
     const rails = (col, wid, a) => { g.lineWidth = wid; g.strokeStyle = rgba(col, a); for (const u of [0, L]){ g.beginPath(); g.moveTo(xAt(geo, u, sTop), yT); g.lineTo(xAt(geo, u, sBot), yB); g.stroke(); } };
-    if (x.odActive) rails(COL.tungsten, 2.5, 0.9); else rails(COL.ink, 2, 0.22);
+    if (railOD) rails(COL.tungsten, 2.5, 0.9); else rails(COL.ink, 2, 0.22);
+    if (odf){ g.lineWidth = 2.5; g.strokeStyle = rgba(COL.tungsten, 0.95); railSeg(geo, 0, odf.dBot, odf.d); railSeg(geo, L, odf.dBot, odf.d); }
     for (const sp of ch.phrases){ if (!sp.uni) continue; const [d0, d1] = spanD(sp); if (d1 <= d0) continue; g.lineWidth = 3.5; g.strokeStyle = rgba(UNI_COL, sp.live || sp.done ? 0.95 : 0.35); railSeg(geo, 0, d0, d1); railSeg(geo, L, d0, d1); }
     // beat lines
     for (let i = lowerBound(S.beats, t - 0.1); i < S.beats.length; i++){
@@ -8437,7 +8546,7 @@ function scHighway(S, x, geo, now){
     if (age < 0.3 && !reduced){ const k = age / 0.3, R = w * (0.5 + 0.6 * k); const rg = g.createRadialGradient(cx, yH, 0, cx, yH, R); rg.addColorStop(0, rgba('#ffffff', 0.7 * (1 - k))); rg.addColorStop(0.35, rgba(x.odActive ? COL.tungsten : col, 0.6 * (1 - k))); rg.addColorStop(1, rgba(col, 0)); g.fillStyle = rg; g.beginPath(); g.ellipse(cx, yH, R, R * 0.5, 0, 0, Math.PI * 2); g.fill(); }
   }
   if (drums){ const age = (now - x.kickAt) / 1000; if (age < 0.15){ g.fillStyle = rgba(SC_KICK, 0.5 * (1 - age / 0.15)); g.fillRect(geo.left, yH - 4, geo.bw, 8); } }
-  drawGeoFx(g, geo, now);
+  drawGeoFx(g, geo, now); odDeployFx(g, geo, odAt, now, yB);
   // the same HUD as Quick Play under the strikeline: the instrument, the multiplier ring and the Overdrive cells
   const m = scMult(x), combo = x.combo != null ? x.combo : x.streak || 0;
   if (m > (x.hudM || 0) && x.hudM) x.multAt = now; x.hudM = m;
@@ -8452,18 +8561,18 @@ function scHighway(S, x, geo, now){
 function bandStageDraw(B, insts, V, st, now, o){
   const g = g2, left = insets.l + 10, right = W - insets.r - 10, aw = right - left, n = insts.length;
   const top = insets.t + 56, vy = top + 54;
-  const vh = V ? (n ? clamp(H * 0.24, 120, 240) : clamp(H * 0.5, 200, 460)) : 0;
+  const vh = V ? (n ? clamp(H * 0.2, 110, 210) : clamp(H * 0.5, 200, 460)) : 0;
   if (V){
     const R = { x:left, y:vy, w:aw, h:vh };
     const L = voxRender(g, R, V, st, now, o.showcase ? { showcase:true, cov:true, arrows:true, zones:true } : undefined);
     voxHud(g, R, L, V, now, { mini:true, noScore:true, cx:right - 130, cy:top + 22, bw:240, icon:V.key || 'vocals' });
   }
-  const gap = Math.max(8, aw * 0.012), hw = n ? Math.min((aw - gap * (n - 1)) / n, 380) : 0, x0 = left + (aw - (hw * n + gap * (n - 1))) / 2;
-  const topY = vy + vh + 14, hitY = H - Math.max(insets.b + 62, 70);
+  const topY = vy + vh + 14, hitY = Math.max(topY + 160, strikeY()), vpY = (topY - 0.42 * hitY) / 0.58, sBot = (H + 6 - vpY) / (hitY - vpY);
+  const gap = Math.max(8, aw * 0.012), slot = n ? Math.min((aw - gap * (n - 1)) / n, 380 * sBot) : 0, hw = slot / sBot, x0 = left + (aw - (slot * n + gap * (n - 1))) / 2 + (slot - hw) / 2;
   const S = { beats:B.beats };
   insts.forEach((x, i) => {
     const drums = x.key === 'drums', geo = x.geo || (x.geo = {});
-    Object.assign(geo, scGeo(x0 + i * (hw + gap), hw, topY, hitY, drums ? 4 : 5, drums ? SC_DRUM_COL : RB_COLORS));
+    Object.assign(geo, scGeo(x0 + i * (slot + gap), hw, topY, hitY, drums ? 4 : 5, drums ? SC_DRUM_COL : RB_COLORS));
     scHighway(S, x, geo, now);
   });
   for (const p of sparks){ if (p.shape !== 'dot') continue; g.fillStyle = rgba(p.col, clamp(p.life * 2.2, 0, 1)); g.beginPath(); g.arc(p.x, p.y, 2.2, 0, Math.PI * 2); g.fill(); }
@@ -8472,7 +8581,7 @@ function bandStageDraw(B, insts, V, st, now, o){
   if (B.uniB && n) drawUniBanner(g, W / 2, yAt(insts[0].geo, insts[0].geo.topScale) + 4, B.uniB, now, Math.min(aw * 0.5, 320));
   // the band's score and stars
   let a = 0, w = 0, band = 0;
-  insts.forEach(x => { band += x.score; const base = x.ch.kind === 'five' ? x.ch.baseScore : x.ch.notes.length * (x.pro || x.ch.pro ? 30 : 25); if (base > 0){ a += x.score; w += base; } });
+  insts.forEach(x => { band += x.score; const base = x.ch.kind === 'five' ? x.ch.baseScore : x.ch.notes.length * (x.pro || x.ch.pro ? 30 : 25); if (base > 0){ a += starOf(x.score - (x.bonus || 0), base, x.ch.fcm) * base; w += base; } });
   if (V){ band += V.score; if (V.base){ a += voxStarRatio(V.score / V.base) * V.base; w += V.base; } }
   scorePanel({}, Math.round(band), w ? a / w : 0, now, B.sp || (B.sp = newSP()), { place:{ fs:28, R:9, x:W / 2, align:'center', yScore:top + 22, yStars:top + 38, w:260 } });
   let sec = null; for (const s of (o.E || B.E).sections){ if (s.t <= st + 0.05) sec = s; else break; }
@@ -8804,8 +8913,8 @@ function lbStepDrums(P, st, dt, now){
     if (n.chord && n.chord.od >= 0 && ch.phrases[n.chord.od]) ch.phrases[n.chord.od].live = false;
     if (!n.kick) lbWith(P, () => missFx(n.lane));
   }
-  if (ch.bre && !ch.bre.done && st > ch.bre.t1 + 0.1){ ch.bre.done = true; if (ch.bre.pts){ P.score += ch.bre.pts; P.msg = { text:'BIG ROCK ENDING', sub:'+' + fmtNum(Math.round(ch.bre.pts)), at:now }; } }
-  for (const so of ch.solos){ if (!so.done && st > so.t1 + 0.1){ so.done = true; const pct = so.hit / Math.max(1, so.count), b = so.hit * 100 * (pct >= 1 ? 2 : 1); P.score += b; P.msg = { text:pct >= 1 ? 'PERFECT SOLO' : 'SOLO', sub:`${Math.round(pct * 100)}% · +${fmtNum(b)}`, at:performance.now() }; } }
+  if (ch.bre && !ch.bre.done && st > ch.bre.t1 + 0.1){ ch.bre.done = true; if (ch.bre.pts){ P.score += ch.bre.pts; P.bonus = (P.bonus || 0) + ch.bre.pts; P.msg = { text:'BIG ROCK ENDING', sub:'+' + fmtNum(Math.round(ch.bre.pts)), at:now }; } }
+  for (const so of ch.solos){ if (!so.done && st > so.t1 + 0.1){ so.done = true; const pct = so.hit / Math.max(1, so.count), b = so.hit * 100 * (pct >= 1 ? 2 : 1); P.score += b; P.bonus = (P.bonus || 0) + b; P.msg = { text:pct >= 1 ? 'PERFECT SOLO' : 'SOLO', sub:`${Math.round(pct * 100)}% · +${fmtNum(b)}`, at:performance.now() }; } }
   if (P.odActive){ P.od -= dt * bps / 32; if (P.od <= 0){ P.od = 0; P.odActive = false; } }
   if (P.od >= 0.5 && !P.odActive){ if (P.readyAt === Infinity) P.readyAt = st; } else P.readyAt = Infinity;
 }
@@ -8828,7 +8937,7 @@ function lbStep5(P, st, dt, now){
       if (st >= c.end){ c.gems.forEach(g => { g.holding = false; }); RBE.hold = null; }
     }
     if (RBE.odActive){ RBE.od -= dt * rbBpsOf(RBE.chart.beats, st) / 32; if (RBE.od <= 0){ RBE.od = 0; RBE.odActive = false; } }
-    RBE.solos.forEach(so => { if (!so.done && st > so.t1 + 0.1){ so.done = true; const pct = so.hit / so.count, b = so.hit * 100 * (pct >= 1 ? 2 : 1); RBE.score += b; RBE.msg = { text:pct >= 1 ? 'PERFECT SOLO' : 'SOLO', sub:`${Math.round(pct * 100)}% · +${fmtNum(b)}`, at:performance.now() }; } });
+    RBE.solos.forEach(so => { if (!so.done && st > so.t1 + 0.1){ so.done = true; const pct = so.hit / so.count, b = so.hit * 100 * (pct >= 1 ? 2 : 1); RBE.score += b; RBE.bonus = (RBE.bonus || 0) + b; RBE.msg = { text:pct >= 1 ? 'PERFECT SOLO' : 'SOLO', sub:`${Math.round(pct * 100)}% · +${fmtNum(b)}`, at:performance.now() }; } });
   });
 }
 function lbPauseToggle(){ if (RBE.mode === 'play') rbPause(); else if (RBE.mode === 'pause') rbResume(); }
@@ -8937,7 +9046,7 @@ function lbFinish(failed){
   if (LB.groups.length) rows.push({ label:'Unison bonuses', text:`${paid} of ${LB.groups.length}` });
   // the band's stars: everyone's star ratio, weighted by how much their part is worth
   let a = 0, w = 0;
-  LB.players.forEach(P => { const base = P.kind === 'five' ? P.ch.baseScore : P.ch.notes.length * (P.pro ? 30 : 25); if (base > 0){ a += P.score / base * base; w += base; } });
+  LB.players.forEach(P => { const base = P.kind === 'five' ? P.ch.baseScore : P.ch.notes.length * (P.pro ? 30 : 25); if (base > 0){ a += starOf(P.score - (P.bonus || 0), base, P.ch.fcm) * base; w += base; } });
   if (LB.vox){ a += voxStarRatio(LB.vox.score / LB.vox.base) * LB.vox.base; w += LB.vox.base; }
   const ratio = w ? a / w : 0;
   RBE.lbResult = { failed:!!failed, score:Math.round(total), rows, ratio, stars:failed ? 0 : starCount(ratio) };
@@ -9293,13 +9402,24 @@ function instIcon(g, kind, cx, cy, r, col, lit){
   const ink = lit ? '#120f24' : rgba(COL.ink, 0.92), u = r * 0.52;
   g.strokeStyle = ink; g.fillStyle = ink; g.lineWidth = Math.max(1.4, r * 0.11); g.lineCap = 'round'; g.lineJoin = 'round';
   g.translate(cx, cy);
-  if (kind === 'guitar' || kind === 'bass' || kind === 'rhythm'){
-    const neck = kind === 'bass' ? 1.25 : 1;
+  const hole = lit ? rgba(col, 0.95) : 'rgba(14,11,28,.95)';
+  if (kind === 'guitar' || kind === 'rhythm'){
+    // a guitar: a round double-bout body with a sound hole, a short neck and a squat headstock
     g.rotate(-Math.PI / 4);
-    g.beginPath(); g.ellipse(0, u * 0.45, u * 0.42, u * 0.5, 0, 0, Math.PI * 2); g.fill();
-    g.beginPath(); g.ellipse(0, u * -0.05, u * 0.32, u * 0.34, 0, 0, Math.PI * 2); g.fill();
-    g.beginPath(); g.moveTo(0, u * 0.1); g.lineTo(0, -u * 1.05 * neck); g.stroke();
-    g.fillRect(-u * 0.14, -u * 1.25 * neck, u * 0.28, u * 0.3);
+    g.beginPath(); g.ellipse(0, u * 0.5, u * 0.5, u * 0.46, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(0, u * 0.02, u * 0.36, u * 0.32, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = hole; g.beginPath(); g.arc(0, u * 0.3, u * 0.15, 0, Math.PI * 2); g.fill(); g.fillStyle = ink;
+    g.beginPath(); g.moveTo(0, u * -0.1); g.lineTo(0, -u * 0.86); g.stroke();
+    rrect(g, -u * 0.2, -u * 1.18, u * 0.4, u * 0.36, u * 0.08); g.fill();
+  } else if (kind === 'bass'){
+    // a bass: a slim offset body with one long horn, a much longer neck, and four tuners down one side
+    g.rotate(Math.PI / 4);
+    g.beginPath(); g.ellipse(0, u * 0.66, u * 0.36, u * 0.3, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(-u * 0.14, u * 0.34, u * 0.13, u * 0.3, -0.35, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(u * 0.12, u * 0.42, u * 0.12, u * 0.2, 0.3, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.moveTo(0, u * 0.5); g.lineTo(0, -u * 1.08); g.stroke();
+    g.fillRect(-u * 0.09, -u * 1.36, u * 0.2, u * 0.32);
+    for (let k = 0; k < 4; k++){ g.beginPath(); g.arc(u * 0.26, -u * (1.33 - k * 0.1), Math.max(0.8, u * 0.06), 0, Math.PI * 2); g.fill(); }
   } else if (kind === 'drums'){
     g.beginPath(); g.ellipse(0, -u * 0.25, u * 0.75, u * 0.28, 0, 0, Math.PI * 2); g.stroke();
     g.beginPath(); g.moveTo(-u * 0.75, -u * 0.25); g.lineTo(-u * 0.75, u * 0.45); g.ellipse(0, u * 0.45, u * 0.75, u * 0.28, 0, Math.PI, 0, true); g.lineTo(u * 0.75, -u * 0.25); g.stroke();
@@ -9410,6 +9530,89 @@ function uniGroupBanner(H, groups, st, now){
 
 /* ---------- Big Rock Endings, drum fills and roll lanes ---------- */
 // Open lanes, each in its own colour, up to the line that ends them: a Big Rock Ending, or a drum fill that's on.
+/* Overdrive deploying, on every highway and the vocal track alike: a burst of stage light on the strikeline (or the
+   vocals' now line), and gold running from there along both rails to the far end, where it stays while Overdrive
+   lasts. odEdge notes the moment Overdrive comes on, whatever turned it on. */
+const OD_FILL = 0.5, OD_BURST = 0.65, odSparked = [];
+function odEdge(o, on, now){ if (on && !o._odOn) o._odAt = now; o._odOn = !!on; return on ? o._odAt || 0 : 0; }
+// how far up the highway the gold has run (d), from the bottom edge at yB; null once it's all the way up
+function odFillD(geo, at, now, yB){
+  if (!at || reduced) return null;
+  const k = (now - at) / 1000 / OD_FILL; if (k >= 1 || k < 0) return null;
+  const sBot = (yB - geo.vpY) / (geo.hitY - geo.vpY), dBot = Math.max(-0.3, (1 / sBot - 1) / geo.K), e = 1 - Math.pow(1 - k, 3);
+  return { dBot, d:dBot + (1 - dBot) * e, k };
+}
+function odBurstSparks(key, pts){
+  if (reduced || odSparked.includes(key)) return;
+  odSparked.push(key); if (odSparked.length > 12) odSparked.shift();
+  pts.forEach(p => { if (sparks.length < 420) sparks.push(p); });
+}
+function odDeployFx(g, geo, at, now, yB){
+  if (!at || reduced) return;
+  const age = (now - at) / 1000; if (age < 0 || age > Math.max(OD_FILL, OD_BURST)) return;
+  const L = geo.L, yH = geo.hitY, f = odFillD(geo, at, now, yB), T = COL.tungsten;
+  odBurstSparks(at + ':' + Math.round(geo.cx), Array.from({ length:26 }, (_, i) => {
+    const x = geo.left + (i + Math.random()) / 26 * geo.bw;
+    return { x, y:yH, vx:(x - geo.cx) * 1.1 + (Math.random() - 0.5) * 60, vy:-170 - Math.random() * 260, life:0.55 + Math.random() * 0.3, l0:0.7, col:i % 3 === 0 ? '#ffffff' : i % 3 === 1 ? T : '#ffb23e', shape:'glint', sz:3 + Math.random() * 3.5, g:340 };
+  }));
+  g.save(); g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
+  if (f){
+    // a wash of light up the surface just behind the gold, and a bright head on each rail throwing off embers
+    const d0 = Math.max(f.dBot, f.d - 0.26), ya = yAt(geo, sAt(geo, d0)), yb = yAt(geo, sAt(geo, f.d)), gr = g.createLinearGradient(0, ya, 0, yb);
+    gr.addColorStop(0, rgba(T, 0)); gr.addColorStop(1, rgba(T, 0.2 * (1 - 0.6 * f.k)));
+    hwQuad(geo, 0, L, d0, f.d); g.fillStyle = gr; g.fill();
+    g.lineWidth = 10; g.strokeStyle = rgba(T, 0.26); railSeg(geo, 0, f.dBot, f.d); railSeg(geo, L, f.dBot, f.d);
+    const s = sAt(geo, f.d), y = yAt(geo, s), R = Math.max(8, 20 * s);
+    for (const u of [0, L]){
+      const x = xAt(geo, u, s), rg = g.createRadialGradient(x, y, 0, x, y, R);
+      rg.addColorStop(0, 'rgba(255,255,255,.95)'); rg.addColorStop(0.3, rgba(T, 0.75)); rg.addColorStop(1, rgba(T, 0));
+      g.fillStyle = rg; g.beginPath(); g.arc(x, y, R, 0, Math.PI * 2); g.fill();
+      if (sparks.length < 420 && Math.random() < 0.7) sparks.push({ x, y, vx:(u ? 1 : -1) * (15 + Math.random() * 55), vy:-10 + Math.random() * 70, life:0.32, l0:0.32, col:Math.random() < 0.4 ? '#ffffff' : T, shape:'dot', g:160 });
+    }
+  }
+  const b = age / OD_BURST;
+  if (b < 1){
+    // the flash: a wide pool of tungsten light along the strikeline, and a ring of it rolling out over the frets
+    const e = 1 - b, Rx = geo.bw * (0.32 + 0.6 * Math.sqrt(b));
+    g.save(); g.translate(geo.cx, yH); g.scale(1, 0.22);
+    const rg = g.createRadialGradient(0, 0, 0, 0, 0, Rx); rg.addColorStop(0, rgba('#ffffff', 0.6 * e)); rg.addColorStop(0.25, rgba(T, 0.5 * e)); rg.addColorStop(1, rgba(T, 0));
+    g.fillStyle = rg; g.beginPath(); g.arc(0, 0, Rx, 0, Math.PI * 2); g.fill(); g.restore();
+    const rr = geo.bw * (0.18 + 0.75 * b); g.lineWidth = 1 + 3 * e; g.strokeStyle = rgba(T, 0.8 * e);
+    g.beginPath(); g.ellipse(geo.cx, yH, rr, rr * 0.13, 0, 0, Math.PI * 2); g.stroke();
+  }
+  g.restore();
+}
+// The vocal track's version: the "rails" are its top and bottom edges, and the gold runs from the now line to the right.
+function voxOdFx(g, L, V, now, beat){
+  const at = odEdge(V, V.odActive, now); if (!V.odActive) return;
+  const T = COL.tungsten, age = at ? (now - at) / 1000 : 9, k = reduced ? 1 : clamp(age / OD_FILL, 0, 1), e = 1 - Math.pow(1 - k, 3);
+  const xHead = L.nowX + (L.x1 - L.nowX) * e, y0 = L.y0 - 3, y1 = L.y1 + 3;
+  // the track glows warm while Overdrive lasts
+  g.save(); g.globalCompositeOperation = 'lighter';
+  g.fillStyle = rgba(T, 0.05 + 0.04 * (beat || 0)); g.fillRect(L.x0, y0, xHead - L.x0, y1 - y0);
+  if (k < 1){ const gr = g.createLinearGradient(xHead - 140, 0, xHead, 0); gr.addColorStop(0, rgba(T, 0)); gr.addColorStop(1, rgba(T, 0.18 * (1 - 0.6 * k))); g.fillStyle = gr; g.fillRect(Math.max(L.x0, xHead - 140), y0, Math.min(140, xHead - L.x0), y1 - y0); }
+  g.restore();
+  // the rails
+  g.save(); g.shadowColor = T; g.shadowBlur = reduced ? 0 : 8; g.fillStyle = rgba(T, 0.95);
+  g.fillRect(L.x0, y0 - 1, xHead - L.x0, 2.5); g.fillRect(L.x0, y1 - 1.5, xHead - L.x0, 2.5);
+  g.restore();
+  if (reduced || age > Math.max(OD_FILL, OD_BURST)) return;
+  g.save(); g.globalCompositeOperation = 'lighter';
+  if (k < 1) for (const y of [y0, y1]){ const R = 16, rg = g.createRadialGradient(xHead, y, 0, xHead, y, R); rg.addColorStop(0, 'rgba(255,255,255,.95)'); rg.addColorStop(0.3, rgba(T, 0.75)); rg.addColorStop(1, rgba(T, 0)); g.fillStyle = rg; g.beginPath(); g.arc(xHead, y, R, 0, Math.PI * 2); g.fill(); }
+  const b = age / OD_BURST;
+  if (b < 1){
+    const ee = 1 - b, H2 = (y1 - y0) * (0.6 + 0.7 * Math.sqrt(b)), cy = (y0 + y1) / 2;
+    g.save(); g.translate(L.nowX, cy); g.scale(0.3, 1);
+    const rg = g.createRadialGradient(0, 0, 0, 0, 0, H2); rg.addColorStop(0, rgba('#ffffff', 0.55 * ee)); rg.addColorStop(0.3, rgba(T, 0.45 * ee)); rg.addColorStop(1, rgba(T, 0));
+    g.fillStyle = rg; g.beginPath(); g.arc(0, 0, H2, 0, Math.PI * 2); g.fill(); g.restore();
+    const rr = (y1 - y0) * (0.2 + 0.6 * b); g.lineWidth = 1 + 3 * ee; g.strokeStyle = rgba(T, 0.8 * ee); g.beginPath(); g.ellipse(L.nowX, cy, rr * 0.35, rr, 0, 0, Math.PI * 2); g.stroke();
+  }
+  g.restore();
+  odBurstSparks(at + ':vox' + Math.round(L.nowX + L.y0), Array.from({ length:22 }, (_, i) => {
+    const y = y0 + (i + Math.random()) / 22 * (y1 - y0);
+    return { x:L.nowX, y, vx:60 + Math.random() * 220, vy:(y - (y0 + y1) / 2) * 1.4 + (Math.random() - 0.5) * 40, life:0.5 + Math.random() * 0.3, l0:0.7, col:i % 3 === 0 ? '#ffffff' : i % 3 === 1 ? T : '#ffb23e', shape:'glint', sz:3 + Math.random() * 3, g:0 };
+  }));
+}
 function drawFreeLanes(geo, sp, t, look, cols, now, flash){
   const g = g2, L = cols.length, d0 = Math.max(0, (sp.t0 - t) / look), d1 = Math.min(1, (sp.t1 - t) / look);
   if (d1 > d0) for (let l = 0; l < L; l++){
@@ -9448,7 +9651,7 @@ function rbBreHit(t, lanes){
 function rbBreStep(st){
   const b = RBE.chart && RBE.chart.bre; if (!b || b.done || st < b.t1 + 0.1) return;
   b.done = true; if (!b.pts) return;
-  RBE.score += b.pts;
+  RBE.score += b.pts; RBE.bonus = (RBE.bonus || 0) + b.pts;
   const m = { text:'BIG ROCK ENDING', sub:'+' + fmtNum(Math.round(b.pts)), at:performance.now() }; RBE.soloMsg = m; RBE.msg = m;
 }
 // A roll note going by unhit counts as hit while you're still strumming (or trilling) through the lane.
@@ -9795,7 +9998,7 @@ function updateHud(){
   const m = mult();
   if (m !== hc.mult){ if (hc.mult && m > hc.mult){ hudMult.classList.remove('bump'); void hudMult.offsetWidth; hudMult.classList.add('bump'); } hc.mult = m; hudMult.textContent = '×' + m; }
   hudMult.classList.toggle('od', G.odActive);
-  const r = (G.score - G.bonus) / (G.chart.potential * (G.potScale || 1));
+  const r = gStarRatio();
   if (Math.abs(r - hc.ratio) > 0.004){ hc.ratio = r; setStars(hudStars, r); }
   const od = Math.round(G.od * 1000) / 10;
   if (od !== hc.od){ hc.od = od; odFill.style.width = od + '%'; }
@@ -9810,7 +10013,7 @@ function updateHud(){
     const gl = G.career.goal;
     let txt, ok;
     if (G.band) [txt, ok] = bandChText();
-    else if (gl.type === 'stars'){ const sn = starCount((G.score - G.bonus) / G.chart.potential); ok = sn >= gl.target; txt = `Goal: ${gl.target} stars · now ${sn}`; }
+    else if (gl.type === 'stars'){ const sn = starCount(gStarRatio(false)); ok = sn >= gl.target; txt = `Goal: ${gl.target} stars · now ${sn}`; }
     else if (gl.type === 'points'){ ok = G.score >= gl.target; txt = `Goal: ${fmtNum(gl.target)} · now ${fmtNum(G.score)}`; }
     else if (gl.type === 'hits'){ const spare = Math.floor(G.notes.length * (1 - gl.target / 100) + 1e-9) - G.counts.miss; ok = spare >= 0; txt = ok ? `Goal: hit ${gl.target}% · ${spare} miss${spare === 1 ? '' : 'es'} to spare` : `Goal: hit ${gl.target}% · out of misses`; }
     else { ok = G.maxCombo >= gl.target; txt = `Goal: ${gl.target} streak · best ${G.maxCombo}`; }
@@ -9821,7 +10024,7 @@ function updateHud(){
 function gigRes(){
   const c = G.counts, total = G.band ? G.ownTotal : G.notes.length;
   const acc = total ? (c.perfect + c.great * 0.75 + c.good * 0.4) / total : 0;
-  return { score:Math.round(G.score), ratio:(G.score - G.bonus) / (G.chart.potential * (G.potScale || 1)), acc, fc:c.miss === 0 && total > 0, hits:c.perfect + c.great + c.good, total, maxCombo:G.maxCombo };
+  return { score:Math.round(G.score), ratio:gStarRatio(), acc, fc:c.miss === 0 && total > 0, hits:c.perfect + c.great + c.good, total, maxCombo:G.maxCombo };
 }
 function finish(){
   if (G.mode !== 'play') return;
@@ -9830,7 +10033,7 @@ function finish(){
   detachSources(2.4); unlockScreen();
   const c = G.counts, total = G.notes.length;
   const acc = total ? (c.perfect + c.great * 0.75 + c.good * 0.4) / total : 0;
-  const score = Math.round(G.score), ratio = (G.score - G.bonus) / G.chart.potential;
+  const score = Math.round(G.score), ratio = gStarRatio(false);
   if (G.career){ if (G.career.rbBand){ rbtPadBandFin(gigRes(), false); return; } if (G.band){ bandFinish(gigRes()); return; } gigWon(gigRes()); return; }
   if (G.entry.kind === 'rbpad'){ rbPadFinish(); return; }
   const key = G.entry.id + (G.inst ? ':' + G.inst : '') + ':' + G.diff, prev = best[key], isBest = !prev || score > prev.score;
@@ -10108,7 +10311,9 @@ function renderScene(sc, now){
   hwPath();
   if (!geo._hg || geo._hgRev !== skinRev){ const hg = g.createLinearGradient(0, yT, 0, geo.hitY); hg.addColorStop(0, rgba(hs.surf[1], 0)); hg.addColorStop(0.3, rgba(hs.surf[1], 0.6)); hg.addColorStop(1, rgba(hs.surf[0], 0.94)); geo._hg = hg; geo._hgRev = skinRev; }
   g.fillStyle = geo._hg; g.fill();
-  if (sc.odActive){ g.fillStyle = rgba(COL.tungsten, 0.06 + 0.05 * pulse); g.fill(); }
+  const odf = sc.odActive ? odFillD(geo, sc.odAt, now, yB) : null, railOD = sc.odActive && !odf;
+  if (odf){ hwQuad(geo, 0, L, odf.dBot, odf.d); g.fillStyle = rgba(COL.tungsten, 0.06 + 0.05 * pulse); g.fill(); }
+  else if (sc.odActive){ g.fillStyle = rgba(COL.tungsten, 0.06 + 0.05 * pulse); g.fill(); }
   // Solo and unison sections are drawn where their notes are, so they ride up the highway with them.
   const spanD = sp => [Math.max(-0.3, (sp.t0 - t) / look), Math.min(1, (sp.t1 - t) / look)];
   for (const sp of sc.soloSpans || []){ const [d0, d1] = spanD(sp); if (d1 <= d0) continue; hwQuad(geo, 0, L, d0, d1); g.fillStyle = rgba(COL.iris, 0.14); g.fill(); }
@@ -10127,14 +10332,16 @@ function renderScene(sc, now){
   const glowRails = col => { g.globalCompositeOperation = 'lighter'; rails(col, 10, 0.2 + (reduced ? 0 : 0.08 * pulse)); g.globalCompositeOperation = 'source-over'; };
   if (sc.maxed){
     glowRails(MAXBLUE);
-    rails(sc.odActive ? COL.tungsten : MAXBLUE, 3.5, 0.95);
+    rails(railOD ? COL.tungsten : MAXBLUE, 3.5, 0.95);
     if (!reduced){
       g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
       for (let k = 0; k < 3; k++){ const ph = (now / 850 + k / 3) % 1, d1 = 1 - ph * 1.1, d0 = d1 - 0.14; g.lineWidth = 5; g.strokeStyle = rgba('#bfe4ff', 0.85 * Math.min(1, ph * 4)); railSeg(geo, 0, Math.max(-0.2, d0), Math.min(1, d1)); railSeg(geo, L, Math.max(-0.2, d0), Math.min(1, d1)); }
       g.lineCap = 'butt'; g.globalCompositeOperation = 'source-over';
     }
-  } else if (sc.odActive) rails(COL.tungsten, 2.5, 0.9);
+  } else if (railOD) rails(COL.tungsten, 2.5, 0.9);
   else rails(hs.rail, 2.5, 0.22);
+  // Overdrive just deployed: the gold is still running up the rails
+  if (odf){ g.lineWidth = sc.maxed ? 3.5 : 2.5; g.strokeStyle = rgba(COL.tungsten, 0.95); railSeg(geo, 0, odf.dBot, odf.d); railSeg(geo, L, odf.dBot, odf.d); }
   for (const sp of sc.uniSpans || []){
     const d0 = Math.max(-0.3, (sp.t0 - t) / look), d1 = Math.min(1, (sp.t1 - t) / look); if (d1 <= d0) continue;
     const ua = sp.ok ? 1 : 0.35;
@@ -10168,7 +10375,7 @@ function renderScene(sc, now){
     g.lineWidth = on ? 3 : 2.5; g.strokeStyle = on ? col : rgba(col, 0.7); g.stroke();
     if (sc.keys && fine){ g.fillStyle = rgba(COL.ink, on ? 0.9 : 0.5); g.font = `800 ${Math.round(clamp(h * 0.5, 10, 15))}px ${FONT_B}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(KEYS[L][l].toUpperCase(), cx, yH + 1); }
   }
-  drawGeoFx(g, geo, now); drawSparks(g);
+  drawGeoFx(g, geo, now); odDeployFx(g, geo, sc.odAt, now, yB); drawSparks(g);
   g.globalCompositeOperation = 'source-over';
   // Nothing written across the notes: solos, unisons and callouts sit in a tag at the far end of the highway,
   // and your timing and streak sit with the multiplier under the strikeline.
@@ -10363,12 +10570,12 @@ function frame(now){
       const vis = sp => sp.t1 > G.st - look * 0.3 && sp.t0 < G.st + look, uniSpans = [];
       if (bch && bch.type === 'unison' && bch.uniStart) bch.uni.forEach((pi, k) => { const sp = { t0:bch.uniStart[k], t1:bch.uniEnd[k] }; if (vis(sp)){ const ph = G.phrases[pi]; uniSpans.push(Object.assign(sp, { ok:!!ph && ph.count > 0 && (ph.live || ph.hit >= ph.count) })); } });
       const health = G.band && BAND.bh ? BAND.bh.H : G.rbBand && RBB.bh ? RBB.bh.H : G.career ? G.life / G.lifeMax : 1;
-      renderScene({ soloSpans:G.solos.filter(x => x.count && vis(x)), uniSpans, wh:G.wh, geo:geoPlay, t:G.st, look, brutal:G.tmods.has('brutal') ? 0.06 + (G.tmods.has('fog') ? G.hfx.brutalFog : G.hfx.brutal) * Math.min(1, G.combo / 60) : null, fog:G.tmods.has('fog') ? G.hfx.fog : 0, notes:G.notes, phrases:G.phrases, beats:G.chart.beats, pressed:G.pressed, odActive:G.odActive, combo:G.combo, judg:G.judg, keys:true, drawFrom:G.drawFrom, solo:so ? { pct:Math.round(so.hit / so.count * 100) } : null, soloMsg:G.soloMsg, danger:(!!G.career || G.rbBand) && health < 0.25, maxed, maxAt:G.maxAt, uniB, hud }, now);
+      renderScene({ odAt:odEdge(G, G.odActive, now), soloSpans:G.solos.filter(x => x.count && vis(x)), uniSpans, wh:G.wh, geo:geoPlay, t:G.st, look, brutal:G.tmods.has('brutal') ? 0.06 + (G.tmods.has('fog') ? G.hfx.brutalFog : G.hfx.brutal) * Math.min(1, G.combo / 60) : null, fog:G.tmods.has('fog') ? G.hfx.fog : 0, notes:G.notes, phrases:G.phrases, beats:G.chart.beats, pressed:G.pressed, odActive:G.odActive, combo:G.combo, judg:G.judg, keys:true, drawFrom:G.drawFrom, solo:so ? { pct:Math.round(so.hit / so.count * 100) } : null, soloMsg:G.soloMsg, danger:(!!G.career || G.rbBand) && health < 0.25, maxed, maxAt:G.maxAt, uniB, hud }, now);
       fretFlames(geoPlay, G.mode === 'play' ? G.held || [] : [], G.wh, now);
       // With a band, the big number is the band's score; yours sits under it.
       if (G.band) scorePanel(geoPlay, bandScore(), bandRatio(), now, G.sp, { label:`BAND · YOU ${fmtNum(Math.round(G.score))}` });
       else if (G.rbBand && RBB.br) scorePanel(geoPlay, rbbBandScore(), rbbBandRatio(), now, G.sp, { label:`BAND · YOU ${fmtNum(Math.round(G.score))}` });
-      else scorePanel(geoPlay, Math.round(G.score), (G.score - G.bonus) / (G.chart.potential * (G.potScale || 1)), now, G.sp);
+      else scorePanel(geoPlay, Math.round(G.score), gStarRatio(), now, G.sp);
       if (ik < 1){ g2.restore(); g2.fillStyle = `rgba(14,11,28,${(0.9 * (1 - ik)).toFixed(3)})`; g2.fillRect(0, 0, W, H); }
       if (G.band && settings.bandLanes) drawBandLanes(now);
     }
@@ -11207,7 +11414,7 @@ function rbtViewStart(kind){
     ${rbtPlayToggle()}
     <p class="t-sub">${b ? `Seven gigs with goals, a life meter and stage conditions. Gigs pay picks: open gear packs between shows and build a rig of one guitar, one amp and ${slotsMax().pedal} pedals. Your Vault, Fame and perks are shared with Stagelight’s Backstage.` : 'Seven gigs on one life meter, each with a goal and stage conditions. Spend what you earn on gear between shows.'} The setlist comes from your Rock Band songs: six at random, easiest first, then one of your hardest to headline.</p>
     <div><span class="label">Your part</span><div class="seg seg4" role="radiogroup" aria-label="Part">${RBT_PARTS.map(p => `<button type="button" role="radio" data-tp="${p}" aria-checked="${RBT.part === p}">${RB_PARTS[p]}</button>`).join('')}</div>
-    <p class="fine">${RBT.part === 'gamepad' ? 'Keys and touch: every song’s guitar part re-charted for thumbs, lifts and all.' : 'On a guitar controller, strums, hammer-ons, whammy and all.'} ${pool.length ? `${pool.length} of your songs ${pool.length === 1 ? 'has' : 'have'} this part.${pool.length < 7 ? ' With fewer than seven, some come round again.' : ''}` : 'None of your songs here have this part.'}</p></div>
+    <p class="fine">${RBT.part === 'gamepad' ? 'Keys, a controller or touch: every song’s guitar part at the same difficulty, chords and lifts and all.' : 'On a guitar controller, strums, hammer-ons, whammy and all.'} ${pool.length ? `${pool.length} of your songs ${pool.length === 1 ? 'has' : 'have'} this part.${pool.length < 7 ? ' With fewer than seven, some come round again.' : ''}` : 'None of your songs here have this part.'}</p></div>
     <div class="lv">${Object.entries(TOUR_LEVELS).map(([k, v]) => `<button type="button" class="lvb" data-k="${k}" aria-pressed="${k === RBT.level}"><b>${v.label}</b><small>${v.heat ? 'Expert charts · stage conditions from gig 1 that stack and heat up · one free Encore' : v.tiers[0] === v.tiers[1] ? DIFF_LABEL[v.tiers[0]] + ' charts' : `${DIFF_LABEL[v.tiers[0]]} charts, then ${DIFF_LABEL[v.tiers[1]]}`}</small></button>`).join('')}</div>
     ${rec.length ? `<p class="fine">Records · ${rec.join(' · ')}</p>` : ''}
     <p class="t-sub" id="tBuild" role="status"></p>
@@ -11317,7 +11524,7 @@ function rbtHudFrame(){
   if (!RBE.band) hudLifeSet(RBE.life / RBE.lifeMax);
   const gl = T.g.goal; let txt, ok;
   if (gl.type === 'stars' && RBE.band){ const sn = starCount(rbbBandRatio()); ok = sn >= gl.target; txt = `Band goal: ${gl.target} stars · now ${sn}`; }
-  else if (gl.type === 'stars'){ const sn = starCount(RBE.score / Math.max(1, RBE.chart.baseScore)); ok = sn >= gl.target; txt = `Goal: ${gl.target} stars · now ${sn}`; }
+  else if (gl.type === 'stars'){ const sn = starCount(rbStarRatio()); ok = sn >= gl.target; txt = `Goal: ${gl.target} stars · now ${sn}`; }
   else if (gl.type === 'points'){ ok = RBE.score >= gl.target; txt = `Goal: ${fmtNum(gl.target)} · now ${fmtNum(Math.round(RBE.score))}`; }
   else if (gl.type === 'hits'){ const spare = Math.floor(RBE.chords.length * (1 - gl.target / 100) + 1e-9) - RBE.misses; ok = spare >= 0; txt = ok ? `Goal: hit ${gl.target}% · ${spare} miss${spare === 1 ? '' : 'es'} to spare` : `Goal: hit ${gl.target}% · too many misses`; }
   else { ok = RBE.best >= gl.target; txt = `Goal: ${gl.target} streak · best ${RBE.best}`; }
@@ -11332,7 +11539,7 @@ function rbtEndPlay(){
 }
 function rbtFinish(failed){
   const T = RBE.tm, g = T.g, total = RBE.chords.length, hits = RBE.hits, jc = RBE.jc;
-  const res = { score:Math.round(RBE.score), ratio:RBE.score / Math.max(1, RBE.chart.baseScore), acc:total ? (jc.perfect + jc.great * 0.75 + jc.good * 0.4) / total : 0,
+  const res = { score:Math.round(RBE.score), ratio:rbStarRatio(), acc:total ? (jc.perfect + jc.great * 0.75 + jc.good * 0.4) / total : 0,
     fc:RBE.misses === 0 && hits === total && total > 0, hits, total, maxCombo:RBE.best };
   if (RBE.band){
     RBB.tourRes = res;
@@ -11929,7 +12136,7 @@ function bandLive(){
   if (!G.chart || !G.career) return;
   const c = G.counts;
   const B = BAND.bh, ex = B && B.auth === myPeer() ? { H:+B.H.toFixed(3), bf:B.fail ? 1 : 0 } : {};
-  bandPres({ live:{ g:G.career.i, s:Math.round(G.score), r:+((G.score - G.bonus) / (G.chart.potential * (G.potScale || 1))).toFixed(4), h:c.perfect + c.great + c.good, m:c.miss, mc:G.maxCombo,
+  bandPres({ live:{ g:G.career.i, s:Math.round(G.score), r:+gStarRatio().toFixed(4), h:c.perfect + c.great + c.good, m:c.miss, mc:G.maxCombo,
     bd:+bandMyD().toFixed(3), ...ex, w:Math.round(G.chart.potential * (G.potScale || 1)), od:+G.od.toFixed(2), on:!!G.odActive,
     op:G.opCount | 0, odn:G.odn | 0, ot:+(G.odSec || 0).toFixed(1), ux:bandUx(), cx:BAND.cx ? BAND.cx.best | 0 : 0, own:G.ownTotal | 0, ...judgLog() } });
 }
@@ -11962,7 +12169,7 @@ function bandFrame(now){
 // The band's score: everyone's points, shown as the big number.
 function bandScore(){ return Math.round(G.score) + bandMembers().filter(p => !p.sameTab).reduce((a, p) => { const l = liveOf(p); return a + (l ? l.s | 0 : 0); }, 0); }
 function bandRatio(){
-  let w = G.chart.potential * (G.potScale || 1), a = (G.score - G.bonus) / Math.max(1, w) * w;
+  let w = G.chart.potential * (G.potScale || 1), a = gStarRatio() * w;
   bandMembers().filter(p => !p.sameTab).forEach(p => { const l = liveOf(p); if (l && +l.w > 0){ a += (+l.r || 0) * +l.w; w += +l.w; } });
   return w > 0 ? a / w : 0;
 }
