@@ -144,6 +144,10 @@ input[type=range]{accent-color:var(--tungsten);width:132px}
 .p-timing{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:16px;border-top:1px solid var(--line)}
 .p-timing .ctl{margin-bottom:6px}
 .p-vol{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:14px;border-top:1px solid var(--line)}
+.p-set{display:grid;gap:10px;padding-top:14px;border-top:1px solid var(--line);text-align:left}
+.p-row{display:grid;grid-template-columns:96px minmax(0,1fr);align-items:center;gap:10px}
+.p-row .label{margin:0}.p-row .ctl{width:100%}.p-row input{flex:1;min-width:0}.p-row .seg button{font-size:12px;padding-left:4px;padding-right:4px}
+#pause .card{max-height:calc(100dvh - 24px);overflow-y:auto}
 .p-vol .ctl{width:100%;max-width:280px}.p-vol input{flex:1}
 .r-head{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
 .stars.big{font-size:36px;gap:6px;color:var(--ink)}
@@ -264,6 +268,7 @@ html.calm .reveal .cardx{animation:none}
 .build .mchip{background:transparent;border:1px solid var(--tungsten);color:var(--tungsten)}
 .lines{margin:0;display:flex;flex-direction:column;gap:4px;font-size:14px;font-variant-numeric:tabular-nums}
 .lines div{display:flex;justify-content:space-between;gap:12px;color:var(--muted)}
+.lines .band-total{color:var(--ink);font-weight:700}.lines .band-total b{font-size:1.15em}
 .lines div b{color:var(--ink);font-weight:600}
 .lines .total{border-top:1px solid var(--line);padding-top:6px;margin-top:2px;color:var(--ink);font-weight:700}
 .lines .total b{color:var(--tungsten)}
@@ -423,6 +428,7 @@ html.calm .cardx.mythic, html.calm .rip-card.r-mythic .cback, html.calm .rip-car
 .bm-band span{font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7dffa8}.bm-band b{font-family:var(--f-display);font-weight:800;font-size:16px;font-variant-numeric:tabular-nums}
 .bm-part{display:block;margin-top:2px;color:var(--muted);font-size:10px}
 .bm-life.rock i{background:#35d46a}.bm-life.rock.warn i{background:#ffd23d}.bm-life.rock.low i{background:#ff4d5e}
+.bm-life.od i{background:#8fd3ff}.bm.on .bm-life.od i{background:var(--tungsten)}
 .rb-tabs{grid-template-columns:repeat(2,1fr)}.rb-tabs button[aria-selected="true"]{background:#35d46a;color:#0b160f}
 .rbt-bt{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--stage)}
 .rbt-bt summary{cursor:pointer;font-weight:700;color:#ffd38a}
@@ -430,6 +436,25 @@ html.calm .cardx.mythic, html.calm .rip-card.r-mythic .cback, html.calm .rip-car
 .rbt-bt .lv{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
 .rbt-gig .goal{color:#ffd38a}
 .rbt-modes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* the Rock Band songs hub: ways to play across the top, then the songs */
+.rbh-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.rbh-tools{display:flex;gap:8px;flex-wrap:wrap}.rbh-tools .btn{display:inline-flex;align-items:center;gap:6px}.rbh-tools .rbh-ic{width:16px;height:16px}
+.rbh-ic{width:26px;height:26px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rbh-launch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.rbh-go{appearance:none;display:flex;align-items:center;gap:12px;text-align:left;padding:14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.035);color:var(--ink);font:inherit;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.rbh-go>span{display:flex;flex-direction:column;gap:2px;min-width:0}.rbh-go b{font-size:15px}.rbh-go small{color:var(--muted);font-size:12px;line-height:1.3}
+.rbh-go .rbh-ic{color:var(--acc);padding:9px;width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--acc) 16%,transparent)}
+.rbh-go:hover{border-color:color-mix(in srgb,var(--acc) 60%,transparent);background:color-mix(in srgb,var(--acc) 8%,transparent)}.rbh-go:active{transform:scale(.985)}
+.rbh-go:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.rbh-go.band{--acc:#35d46a}.rbh-go.tour{--acc:var(--amber)}.rbh-go.back{--acc:var(--iris)}
+.rbh-songs{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
+.rbh-sh{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.rbh-sh .label{margin:0}.rbh-pf{flex:1;min-width:260px;max-width:460px}
+.rbh-pfd{margin:0}.rbh-count{margin:0}
+.linkb{appearance:none;border:0;background:none;padding:0;color:var(--teal);font:inherit;text-decoration:underline;cursor:pointer}
+.rbh-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:26px 16px;border-radius:16px;border:1px dashed var(--line)}
+.rbh-empty .rbh-ic{width:40px;height:40px;color:var(--muted)}.rbh-empty .row .btn{flex:0 0 auto;padding-left:22px;padding-right:22px}.rbh-empty span{color:var(--muted);font-size:13px;max-width:560px;line-height:1.45}.rbh-empty .row{margin-top:6px}
+.rbh-foot{justify-content:flex-start}.rbh-note{margin:0}
+@media (max-width:640px){ .rbh-launch{grid-template-columns:1fr} .rbh-go{padding:11px 12px} .rbh-go .rbh-ic{width:38px;height:38px;padding:7px} .rbh-tools .btn span{display:none} }
 .rbt-mode{appearance:none;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:12px 14px;border-radius:16px;border:1px solid rgba(255,178,62,.45);background:linear-gradient(135deg,rgba(255,178,62,.14),rgba(255,178,62,.03));color:var(--ink);cursor:pointer;font:inherit}
 .rbt-mode b{font-size:15px}.rbt-mode small{color:var(--muted);font-size:12px;line-height:1.3}
 .rbt-mode.sc{grid-column:1 / -1;border-color:rgba(47,212,193,.45);background:linear-gradient(135deg,rgba(47,212,193,.14),rgba(47,212,193,.03))}
@@ -1060,9 +1085,12 @@ html.calm .od.ready{animation:none}html.calm #hudMult.bump{animation:none}html.c
       <span class="ctl"><button type="button" class="step" id="pSfxDown" aria-label="Move note sounds 5 ms earlier">−</button><span class="val" id="pSfxVal">+0 ms</span><button type="button" class="step" id="pSfxUp" aria-label="Move note sounds 5 ms later">+</button></span>
       <button type="button" class="btn small" id="pCalib">Calibrate</button>
     </div>
-    <div class="p-vol">
-      <span class="label" style="margin:0">Lead guitar volume</span>
-      <span class="ctl"><input type="range" id="pLead" min="0" max="10" step="1" aria-label="Lead guitar volume"><span class="val" id="pLeadVal">7</span></span>
+    <div class="p-set">
+      <div class="p-row"><span class="label">Note speed</span><span class="ctl"><input type="range" id="pSpeed" min="1" max="15" step="1" aria-label="Note speed"><span class="val" id="pSpeedVal">5</span></span></div>
+      <div class="p-row"><span class="label">Highway</span><div class="seg seg3" role="radiogroup" aria-label="Highway length" id="pHwSeg"><button type="button" role="radio" data-h="short">Short</button><button type="button" role="radio" data-h="medium">Medium</button><button type="button" role="radio" data-h="tall">Tall</button></div></div>
+      <div class="p-row"><span class="label">Song</span><span class="ctl"><input type="range" id="pSong" min="0" max="10" step="1" aria-label="Song volume"><span class="val" id="pSongVal">10</span></span></div>
+      <div class="p-row"><span class="label">Your part</span><span class="ctl"><input type="range" id="pLead" min="0" max="10" step="1" aria-label="Your part's volume"><span class="val" id="pLeadVal">7</span></span></div>
+      <div class="p-row"><span class="label">Note sounds</span><div class="seg seg3" role="radiogroup" aria-label="Note sounds" id="pSfxSeg"><button type="button" role="radio" data-s="notes">With notes</button><button type="button" role="radio" data-s="tap">On tap</button><button type="button" role="radio" data-s="off">Off</button></div></div>
     </div>
   </div>
 </div>
@@ -1489,7 +1517,7 @@ function finishChart(c){
   c.solos = c.solos || [];
   liftSpam(c.notes);
   let pot = 0, last = 0;
-  for (const n of c.notes){ pot += 50 + (n.end - n.t) * c.bps * 25; if (n.end > last) last = n.end; }
+  for (const n of c.notes){ pot += (c.ptsPer || 50) + (n.end - n.t) * c.bps * 25; if (n.end > last) last = n.end; }
   c.potential = Math.max(1, pot); c.lastNote = last;
   return c;
 }
@@ -1999,7 +2027,7 @@ const store = {
   get(k, d){ try { const v = localStorage.getItem('stagelight.' + k); return v ? JSON.parse(v) : d; } catch (e){ return d; } },
   set(k, v){ try { localStorage.setItem('stagelight.' + k, JSON.stringify(v)); } catch (e){} },
 };
-const settings = Object.assign({ diff:'medium', speed:5, offset:0, sfx:'notes', sfxNudge:0, fps:60, vsync:true, music:6, hwLen:'medium', swipeOD:true, bandLanes:true, leadVol:7, motion:'on', fx:'auto' }, store.get('settings', {}));
+const settings = Object.assign({ diff:'medium', speed:5, songVol:10, offset:0, sfx:'notes', sfxNudge:0, fps:60, vsync:true, music:6, hwLen:'medium', swipeOD:true, bandLanes:true, leadVol:7, motion:'on', fx:'auto' }, store.get('settings', {}));
 const applyFx = () => { reduced = settings.fx === 'off'; };
 applyFx();
 if (!(settings.leadVol >= 0 && settings.leadVol <= 10)) settings.leadVol = 7;
@@ -2191,10 +2219,11 @@ function resize(){
   if (G.chart) geoPlay = layout(G.chart.lanes, false, G.colors || paletteFor(G.chart));
   if (RBE && RBE.on) RBE.geo = layout(5, false, RB_COLORS);
   placeHud();
+  if (RBE && RBE.on) requestAnimationFrame(placeHud);
 }
 // On wide screens the Overdrive button sits right beside the strikeline, and bandmate cards move right to make room for their highways.
 function placeHud(){
-  const geo = geoPlay, side = !!geo && geo.left - insets.l >= 150;
+  const geo = RBE && RBE.on && RBE.geo && !RBE.lb && !RBE.sc && !RBE.vox ? RBE.geo : geoPlay, side = !!geo && geo.left - insets.l >= 150;
   btnOD.classList.toggle('side', side);
   btnOD.style.left = side ? Math.round(geo.left + geo.bw + 18) + 'px' : '';
   btnOD.style.top = side ? Math.round(geo.hitY - 25) + 'px' : '';
@@ -2494,7 +2523,7 @@ const ptr = new Map();
 let hc = { score:-1, mult:0, ratio:-1, od:-1, prog:-1 };
 let menuDim = 0;
 
-const mult = () => Math.min(G.mods.cap, 1 + Math.floor(G.combo / G.mods.step)) * (G.odActive ? G.mods.odX + (G.unison ? 1 : 0) : 1);
+const mult = () => Math.min(G.mods.cap, 1 + Math.floor(G.combo / G.mods.step)) * odStack(G.odActive, G.mods.odX, G.bandOd);
 function muteLead(){ if (!G.leadGain || G.leadMuted || !actx) return; G.leadMuted = true; G.leadGain.gain.cancelScheduledValues(actx.currentTime); G.leadGain.gain.setTargetAtTime(0.06, actx.currentTime, 0.015); }
 function unmuteLead(){ if (!G.leadGain || !actx) return; G.leadMuted = false; G.leadGain.gain.cancelScheduledValues(actx.currentTime); G.leadGain.gain.setTargetAtTime(leadLevel(), actx.currentTime, 0.01); }
 
@@ -2533,7 +2562,7 @@ function showScreen(s){
 function beginPlay(entry, chart, diff, inst, career, gacha){
   G.rbBand = false;
   G.career = career || null; G.gacha = !G.career && !!gacha;
-  G.band = !!(G.career && G.career.band); G.down = false; G.unison = false; G.opCount = 0; G.odn = 0; G.odSec = 0; G.maxOn = false; G.maxAt = 0; G.hudM = 0; G.multAt = 0; G.potScale = 1; G.ownTotal = 0; G.segLen = 0; G.segHas = null;
+  G.band = !!(G.career && G.career.band); G.down = false; G.unison = false; G.bandOd = 0; G.uniB = null; G.opCount = 0; G.odn = 0; G.odSec = 0; G.maxOn = false; G.maxAt = 0; G.hudM = 0; G.multAt = 0; G.potScale = 1; G.ownTotal = 0; G.segLen = 0; G.segHas = null;
   $('#bandHud').hidden = !G.band; $('#bandHud').innerHTML = ''; canvas.classList.remove('down');
   btnOD.classList.remove('save'); { const lab = btnOD.querySelector('.od-label'); if (lab) lab.textContent = 'Overdrive'; }
   G.mods = G.career ? modsFor(run) : NEUTRAL;
@@ -2575,7 +2604,7 @@ function beginPlay(entry, chart, diff, inst, career, gacha){
   G.colors = paletteFor(chart);
   geoPlay = layout(chart.lanes, false, G.colors); placeHud();
   [G.backGain, G.leadGain].forEach(gn => { if (gn) try { gn.disconnect(); } catch (e){} });
-  G.backGain = actx.createGain(); G.backGain.gain.value = entry.kind === 'built' ? 0.8 : 0.95; G.backGain.connect(master);
+  G.backGain = actx.createGain(); G.backGain.gain.value = (entry.kind === 'built' ? 0.8 : 0.95) * songK(); G.backGain.connect(master);
   G.leadGain = null;
   if (entry.kind === 'built' || entry.kind === 'rbpad'){ G.leadGain = actx.createGain(); G.leadGain.gain.value = entry.kind === 'rbpad' ? 1 : leadLevel(); G.leadGain.connect(master); }
   G.leadMuted = false;
@@ -2675,8 +2704,8 @@ function hit(n, t, id){
   const j = a <= G.win.perfect ? 'perfect' : a <= G.win.great ? 'great' : 'good';
   n.state = 'hit'; G.counts[j]++; G.combo++;
   if (G.combo > G.maxCombo) G.maxCombo = G.combo;
-  G.score += BASE[j] * mult() * G.mods.scoreMul * (j === 'perfect' ? G.mods.perfMul : 1);
-  if (G.career) G.life = Math.min(G.lifeMax, G.life + (j === 'good' ? 2 : 3.5) * G.mods.healMul * (n.lw || 1));
+  G.score += (G.chart.ptsPer || BASE[j]) * mult() * G.mods.scoreMul * (j === 'perfect' ? G.mods.perfMul : 1);
+  if (G.career){ const v = G.life + (j === 'good' ? 2 : 3.5) * G.mods.healMul * (n.lw || 1); G.life = G.band ? v : Math.min(G.lifeMax, v); }
   G.errSum += err; G.errN++;
   G.judg = { kind:j, err, at:performance.now() };
   burst(n.lane, j, geoPlay, performance.now(), false, odLive);
@@ -2692,8 +2721,9 @@ function miss(n){
   G.cold = true;
   if (G.career && G.mode === 'play'){
     G.life -= G.career.drain * G.mods.drainMul * G.tmDrain * (n.lw || 1);
-    if (G.mods.secondWind && !G.swUsed && G.life < G.lifeMax * 0.2){ G.swUsed = true; G.life = G.lifeMax * 0.6; G.soloMsg = { text:'SECOND WIND', sub:'Lifeline set bonus', at:performance.now() }; }
-    if (G.life <= 0) lifeOut();
+    if (G.band){ /* the band's meter decides */ }
+    else if (G.mods.secondWind && !G.swUsed && G.life < G.lifeMax * 0.2){ G.swUsed = true; G.life = G.lifeMax * 0.6; G.soloMsg = { text:'SECOND WIND', sub:'Lifeline set bonus', at:performance.now() }; }
+    if (G.life <= 0 && !G.band) lifeOut();
   }
   G.judg = { kind:'miss', err:0, at:performance.now() };
   if (G.mode === 'play' && !n.ghost) missFx(n.lane);
@@ -2704,9 +2734,8 @@ function activateOD(){
   if (RBE && RBE.on) return rbOD();
   if (G.mode !== 'play' || G.odActive || G.od < 0.5 || G.down) return;
   G.odActive = true; G.odn++;
-  if (G.band) bandSave();
-  if (G.rbBand) rbbSave();
-  if (G.career) G.life = Math.min(G.lifeMax, G.life + 20);
+  if (G.career && !G.band) G.life = Math.min(G.lifeMax, G.life + 20);
+  G.soloMsg = { text:'OVERDRIVE', sub:G.band || G.rbBand ? '2× more for the whole band' : 'Double points', at:performance.now() };
   const now = performance.now();
   for (let l = 0; l < 5; l++) lampAt[l] = now;
 }
@@ -3821,14 +3850,14 @@ function rbPoll(){
 }
 function rbStartPolling(){ if (!RBI.timer) RBI.timer = setInterval(rbPoll, 2); }
 function rbStopPolling(){ clearInterval(RBI.timer); RBI.timer = 0; }
-window.addEventListener('gamepadconnected', () => { if (RBE.view === 'setup' || RBE.view === 'songs' || RBE.view === 'load') rbView(RBE.view); });
+window.addEventListener('gamepadconnected', () => { if (RBE.view === 'setup' || RBE.view === 'songs' || RBE.view === 'rbpad') rbView(RBE.view); });
 window.addEventListener('gamepaddisconnected', () => { if (RBE.on && RBE.mode === 'play') rbPause(); });
 
 /* ---------- engine state ---------- */
 var RBE = { on:false, mode:'off', view:'load', song:null, part:'guitar', diff:'expert', noFail:store.get('rbNoFail', true) };
 const RB_WIN = 0.07, RB_STRUM_GRACE = 0.06;
 function rbReset(chart){
-  Object.assign(RBE, { sp:newSP(), down:false, unison:false, unisHit:0, unisTotal:0, wh:0, sparkAt:0, odFlash:0, pausePerf:0, chart, chords:chart.chords, gems:chart.gems, phrases:chart.phrases, solos:chart.solos, scan:0, drawFrom:0, score:0, combo:0, best:0, hits:0, misses:0, over:0,
+  Object.assign(RBE, { sp:newSP(), down:false, unison:false, bandOd:0, uniB:null, unisHit:0, unisTotal:0, wh:0, sparkAt:0, odFlash:0, pausePerf:0, chart, chords:chart.chords, gems:chart.gems, phrases:chart.phrases, solos:chart.solos, scan:0, drawFrom:0, score:0, combo:0, best:0, hits:0, misses:0, over:0,
     od:0, odActive:false, rock:0.5, failed:false, hold:null, pend:null, hopoTap:null, hopoTapAt:-9, hopoUsed:true, fretAt:-9, lastHitAt:-9, judg:null, soloMsg:null, st:-1e9, vt:null, maxOn:false, maxAt:0, multAt:0, hudM:0, pressed:[0, 0, 0, 0, 0], mask:0, tapAt:-1, endShown:false, odUsed:0, phrasesHit:0 });
   chart.chords.forEach(c => { c.state = null; c.gems.forEach(g => { g.state = null; g.holding = false; }); });
   chart.phrases.forEach(p => { p.hit = 0; p.live = true; });
@@ -3836,7 +3865,10 @@ function rbReset(chart){
   rbtSetup(chart);
 }
 const rbStep = () => RBE.tm ? RBE.tm.mods.step : 10;
-const rbMult = () => Math.min(RBE.cap, 1 + Math.floor(RBE.combo / rbStep())) * (RBE.odActive ? (RBE.unison ? 3 : 2) + (RBE.tm ? RBE.tm.mods.odX - 2 : 0) : 1);
+const rbMult = () => Math.min(RBE.cap, 1 + Math.floor(RBE.combo / rbStep())) * odStack(RBE.odActive, 2 + (RBE.tm ? RBE.tm.mods.odX - 2 : 0), RBE.bandOd);
+// In a band, your own play moves the band's health meter, so your part of it isn't capped at full or empty.
+const rbCoop = () => !!(RBE.band || RBE.lbp);
+const rbRockC = v => rbCoop() ? v : clamp(v, 0, 1);
 const rbTime = perf => heardAt(perf) - RBE.t0 - settings.offset / 1000;
 function rbBps(t){ const B = RBE.chart.beats; let k = lowerBound(B, t) - 1; k = clamp(k, 0, B.length - 2); const d = B[k + 1].t - B[k].t; return d > 0.05 ? 1 / d : 2; }
 // Single notes may be played with lower frets held (anchoring); chords need exactly their frets.
@@ -3853,7 +3885,7 @@ function rbHit(c, t, tap){
   RBE.combo++; RBE.best = Math.max(RBE.best, RBE.combo); RBE.hits++;
   if (RBE.jc) RBE.jc[kind]++;
   RBE.score += 25 * c.n * rbMult() * rbtScoreMul(kind);
-  if (RBE.tm) rbtHeal(kind, c); else RBE.rock = Math.min(1, RBE.rock + (RBE.odActive ? 0.03 : 0.018));
+  if (RBE.tm) rbtHeal(kind, c); else RBE.rock = rbRockC(RBE.rock + (RBE.odActive ? 0.03 : 0.018));
   RBE.judg = { kind, err:t - c.t, at:performance.now() };
   if (RBE.stemMuted) rbStemOn(true);
   const now = performance.now();
@@ -3861,7 +3893,7 @@ function rbHit(c, t, tap){
   if (c.od >= 0){ const ph = RBE.phrases[c.od]; if (ph && ph.live){ ph.hit++; if (ph.hit >= ph.count){
     ph.live = false; ph.done = true; RBE.phrasesHit++; RBE.od = Math.min(1, RBE.od + 0.25 * (RBE.tm ? RBE.tm.mods.odGain : 1)); RBE.odFlash = now;
     if (RBE.lbp) lbPhraseDone(RBE, ph);
-    else if (ph.uni){ const bonus = 100 * ph.count; RBE.score += bonus; RBE.od = Math.min(1, RBE.od + 0.125); RBE.unisHit++; RBE.soloMsg = { text:'UNISON BONUS!', sub:`+${fmtNum(bonus)} · extra Overdrive`, at:now }; }
+    else if (ph.uni) ph.uniDone = true;
     if (typeof ripSound === 'function') ripSound('glint'); } } }
   if (c.solo >= 0){ const so = RBE.solos[c.solo]; if (so) so.hit++; }
   if (c.sus){ RBE.hold = { c, last:c.t }; c.gems.forEach(g => { g.holding = true; }); }
@@ -3873,7 +3905,7 @@ function rbMissChord(c){
   if (RBE.down){ c.state = 'skip'; c.gems.forEach(g => { g.state = 'miss'; }); return; }
   c.state = 'miss'; c.gems.forEach(g => { g.state = 'miss'; });
   RBE.misses++;
-  if (RBE.tm) rbtHurt(c, 1); else { RBE.combo = 0; RBE.rock = Math.max(0, RBE.rock - 0.055); }
+  if (RBE.tm) rbtHurt(c, 1); else { RBE.combo = 0; RBE.rock = rbRockC(RBE.rock - 0.055); }
   RBE.judg = { kind:'miss', err:0, at:performance.now() };
   if (c.od >= 0 && RBE.phrases[c.od]) RBE.phrases[c.od].live = false;
   c.gems.forEach(g => missFx(g.lane));
@@ -3881,7 +3913,7 @@ function rbMissChord(c){
 }
 function rbOverstrum(){
   RBE.over++;
-  if (RBE.tm) rbtHurt(null, 0.5); else { RBE.combo = 0; RBE.rock = Math.max(0, RBE.rock - 0.035); }
+  if (RBE.tm) rbtHurt(null, 0.5); else { RBE.combo = 0; RBE.rock = rbRockC(RBE.rock - 0.035); }
   RBE.judg = { kind:'miss', err:0, at:performance.now(), over:true };
   rbStemOn(false);
   rbDropHold();
@@ -3942,9 +3974,60 @@ function rbOD(){
   if (RBE.vox) return voxOD('button');
   if (!RBE.on || RBE.mode !== 'play' || RBE.odActive || RBE.od < 0.5) return;
   RBE.odActive = true; RBE.odUsed++;
-  RBE.soloMsg = { text:'OVERDRIVE', sub:'Double points', at:performance.now() };
+  RBE.soloMsg = { text:'OVERDRIVE', sub:RBE.band ? '2× more for the whole band' : 'Double points', at:performance.now() };
   if (typeof ripSound === 'function') ripSound('shock');
-  if (RBE.band) rbbSave();
+}
+/* Unison phrases: Overdrive phrases your part shares with other instruments. Played alone, finishing yours pays the extra
+   bar the whole band would get; in a band it pays once everyone in it has finished their part. The banner over the
+   highway shows who's in it and lights up each instrument as it's done. */
+function rbUniMembers(p){
+  const mine = RBE.part === 'gamepad' ? RBE.padSrc || 'guitar' : RBE.part;
+  if (!p.uniParts) p.uniParts = RBE.midi ? uniPartsOf(RBE.midi, p.t0, p.t1, mine) : [mine];
+  if (!RBE.band) return p.uniParts.map(k => ({ kind:k, me:k === mine, done:false }));
+  const out = [{ kind:mine, me:true, done:false }];
+  rbbOthers().forEach(o => { const pt = o.presence.part === 'gamepad' ? 'guitar' : o.presence.part; if (pt && !isVox(pt) && p.uniParts.includes(pt)) out.push({ kind:pt, id:o.peer, done:false }); });
+  return out;
+}
+function rbUniFrame(st, now){
+  let U = RBE.uniB;
+  if (U && U.state !== 'live' && now - U.endAt > 1800) U = RBE.uniB = null;
+  if (!U){
+    const p = RBE.phrases.find(q => q.uni && !q.uniSeen && st > q.t0 - 0.5 && st < q.t1 + 0.5);
+    if (p){ p.uniSeen = true; U = RBE.uniB = { ph:p, state:'live', endAt:0, members:rbUniMembers(p), solo:!RBE.band }; }
+  }
+  if (!U || U.state !== 'live') return;
+  const p = U.ph, me = U.members.find(m => m.me);
+  const key = [Math.round(p.t0 * 100) / 100, Math.round(p.t1 * 100) / 100];
+  if (p.uniDone && !me.done){ me.done = true; if (RBE.band) RBB.ud = (RBB.ud || []).concat([key]).slice(-6); }
+  if (!p.live && !p.uniDone){
+    U.state = 'lost'; U.endAt = now; me.lost = true;
+    if (RBE.band) RBB.ul = (RBB.ul || []).concat([key]).slice(-6);
+    return;
+  }
+  if (!RBE.band){ if (me.done) U.members.forEach(m => { m.done = true; }); }
+  else {
+    const ov = (a, b) => Array.isArray(b) && Math.min(a[1], b[1]) - Math.max(a[0], b[0]) > 0.5 * Math.min(a[1] - a[0], b[1] - b[0]);
+    const here = new Set(rbbOthers().map(o => o.peer));
+    U.members.forEach(m => {
+      if (!m.id || m.done) return;
+      const o = rbbOthers().find(x => x.peer === m.id), l = o && rbbLiveOf(o);
+      if (!here.has(m.id)){ m.done = true; return; }
+      if (l && Array.isArray(l.ud) && l.ud.some(k => ov(key, k))) m.done = true;
+      else if (l && Array.isArray(l.ul) && l.ul.some(k => ov(key, k))){ m.lost = true; U.state = 'lost'; U.endAt = now; }
+    });
+    if (U.state === 'live' && st > p.t1 + 4 && !U.members.every(m => m.done)){ U.state = 'lost'; U.endAt = now; }
+  }
+  if (U.state === 'live' && U.members.every(m => m.done)){
+    U.state = 'paid'; U.endAt = now;
+    RBE.od = Math.min(1, RBE.od + 0.25); RBE.unisHit++;
+    if (typeof ripSound === 'function') ripSound('glint');
+  }
+}
+// The band's health ran out: the song ends for everyone.
+function rbBandFailed(){
+  RBE.soloMsg = { text:'BAND FAILED', sub:'The band’s health ran out', at:performance.now() };
+  if (RBE.vox) RBE.vox.pop = Object.assign({ col:COL.miss }, RBE.soloMsg);
+  rbFinish(true);
 }
 
 /* ---------- playback ---------- */
@@ -3952,7 +4035,7 @@ function rbStartAudio(at){
   const ctx = actx;
   RBE.srcs = [];
   RBE.stemGain = ctx.createGain(); RBE.backGain = ctx.createGain();
-  RBE.stemGain.gain.value = RBE.vox || (RBE.lb && RBE.lb.vox) ? voxGuide() / 10 * 1.1 : settings.leadVol / 10 * 1.1; RBE.backGain.gain.value = 0.9;
+  RBE.stemGain.gain.value = RBE.vox || (RBE.lb && RBE.lb.vox) ? voxGuide() / 10 * 1.1 : settings.leadVol / 10 * 1.1; RBE.backGain.gain.value = 0.9 * songK();
   RBE.stemGain.connect(master); RBE.backGain.connect(master);
   const when = ctx.currentTime + 0.12, off = Math.max(0, at);
   [[RBE.audio.stem, RBE.stemGain], [RBE.audio.back, RBE.backGain]].forEach(([b, gn]) => {
@@ -3992,7 +4075,7 @@ async function rbPlay(){
   RBE.geo = layout(5, false, RB_COLORS);
   RBE.on = true; RBE.mode = 'play'; RBE.view = 'play';
   $('#rbx').hidden = true; menuEl.hidden = true;
-  showScreen('play');
+  showScreen('play'); placeHud();
   $('#hudTitle').textContent = `${RBE.band ? 'Band ' + RBB.code + ' · ' : ''}${song.name} · ${RB_PARTS[RBE.part] || 'Guitar'} ${RB_DIFF_LABEL[RBE.diff]}`;
   $('#hudLife').hidden = true; $('#hudGoal').hidden = true; $('#bandHud').hidden = !RBE.band; $('#bandHud').innerHTML = ''; RBB.hudHTML = ''; canvas.classList.remove('down');
   hudProg.style.width = '0%'; RBE.prog = -1;
@@ -4095,9 +4178,10 @@ function rbUpdate(dt, now){
   RBE.solos.forEach(so => {
     if (!so.done && st > so.t1 + 0.1){ so.done = true; const pct = so.hit / so.count; RBE.score += so.hit * 100 * (pct >= 1 ? 2 : 1) * (RBE.tm ? RBE.tm.mods.soloMul : 1); RBE.soloMsg = { text:pct >= 1 ? 'PERFECT SOLO!' : pct >= 0.9 ? 'AWESOME SOLO!' : pct >= 0.6 ? 'GREAT SOLO' : 'SOLO', sub:`${Math.round(pct * 100)}% · +${fmtNum(so.hit * 100 * (pct >= 1 ? 2 : 1))}`, at:performance.now() }; }
   });
-  if (!rbNoFail() && RBE.rock <= 0 && !RBE.down){ if (RBE.band && rbbOthers().length) rbDown(); else return rbFinish(true); }
+  rbUniFrame(st, now);
+  if (RBE.band){ if (RBB.br) rbbFrame(now); if (RBB.bh && RBB.bh.fail && RBE.mode === 'play') return rbBandFailed(); }
+  else if (!rbNoFail() && RBE.rock <= 0) return rbFinish(true);
   if (st > RBE.chart.end){ rbFinish(false); return; }
-  if (RBE.band && RBB.br) rbbFrame(now);
 }
 function rbBotStep(st){
   const C = RBE.chords;
@@ -4119,16 +4203,17 @@ function rbDraw(now){
   if (maxed && !RBE.maxOn) RBE.maxAt = now; RBE.maxOn = maxed;
   const m = rbMult(); if (m > RBE.hudM && RBE.hudM) RBE.multAt = now; RBE.hudM = m;
   const so = RBE.solos.find(x => !x.done && st >= x.t0 && st < x.t1 + 0.1);
-  const hud = { mult:m, base, cap:RBE.cap, step:rbStep(), combo:RBE.combo, od:RBE.od, odActive:RBE.odActive, down:!!RBE.down, unison:!!RBE.unison, multAt:RBE.multAt, save:btnOD.classList.contains('save'), label:btnOD.classList.contains('save') ? 'DEPLOY TO SAVE YOUR BANDMATE' : 'TILT OR SELECT TO DEPLOY' };
-  btnOD.classList.toggle('ready', RBE.od >= 0.5 && !RBE.odActive && !RBE.down); btnOD.classList.toggle('active', RBE.odActive);
-  let uni = null;
-  for (const p of RBE.phrases){ if (p.uni && st > p.t0 - 0.4 && st < p.t1 + 0.3){ uni = { ok:p.live || !!p.done, sub:p.done ? 'Bonus earned' : p.live ? 'Hit every ringed note for the bonus' : 'You dropped a note in this one' }; break; } }
+  const hud = { mult:m, base, cap:RBE.cap, step:rbStep(), combo:RBE.combo, od:RBE.od, odActive:RBE.odActive, multAt:RBE.multAt, bandOd:RBE.bandOd, bandK:odStack(RBE.odActive, 2, RBE.bandOd), label:'TILT OR SELECT TO DEPLOY' };
+  btnOD.classList.toggle('ready', RBE.od >= 0.5 && !RBE.odActive); btnOD.classList.toggle('active', RBE.odActive);
   const vis = sp => sp.t1 > st - look * 0.3 && sp.t0 < st + look;
-  renderScene({ soloSpans:RBE.solos.filter(vis), uniSpans:RBE.phrases.filter(p => p.uni && vis(p)).map(p => ({ t0:p.t0, t1:p.t1, ok:p.live || !!p.done })), geo:RBE.geo, t:st, look, brutal:tm && tm.tmods.has('brutal') ? 0.06 + (tm.tmods.has('fog') ? tm.hfx.brutalFog : tm.hfx.brutal) * Math.min(1, RBE.combo / 60) : null, fog:tm && tm.tmods.has('fog') ? tm.hfx.fog : 0, notes:RBE.gems, phrases:RBE.phrases, beats:RBE.chart.beats, pressed:RBE.pressed, odActive:RBE.odActive, combo:RBE.combo, judg:RBE.judg, keys:false, drawFrom:RBE.drawFrom, solo:so ? { pct:Math.round(so.hit / so.count * 100) } : null, soloMsg:RBE.soloMsg, danger:RBE.rock < 0.2 && !rbNoFail(), maxed, maxAt:RBE.maxAt, uni, hud, rb:true, wh:RBE.wh }, now);
+  const health = RBE.band ? (RBB.bh ? RBB.bh.H : 0.6) : RBE.rock;
+  renderScene({ soloSpans:RBE.solos.filter(vis), uniSpans:RBE.phrases.filter(p => p.uni && vis(p)).map(p => ({ t0:p.t0, t1:p.t1, ok:p.live || !!p.done })), geo:RBE.geo, t:st, look, brutal:tm && tm.tmods.has('brutal') ? 0.06 + (tm.tmods.has('fog') ? tm.hfx.brutalFog : tm.hfx.brutal) * Math.min(1, RBE.combo / 60) : null, fog:tm && tm.tmods.has('fog') ? tm.hfx.fog : 0, notes:RBE.gems, phrases:RBE.phrases, beats:RBE.chart.beats, pressed:RBE.pressed, odActive:RBE.odActive, combo:RBE.combo, judg:RBE.judg, keys:false, drawFrom:RBE.drawFrom, solo:so ? { pct:Math.round(so.hit / so.count * 100) } : null, soloMsg:RBE.soloMsg, danger:health < 0.2 && !rbNoFail(), maxed, maxAt:RBE.maxAt, uniB:RBE.uniB, hud, rb:true, wh:RBE.wh }, now);
   rbFretFlames(now);
-  rbRockMeter(now);
   if (tm) rbtHudFrame();
-  scorePanel(RBE.geo, Math.round(RBE.score), RBE.score / Math.max(1, RBE.chart.baseScore), now, RBE.sp, { below:RBE.geo.left - insets.l >= 70 ? 0 : 30 });
+  if (RBE.band || !tm) hudLifeSet(health, RBE.band || !rbNoFail());
+  // In a band the big number is the band's score; yours sits under it.
+  if (RBE.band) scorePanel(RBE.geo, rbbBandScore(), rbbBandRatio(), now, RBE.sp, { label:`BAND · YOU ${fmtNum(Math.round(RBE.score))}` });
+  else scorePanel(RBE.geo, Math.round(RBE.score), RBE.score / Math.max(1, RBE.chart.baseScore), now, RBE.sp);
   // top HUD
   const sc = Math.round(RBE.score);
   if (sc !== RBE.hudScore){ RBE.hudScore = sc; $('#hudScore').textContent = fmtNum(sc); setStars($('#hudStars'), RBE.score / Math.max(1, RBE.chart.baseScore)); }
@@ -4193,6 +4278,14 @@ function rbOpen(view){
   rbView(view || (RBB.br ? 'band' : 'load'));
 }
 function rbClose(){ rbxPreviewStop(); voxMicsStop(); RBE.pickFor = null; LBX.kit = null; if (RBB.br) rbbLeave(true); rbEl.hidden = true; RBE.liveEl = null; RBI.wiz = null; if (!RBE.on) rbStopPolling(); if (!menuEl.hidden && menuView === 'home') requestAnimationFrame(() => modeBack($('#modeRB'))); }
+const RBLIB_NONE = () => RBLIB.err === 'nohost' || !window.claude;
+const RBH_ICON = {
+  band:'<svg class="rbh-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3.2"/><circle cx="16.5" cy="9" r="2.6"/><path d="M2.5 19c.6-3.4 2.9-5.2 5.5-5.2s4.9 1.8 5.5 5.2M13.6 14.6c.9-.6 1.9-.9 2.9-.9 2.2 0 4.1 1.5 4.6 4.6"/></svg>',
+  tour:'<svg class="rbh-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4M5 4h11l-2.5 4L16 12H5"/></svg>',
+  pack:'<svg class="rbh-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="6" width="11" height="14" rx="2"/><path d="M8 3.5h9a2 2 0 0 1 2 2V17"/></svg>',
+  folder:'<svg class="rbh-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2h8.5A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"/></svg>',
+  pad:'<svg class="rbh-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 4 4v1.5a3.5 3.5 0 0 1-6.3 2.1L14 14.5h-4l-.7 1.1A3.5 3.5 0 0 1 3 13.5V12a4 4 0 0 1 4-4z"/><path d="M7.5 11v3M6 12.5h3"/></svg>'
+};
 function rbPadPanel(){
   const pads = rbPadList(), pad = pads.find(p => p.index === RBI.padIdx) || pads.find(p => rbMapFor(p)) || pads[0];
   const m = rbMapFor(pad), name = pad ? pad.id.replace(/\s*\(.*?\)\s*/g, ' ').trim().slice(0, 48) || 'Controller' : '';
@@ -4243,33 +4336,70 @@ function rbView(view, msg){
   if (view === 'loading'){ rbBody.innerHTML = `<p class="eyebrow">Rock Band charts · beta</p><h2 class="card-title">Loading</h2><div class="rb-spin" aria-hidden="true"></div><p class="t-sub" role="status">${rbEsc(msg || '')}</p>`; return; }
   if (view === 'load'){
     rbLocLoadIndex();
-    const tab = RBLOC.tab === 'lib' ? 'lib' : 'mine', good = msg && /library now|out of the library|^Removed|^Found \d/.test(msg);
-    const pick = RBE.pickFor;
-    rbBody.innerHTML = `<p class="eyebrow">${pick === 'lb' ? 'Local band' : pick ? 'Showcase' : 'Rock Band charts · beta'}</p><h2 class="card-title">${pick === 'lb' ? 'Pick a song for the band' : pick ? 'Pick a song to showcase' : 'Play a Rock Band song'}</h2>
-      ${!window.claude ? '<p class="sc-off">This copy isn’t running on claude.ai: the mic and MIDI drum kits work here, but the song library, uploads and online bands only work in the claude.ai version.</p>' : ''}
-      ${pick === 'lb' ? '<div class="sc-pick"><span>Everyone plays on this computer: vocals with up to 3 mics, and guitar, drums, bass and keys on their own controllers.</span><div class="row"><button type="button" class="btn small" id="scCancel">Cancel</button></div></div>'
-        : pick ? '<div class="sc-pick"><span>Every part plays itself with the song, so you can check the chart.</span><div class="row"><button type="button" class="btn small" id="scSendCon">Send a CON instead</button><button type="button" class="btn small" id="scCancel">Cancel</button></div></div>' : ''}
+    const tab = RBLOC.tab === 'lib' && !RBLIB_NONE() ? 'lib' : 'mine', good = msg && /library now|out of the library|^Removed|^Found \d/.test(msg);
+    const pick = RBE.pickFor || 'solo', n = RBLOC.index.length, live = RBLOC.files.size > 0;
+    const PF = { solo:['Play solo', 'Pick a song, then your part and difficulty: guitar, bass, keys, gamepad, vocals or harmonies.'], lb:['Local band', 'Everyone on this computer: up to three mics, and guitar, drums, bass and keys on their own controllers.'], show:['Showcase', 'Every part plays itself with the song, so you can check a chart.'] };
+    const songsHead = !RBLOC.loaded ? 'Loading your songs…' : n ? `${n} song${n === 1 ? '' : 's'}${RBLOC.folder ? ` from ${rbEsc(RBLOC.folder)}` : ''}${live ? '' : ' · pick the folder again to play them this visit'}` : '';
+    rbBody.innerHTML = `<div class="rbh-top"><div><p class="eyebrow">Rock Band charts · beta</p><h2 class="card-title">Rock Band songs</h2></div>
+        <div class="rbh-tools"><button type="button" class="btn small" id="rbSrcB" aria-label="Song sources">${RBH_ICON.folder}<span>Song sources</span></button><button type="button" class="btn small" id="rbPadB" aria-label="Controller">${RBH_ICON.pad}<span>Controller</span></button></div></div>
       ${msg ? `<p class="${good ? 'rb-ok' : 'rb-err'}" role="alert">${rbEsc(msg)}</p>` : ''}
-      <div class="tabs rb-tabs" role="tablist"><button type="button" role="tab" data-tab="mine" aria-selected="${tab === 'mine'}">Your songs${RBLOC.index.length ? ' · ' + RBLOC.index.length : ''}</button><button type="button" role="tab" data-tab="lib" aria-selected="${tab === 'lib'}">Song library${RBLIB.list.length ? ' · ' + RBLIB.list.length : ''}</button></div>
-      <div class="stack">${tab === 'mine' ? rbLocHTML() : `<div id="rbLib">${RBLIB.ready && RBLIB.list.length ? rbxHTML('lib') : rbLibHTML()}</div><p class="fine" id="rbUsage"></p>`}</div>
-      ${pick ? '' : `<button type="button" class="btn primary" id="rbBand">Play with friends</button>
-      <div class="rbt-modes"><button type="button" class="rbt-mode" id="rbTourB"><b>Tour</b><small>${rbGearRun ? `Continue · Gig ${rbGearRun.gig + 1} of ${VENUES.length}` : 'Seven gigs from your songs, with goals and gear'}</small></button><button type="button" class="rbt-mode bk" id="rbStageB"><b>Backstage</b><small>${rbBackRun ? `Continue · Gig ${rbBackRun.gig + 1} of ${VENUES.length}` : 'The tour with gear packs, your Vault and Fame'}</small></button><button type="button" class="rbt-mode lbm" id="rbLbB"><b>Local band</b><small>Everyone on this computer: mics, guitars, drums and keys</small></button><button type="button" class="rbt-mode sc" id="rbShowB"><b>Showcase</b><small>Watch every part of a song play itself, to check the chart</small></button></div>
-      ${rbPadPanel()}`}
-      <button type="button" class="btn" id="rbExit">Back to menu</button>`;
+      <div class="rbh-launch">
+        <button type="button" class="rbh-go band" id="rbBand">${RBH_ICON.band}<span><b>Play with friends</b><small>${BAND.p2p || !window.claude ? 'Online, each on your own device, with a band code' : 'Online, each on your own device'}</small></span></button>
+        <button type="button" class="rbh-go tour" id="rbTourB">${RBH_ICON.tour}<span><b>Tour</b><small>${rbGearRun ? `Continue · Gig ${rbGearRun.gig + 1} of ${VENUES.length}` : 'Seven gigs from your songs, with goals and gear'}</small></span></button>
+        <button type="button" class="rbh-go back" id="rbStageB">${RBH_ICON.pack}<span><b>Backstage</b><small>${rbBackRun ? `Continue · Gig ${rbBackRun.gig + 1} of ${VENUES.length}` : 'The tour with gear packs, your Vault and Fame'}</small></span></button>
+      </div>
+      <section class="rbh-songs">
+        <div class="rbh-sh"><span class="label">Pick a song to</span>
+          <div class="seg seg3 rbh-pf" role="radiogroup" aria-label="What a song starts">${Object.entries(PF).map(([k, v]) => `<button type="button" role="radio" id="${{ solo:'rbSoloB', lb:'rbLbB', show:'rbShowB' }[k]}" data-pf="${k}" aria-checked="${pick === k}">${v[0]}</button>`).join('')}</div></div>
+        <p class="fine rbh-pfd">${PF[pick][1]}${pick === 'show' ? ' <button type="button" class="linkb" id="scSendCon">Or send a CON file</button>' : ''}</p>
+        ${RBLIB_NONE() ? '' : `<div class="tabs rb-tabs" role="tablist"><button type="button" role="tab" data-tab="mine" aria-selected="${tab === 'mine'}">Your songs${n ? ' · ' + n : ''}</button><button type="button" role="tab" data-tab="lib" aria-selected="${tab === 'lib'}">Song library${RBLIB.list.length ? ' · ' + RBLIB.list.length : ''}</button></div>`}
+        ${tab === 'mine' ? (n ? `<p class="t-sub rbh-count">${songsHead}${live ? '' : ` <button type="button" class="linkb" id="rbPickDir">Pick the folder</button>`}</p>${rbxHTML('mine')}`
+          : RBLOC.loaded ? `<div class="rbh-empty">${RBH_ICON.folder}<b>Add your songs</b><span>Point Stagelight at the folder where you keep your Rock Band songs: CON files, Clone Hero and YARG song folders, or RPCS3’s Rock Band 3 folder (dev_hdd0/game/BLUS30463/USRDIR). It only reads the song lists and charts, and nothing is uploaded.</span>
+              <div class="row"><button type="button" class="btn primary" id="rbPickDir">Choose your songs folder</button><button type="button" class="btn" id="rbPickCons">Pick CON files</button></div></div>`
+          : `<p class="t-sub">${songsHead}</p>`)
+          : `<div id="rbLib">${RBLIB.ready && RBLIB.list.length ? rbxHTML('lib') : rbLibHTML()}</div><p class="fine" id="rbUsage"></p>`}
+      </section>
+      <div class="row rbh-foot"><button type="button" class="btn" id="rbExit">Back to menu</button></div>
+      ${!window.claude ? '<p class="fine rbh-note">You’re on the website: mics, MIDI drum kits and online bands all work here. The shared song library and uploads are in the claude.ai version.</p>' : ''}`;
     rbBody.querySelectorAll('[data-tab]').forEach(x => x.addEventListener('click', () => { RBLOC.tab = x.dataset.tab; store.set('rbTab', RBLOC.tab); rbView('load'); }));
+    rbBody.querySelectorAll('[data-pf]').forEach(x => x.addEventListener('click', () => { uiTick(); ensureCtx(); RBE.pickFor = x.dataset.pf === 'solo' ? null : x.dataset.pf; if (RBE.pickFor) RBLOC.tab = 'mine'; rbView('load'); }));
     $('#rbExit').addEventListener('click', rbClose);
-    if (pick){
-      const sc = $('#scSendCon'); if (sc) sc.addEventListener('click', () => { uiTick(); ensureCtx(); const i = $('#scCon'); i.value = ''; i.click(); });
-      $('#scCancel').addEventListener('click', () => { uiTick(); RBE.pickFor = null; rbView('load'); });
-    } else {
-      $('#rbBand').addEventListener('click', () => { uiTick(); rbView('bandfind'); });
-      $('#rbTourB').addEventListener('click', () => { uiTick(); ensureCtx(); rbtEnter('gear'); });
-      $('#rbStageB').addEventListener('click', () => { uiTick(); ensureCtx(); rbtEnter('gacha'); });
-      $('#rbShowB').addEventListener('click', () => { uiTick(); ensureCtx(); RBE.pickFor = 'show'; RBLOC.tab = 'mine'; rbView('load'); });
-      $('#rbLbB').addEventListener('click', () => { uiTick(); ensureCtx(); RBE.pickFor = 'lb'; RBLOC.tab = 'mine'; rbView('load'); });
-    }
-    if (tab === 'mine') rbLocWire(); else { rbLibWire($('#rbLib')); rbxWire(); rbLibUsage(); }
-    rbWire(); return;
+    $('#rbSrcB').addEventListener('click', () => { uiTick(); rbView('rbsrc'); });
+    $('#rbPadB').addEventListener('click', () => { uiTick(); rbView('rbpad'); });
+    $('#rbBand').addEventListener('click', () => { uiTick(); RBE.pickFor = null; rbView('bandfind'); });
+    $('#rbTourB').addEventListener('click', () => { uiTick(); ensureCtx(); RBE.pickFor = null; rbtEnter('gear'); });
+    $('#rbStageB').addEventListener('click', () => { uiTick(); ensureCtx(); RBE.pickFor = null; rbtEnter('gacha'); });
+    const sc = $('#scSendCon'); if (sc) sc.addEventListener('click', () => { uiTick(); ensureCtx(); const i = $('#scCon'); i.value = ''; i.click(); });
+    const pd = $('#rbPickDir'); if (pd) pd.addEventListener('click', () => { uiTick(); rbPickFolder(); });
+    const pc = $('#rbPickCons'); if (pc) pc.addEventListener('click', () => { const i = $('#rbCons'); i.value = ''; i.click(); });
+    if (tab === 'mine') rbxWire(); else { rbLibWire($('#rbLib')); rbxWire(); rbLibUsage(); }
+    rbUpdKeys();
+    return;
+  }
+  // Where songs come from: your folder, CON files, and the Rock Band 3 Deluxe updates.
+  if (view === 'rbsrc'){
+    rbLocLoadIndex();
+    const n = RBLOC.index.length, live = RBLOC.files.size > 0;
+    rbBody.innerHTML = `<p class="eyebrow">Rock Band songs</p><h2 class="card-title">Song sources</h2>
+      ${msg ? `<p class="${/^Found \d/.test(msg) ? 'rb-ok' : 'rb-err'}" role="alert">${rbEsc(msg)}</p>` : ''}
+      <div class="rb-pad"><div class="rbp-h"><b>Your songs folder</b><small>${n ? `${n} song${n === 1 ? '' : 's'}${RBLOC.folder ? ` from ${rbEsc(RBLOC.folder)}` : ''}.${live ? ' Scan again after adding songs.' : ' Browsers don’t let a page keep reading your files between visits, so pick it again to play them.'}` : 'CON files, Clone Hero and YARG song folders (a notes.mid with its audio), and RPCS3’s Rock Band 3 songs (pick dev_hdd0/game/BLUS30463/USRDIR). Only the song lists and charts are read, so a big folder is quick.'}</small></div>
+        <div class="row"><button type="button" class="btn small${n && live ? '' : ' primary'}" id="rbPickDir">${n ? (live ? 'Scan the folder again' : 'Pick your songs folder') : 'Choose your songs folder'}</button><button type="button" class="btn small" id="rbPickCons">Pick CON files</button></div></div>
+      ${rbUpdHTML()}
+      ${!window.claude ? '<p class="fine">The shared song library, where everyone you share Stagelight with can download songs, is in the claude.ai version.</p>' : ''}
+      <div class="row"><button type="button" class="btn" id="rbSrcBack">Back to songs</button></div>`;
+    $('#rbPickDir').addEventListener('click', () => { uiTick(); rbPickFolder(); });
+    $('#rbPickCons').addEventListener('click', () => { const i = $('#rbCons'); i.value = ''; i.click(); });
+    $('#rbSrcBack').addEventListener('click', () => rbView('load'));
+    rbUpdWire(); rbUpdKeys().then(k => { if (k.size && !RBU.msg && document.getElementById('rbUpd')) rbUpdRefresh(); });
+    return;
+  }
+  // The controller: what's plugged in, a live check of the frets, and setup.
+  if (view === 'rbpad'){
+    rbBody.innerHTML = `<p class="eyebrow">Rock Band songs</p><h2 class="card-title">Controller</h2>${rbPadPanel()}
+      <div class="row"><button type="button" class="btn" id="rbPadBack">Back to songs</button></div>`;
+    $('#rbPadBack').addEventListener('click', () => rbView('load'));
+    rbWire();
+    return;
   }
   if (view === 'songs'){
     RBE.songsMsg = msg;
@@ -5067,9 +5197,9 @@ function rbbPick(d){
 /* during a band song */
 function rbbGo(){
   const st = RBB.st;
-  Object.assign(RBB, { playEpoch:st.epoch, lineup:st.lineup.slice(), myFin:null, finAt:0, mySv:0, saveSeen:{}, allDownAt:0, hudHTML:'', lastLive:0 });
+  Object.assign(RBB, { playEpoch:st.epoch, lineup:st.lineup.slice(), myFin:null, finAt:0, hudHTML:'', lastLive:0, bh:bhNew(0.6), rock0:null, ud:[], ul:[] });
   RBE.band = true;
-  rbbPres({ at:'play', fin:null, live:{ e:st.epoch, s:0, c:0, r:0.5, od:0, on:false, dn:false, sv:0, p:100 } });
+  rbbPres({ at:'play', fin:null, live:{ e:st.epoch, s:0, c:0, od:0, on:false, p:100, hd:0 } });
   if (RBE.on) rbStopAudio();
   RBE.on = false;
   rbEl.hidden = false;
@@ -5080,73 +5210,62 @@ function rbbGo(){
 }
 const rbbLiveOf = p => { const l = p.presence && p.presence.live; return l && l.e === RBB.playEpoch ? l : null; };
 const rbbOthers = () => rbbMembers().filter(p => !p.sameTab && RBB.lineup.includes(p.peer) && !(p.presence.fin && p.presence.fin.e === RBB.playEpoch));
-function rbbLive(){
-  RBB.lastLive = performance.now();
+// What each player sends while playing: score, streak, Overdrive, how their play moved the band's health (hd), the
+// unison phrases they finished or dropped, their star ratio and its weight for the band's stars, and from whoever
+// keeps the band's health meter, the meter itself (H) and whether it ran out (bf).
+const rbbMeId = () => { const m = rbbMembers().find(p => p.sameTab); return m ? m.peer : 'me'; };
+function rbbMine(){
+  if (G.rbBand){ const c = G.counts, h = c.perfect + c.great + c.good; return { s:G.score, c:G.combo, m:mult(), od:G.od, on:G.odActive, p:h + c.miss ? Math.round(h / (h + c.miss) * 100) : 100, hd:h * 0.018 - c.miss * 0.055, rr:(G.score - G.bonus) / Math.max(1, G.chart.potential), w:G.chart.potential }; }
   if (RBE.vox){
     const V = RBE.vox, closed = V.ch.phrases.slice(0, V.pi).filter(ph => ph.sing), passed = closed.filter(ph => ph.res && ph.res.pass).length;
-    rbbPres({ live:{ e:RBB.playEpoch, s:Math.round(V.score), c:V.combo, m:voxMult(V), r:+V.rock.toFixed(2), od:+V.od.toFixed(2), on:!!V.odActive, dn:!!RBE.down, sv:RBB.mySv, p:closed.length ? Math.round(passed / closed.length * 100) : 100 } });
-    return;
+    return { s:V.score, c:V.combo, m:voxMult(V), od:V.od, on:V.odActive, p:closed.length ? Math.round(passed / closed.length * 100) : 100, hd:V.rock - (RBB.rock0 == null ? V.rock : RBB.rock0), rr:voxStarRatio(V.score / V.base), w:V.base };
   }
   const judged = RBE.hits + RBE.misses;
-  rbbPres({ live:{ e:RBB.playEpoch, s:Math.round(RBE.score), c:RBE.combo, m:rbMult(), r:+RBE.rock.toFixed(2), od:+RBE.od.toFixed(2), on:!!RBE.odActive, dn:!!RBE.down, sv:RBB.mySv, p:judged ? Math.round(RBE.hits / judged * 100) : 100 } });
+  return { s:RBE.score, c:RBE.combo, m:rbMult(), od:RBE.od, on:RBE.odActive, p:judged ? Math.round(RBE.hits / judged * 100) : 100, hd:RBE.rock - (RBB.rock0 == null ? RBE.rock : RBB.rock0), rr:RBE.score / Math.max(1, RBE.chart.baseScore), w:RBE.chart.baseScore };
+}
+function rbbLive(){
+  RBB.lastLive = performance.now();
+  const x = rbbMine(), B = RBB.bh, live = { e:RBB.playEpoch, s:Math.round(x.s), c:x.c, m:x.m, od:+x.od.toFixed(2), on:!!x.on, p:x.p, hd:+x.hd.toFixed(3), rr:+x.rr.toFixed(3), w:Math.round(x.w), ud:RBB.ud || [], ul:RBB.ul || [] };
+  if (B && B.auth === rbbMeId()){ live.H = +B.H.toFixed(3); if (B.fail) live.bf = 1; }
+  rbbPres({ live });
 }
 function rbbFrame(now){
-  if (now - RBB.lastLive > 250) rbbLive();
+  if (RBB.rock0 == null) RBB.rock0 = G.rbBand ? 0 : RBE.vox ? RBE.vox.rock : RBE.rock;
   const others = rbbOthers();
-  if (RBE.down){
-    for (const p of others){
-      const l = rbbLiveOf(p);
-      if (l && !l.dn && (l.sv | 0) > (RBB.saveSeen[p.peer] | 0)){
-        RBE.down = false; RBE.rock = 0.5; if (RBE.tm) RBE.life = RBE.lifeMax * 0.5; canvas.classList.remove('down'); rbStemOn(true);
-        RBE.soloMsg = { text:'SAVED!', sub:`${bName(p.peer)} brought you back`, at:performance.now() };
-        if (RBE.vox){ RBE.vox.rock = 0.5; RBE.vox.pop = Object.assign({ col:'#7dffb0' }, RBE.soloMsg); }
-        if (typeof ripSound === 'function') ripSound('glint');
-        rbbLive();
-        break;
-      }
-    }
-    const allDown = others.every(p => { const l = rbbLiveOf(p); return l && l.dn; });
-    if (allDown){ if (!RBB.allDownAt) RBB.allDownAt = now; else if (now - RBB.allDownAt > 900){ RBE.soloMsg = { text:'BAND FAILED', sub:'Everyone’s rock meter ran out', at:performance.now() }; rbFinish(true); return; } }
-    else RBB.allDownAt = 0;
-  } else RBB.allDownAt = 0;
-  const alive = others.filter(p => { const l = rbbLiveOf(p); return l && !l.dn; });
-  const uni = (RBE.vox ? RBE.vox.odActive : RBE.odActive) && !RBE.down && alive.length >= 1 && alive.every(p => rbbLiveOf(p).on);
-  if (uni && !RBE.unison){ RBE.soloMsg = { text:'BAND UNISON!', sub:RBE.vox ? 'Everyone’s in Overdrive' : 'Overdrive ×3 while you’re all in it', at:performance.now() }; if (RBE.vox) RBE.vox.pop = Object.assign({ col:COL.tungsten }, RBE.soloMsg); }
-  RBE.unison = uni;
+  // Overdrive stacks: every bandmate in Overdrive adds 2x for everyone.
+  const inOd = others.filter(p => { const l = rbbLiveOf(p); return l && l.on; }).length;
+  if (G.rbBand) G.bandOd = inOd; else { RBE.bandOd = inOd; if (RBE.vox) RBE.vox.bandOd = inOd; }
+  // whoever kept the meter may have finished the song the moment it ran out
+  if (rbbMembers().some(p => RBB.lineup.includes(p.peer) && p.presence.fin && p.presence.fin.e === RBB.playEpoch && p.presence.fin.bf) && RBB.bh) RBB.bh.fail = true;
+  bhStep(RBB.bh || (RBB.bh = bhNew(0.6)), rbbMeId(), rbbMine().hd, others.map(p => { const l = rbbLiveOf(p); return l ? { id:p.peer, d:l.hd, H:l.H, bf:l.bf } : null; }).filter(Boolean), RBB.lineup, rbNoFail());
+  if (now - RBB.lastLive > 250) rbbLive();
   if (now - RBB.hudAt > 200){ RBB.hudAt = now; rbbHud(); }
 }
-function rbDown(){
-  RBE.down = true; RBE.combo = 0; RBE.odActive = false; RBE.unison = false; rbDropHold(); rbStemOn(false);
-  canvas.classList.add('down');
-  RBB.saveSeen = {};
-  rbbMembers().forEach(p => { const l = p.presence.live; RBB.saveSeen[p.peer] = l && typeof l.sv === 'number' ? l.sv : 0; });
-  RBE.soloMsg = { text:'YOU’RE DOWN', sub:'A bandmate’s Overdrive can save you', at:performance.now() };
-  rbbLive();
+// The band's score and stars: everyone's points, and everyone's star ratio weighted by how much their part is worth.
+function rbbBandScore(){
+  const me = rbbMine();
+  return Math.round(me.s + rbbMembers().filter(p => !p.sameTab && RBB.lineup.includes(p.peer)).reduce((a, p) => { const l = rbbLiveOf(p), f = p.presence.fin && p.presence.fin.e === RBB.playEpoch ? p.presence.fin : null; return a + (f ? f.s | 0 : l ? l.s | 0 : 0); }, 0));
 }
-function rbbSave(){
-  const down = rbbOthers().filter(p => (rbbLiveOf(p) || {}).dn);
-  if (!down.length) return;
-  RBB.mySv++;
-  const msg = { text:'BAND SAVE!', sub:down.length > 1 ? `You saved ${down.length} bandmates` : `You saved ${bName(down[0].peer)}`, at:performance.now() };
-  if (G.rbBand){ G.soloMsg = msg; RBB.lastLive = 0; } else { RBE.soloMsg = msg; if (RBE.vox) RBE.vox.pop = Object.assign({ col:'#7dffb0' }, msg); rbbLive(); }
+function rbbBandRatio(){
+  const me = rbbMine();
+  let a = me.rr * me.w, w = me.w;
+  rbbMembers().filter(p => !p.sameTab && RBB.lineup.includes(p.peer)).forEach(p => { const l = rbbLiveOf(p), f = p.presence.fin && p.presence.fin.e === RBB.playEpoch ? p.presence.fin : null, x = f && f.rr != null ? f : l; if (x && +x.w > 0){ a += (+x.rr || 0) * +x.w; w += +x.w; } });
+  return w > 0 ? a / w : 0;
 }
 function rbbHud(){
   const el = $('#bandHud'); if (!el) return;
-  const pad = !!G.rbBand, others = rbbMembers().filter(p => !p.sameTab && RBB.lineup.includes(p.peer)), myOd = pad ? !G.odActive && G.od >= 0.5 : RBE.vox ? !RBE.vox.odActive && RBE.vox.od >= 0.5 && !RBE.down : !RBE.odActive && RBE.od >= 0.5 && !RBE.down;
-  let total = Math.round(pad ? G.score : RBE.score);
+  const others = rbbMembers().filter(p => !p.sameTab && RBB.lineup.includes(p.peer));
   const rows = others.map(p => {
-    const l = rbbLiveOf(p), f = p.presence.fin && p.presence.fin.e === RBB.playEpoch ? p.presence.fin : null, r = l ? clamp(+l.r || 0, 0, 1) : 0.5;
-    total += f ? f.s | 0 : l ? l.s | 0 : 0;
+    const l = rbbLiveOf(p), f = p.presence.fin && p.presence.fin.e === RBB.playEpoch ? p.presence.fin : null;
     const part = RB_PARTS[p.presence.part] || 'Guitar';
-    return `<div class="bm${l && l.dn ? ' down' : ''}${l && l.on ? ' on' : ''}"><div class="bm-top"><b>${escH(bName(p.peer))}</b><span>${f ? fmtNum(f.s | 0) : l ? fmtNum(l.s | 0) : '…'}</span></div><small class="bm-part">${part}${l && !f ? ` · ×${l.m | 0 || 1}${l.c >= 10 ? ' · ' + (l.c | 0) + ' streak' : ''}` : f ? ' · done' : ''}</small><div class="bm-life rock${r < 0.25 ? ' low' : r < 0.5 ? ' warn' : ''}"><i style="width:${(r * 100).toFixed(0)}%"></i></div>${l && l.dn ? `<span class="bm-down">${myOd ? 'Down · Overdrive saves' : 'Down'}</span>` : ''}</div>`;
+    return `<div class="bm${l && l.dn ? ' down' : ''}${l && l.on ? ' on' : ''}"><div class="bm-top"><b>${escH(bName(p.peer))}</b><span>${f ? fmtNum(f.s | 0) : l ? fmtNum(l.s | 0) : '…'}</span></div><small class="bm-part">${part}${l && !f ? ` · ×${l.m | 0 || 1}${l.on ? ' · Overdrive' : (+l.od || 0) >= 0.5 ? ' · OD ready' : ''}` : f ? ' · done' : ''}</small><div class="bm-life od"><i style="width:${l ? Math.round(clamp(+l.od || 0, 0, 1) * 100) : 0}%"></i></div></div>`;
   }).join('');
-  const html = `<div class="bm-band"><span>Band</span><b>${fmtNum(total)}</b></div>${rows}`;
+  const html = rows;
   if (html !== RBB.hudHTML){ RBB.hudHTML = html; el.innerHTML = html; }
-  const save = myOd && others.some(p => (rbbLiveOf(p) || {}).dn);
-  btnOD.classList.toggle('save', save);
 }
 function rbbFinish(res){
-  const fin = { e:RBB.playEpoch, s:res.score | 0, pct:res.pct | 0, best:res.best | 0, st:res.stars | 0, fc:!!res.fc, f:!!res.failed, l:!!res.left, part:RBE.part, diff:RBE.diff, tr:res.tr ? { r:+(+res.tr.r || 0).toFixed(3), h:res.tr.h | 0, t:res.tr.t | 0, b:res.tr.b | 0, sm:!!res.tr.sm } : null };
+  let rr = 0, w = 0; try { const x = rbbMine(); rr = +x.rr.toFixed(3); w = Math.round(x.w); } catch (e){}
+  const fin = { e:RBB.playEpoch, s:res.score | 0, pct:res.pct | 0, best:res.best | 0, st:res.stars | 0, fc:!!res.fc, f:!!res.failed, l:!!res.left, part:RBE.part, diff:RBE.diff, rr, w, bf:RBB.bh && RBB.bh.fail ? 1 : 0, tr:res.tr ? { r:+(+res.tr.r || 0).toFixed(3), w, h:res.tr.h | 0, t:res.tr.t | 0, b:res.tr.b | 0, sm:!!res.tr.sm } : null };
   RBB.myFin = fin; RBB.finAt = Date.now(); RBB.resSig = '';
   rbbPres({ at:'results', live:null, fin });
 }
@@ -5269,7 +5388,7 @@ function rbBandViews(view, msg){
     if (!BAND.tried) bandInit();
     if (!BAND.done) setTimeout(() => { if (RBE.view === 'bandfind' && !rbEl.hidden) rbView('bandfind'); }, 600);
     rbBody.innerHTML = `<p class="eyebrow">Rock Band charts · band</p><h2 class="card-title">Play with friends</h2>
-      <p class="t-sub">Everyone plays the same song together, each on their own device and on the part they pick, singers included. ${BAND.p2p ? 'The leader picks from their songs folder, and anyone who doesn’t have the song gets it sent straight from the leader.' : 'The leader picks from the song library and it loads for the whole band.'} If your rock meter runs out, a bandmate’s Overdrive brings you back, and if you all hit Overdrive at once it’s worth even more.</p>
+      <p class="t-sub">Everyone plays the same song together, each on their own device and on the part they pick, singers included. ${BAND.p2p ? 'The leader picks from their songs folder, and anyone who doesn’t have the song gets it sent straight from the leader.' : 'The leader picks from the song library and it loads for the whole band.'} The band shares one health meter, and Overdrive stacks: every one of you in it adds 2× for the whole band, so four at once is 8×.</p>
       ${msg ? `<p class="rb-err" role="alert">${rbEsc(msg)}</p>` : ''}
       ${BAND.ok ? `<label class="field"><span class="label">Your name in the band</span><input type="text" id="rbbNick" maxlength="20" autocomplete="off" spellcheck="false" value="${escH(bandNickNow())}"></label>
         <button type="button" class="btn primary" id="rbbCreate">Start a band</button>
@@ -5314,7 +5433,7 @@ function rbBandViews(view, msg){
       <div><span class="label">${touring ? 'This gig’s song' : 'Song'}</span>${s && (!host || touring) ? `<div class="next"><b>${escH(s.name)}</b><span>${escH(s.artist)}</span></div>` : !s && !host ? '<p class="t-sub">The leader is picking a song.</p>' : ''}${picker}
 </div>
       <div class="stack" id="rbbMe">${rbbMeHTML()}</div>
-      ${host ? `<label class="rb-tog"><input type="checkbox" id="rbbNoFail" ${st.noFail ? 'checked' : ''} ${playing ? 'disabled' : ''}> <span>No Fail for the band</span></label>` : st.rev && s ? `<p class="fine">${st.noFail ? 'No Fail is on for this band.' : 'No Fail is off: if your rock meter runs out you’re down until a bandmate saves you.'}</p>` : ''}
+      ${host ? `<label class="rb-tog"><input type="checkbox" id="rbbNoFail" ${st.noFail ? 'checked' : ''} ${playing ? 'disabled' : ''}> <span>No Fail for the band</span></label>` : st.rev && s ? `<p class="fine">${st.noFail ? 'No Fail is on for this band.' : 'No Fail is off: if the band’s health meter runs out, the song ends for everyone.'}</p>` : ''}
       <div class="row">${host ? `<button type="button" class="btn primary" id="rbbStart" ${!s || playing || (st.tour && st.tour.over) ? 'disabled' : ''}>${playing ? (touring ? 'Gig in progress' : 'Song in progress') : touring ? `Start gig ${st.tour.gig + 1}` : 'Start the song'}</button>` : ''}<button type="button" class="btn" id="rbbLeaveB">Leave band</button></div>`;
     RBB.viewKey = rbbViewKey();
     rbBody.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', () => { const d = RBLIB.list.find(x => x.id === b.dataset.pick); if (d){ uiTick(); rbbPick(d); } }));
@@ -5394,6 +5513,7 @@ function rbLocHas(e){
 function rbLocRefresh(){
   if (rbEl.hidden || RBE.on) return;
   if (RBE.view === 'load' && RBLOC.tab !== 'lib'){ if (!rbxLive()) rbView('load', RBE.loadMsg); }
+  else if (RBE.view === 'rbsrc') rbView('rbsrc');
   else if (RBE.view === 'band') rbbRefresh();
 }
 async function rbPickFolder(){
@@ -5977,6 +6097,7 @@ function rbxPreviewStop(){
   const p = RBX.prev; RBX.prev = null;
   if (p && actx){ try { p.g.gain.setTargetAtTime(0, actx.currentTime, 0.12); setTimeout(() => { try { p.s.stop(); } catch (e){} try { p.g.disconnect(); } catch (e){} }, 500); } catch (e){} }
   const el = $('#rbxPv'); if (el) el.classList.remove('on');
+  musicPreview(false);
 }
 async function rbxPreview(it){
   rbxPreviewStop();
@@ -5999,6 +6120,7 @@ async function rbxPreview(it){
     s.buffer = buf; s.loop = true; g.gain.value = 0; s.connect(g); g.connect(master);
     g.gain.setTargetAtTime(settings.musicVol != null ? settings.musicVol / 10 * 0.8 : 0.7, actx.currentTime, 0.15);
     s.start();
+    musicPreview(true);
     RBX.prev = { s, g, id:it.id };
     if (t) t.textContent = 'Playing the preview';
     const pv = $('#rbxPv'); if (pv) pv.classList.add('on');
@@ -6475,7 +6597,7 @@ function rbPadChart(midi, srcPart, diff, hopo){
   const phrases = regroup('od', ex.phrases, 2, (p, count) => ({ count }));
   const solos = regroup('solo', ex.solos, 1, (s, count) => ({ t0:s.t0, t1:s.t1, count }));
   addLifts(out, spb0, diff);
-  return finishChart({ lanes:L, notes:out, phrases, solos, beats:ex.beats, bpm, bps:bpm / 60, length:ex.end });
+  return finishChart({ lanes:L, notes:out, phrases, solos, beats:ex.beats, bpm, bps:bpm / 60, length:ex.end, ptsPer:25 });
 }
 function rbPadCharts(midi, hopo){
   const src = rbPadSource(midi), charts = {};
@@ -6530,7 +6652,8 @@ function rbPadFinish(){
   const key = rbBestKey(s, 'gamepad', G.diff), prevBest = store.get(key, 0);
   if (score > prevBest) store.set(key, score);
   { const sv = ratio >= GOLD_T ? 6 : starCount(ratio); if (sv > store.get(key + ':s', 0)) store.set(key + ':s', sv); }
-  RBE.result = { failed:false, score, ratio, stars:starCount(ratio), gold:ratio >= GOLD_T, hit, total, pct:Math.round(hit / Math.max(1, total) * 100), best:G.maxCombo, over:0,
+  const padFail = !!RBB.padFail; RBB.padFail = false;
+  RBE.result = { failed:padFail, score, ratio, stars:padFail ? 0 : starCount(ratio), gold:ratio >= GOLD_T, hit, total, pct:Math.round(hit / Math.max(1, total) * 100), best:G.maxCombo, over:0,
     phrases:`${G.phrases.filter(p => p.hit >= p.count).length} of ${G.phrases.length}`, unis:'', fc:c.miss === 0 && hit === total && total > 0,
     solos:G.solos.map(x => Math.round(x.hit / Math.max(1, x.count) * 100)), prevBest, newBest:score > prevBest && prevBest > 0, pad:{ perfect:c.perfect, great:c.great, good:c.good, miss:c.miss } };
   const band = G.rbBand;
@@ -6539,12 +6662,12 @@ function rbPadFinish(){
 }
 // In a band: the same live score and saves as the guitar players, from the keyboard engine.
 function rbbPadFrame(now){
-  if (now - RBB.lastLive > 250){
-    RBB.lastLive = now;
-    const c = G.counts, judged = c.perfect + c.great + c.good + c.miss;
-    rbbPres({ live:{ e:RBB.playEpoch, s:Math.round(G.score), c:G.combo, m:mult(), r:1, od:+G.od.toFixed(2), on:!!G.odActive, dn:false, sv:RBB.mySv, p:judged ? Math.round((judged - c.miss) / judged * 100) : 100 } });
+  rbbFrame(now);
+  if (RBB.bh && RBB.bh.fail && G.mode === 'play'){
+    G.soloMsg = { text:'BAND FAILED', sub:'The band’s health ran out', at:performance.now() };
+    if (G.career && G.career.rbBand) rbtPadBandFin(gigRes(), true);
+    else { RBB.padFail = true; finish(); }
   }
-  if (now - RBB.hudAt > 200){ RBB.hudAt = now; rbbHud(); }
 }
 /* ---------- Rock Band 3 Deluxe song updates ---------- */
 // The RB3DX updates pack has songs_updates.dta (fields that replace the ones in a song's own songs.dta, such as which
@@ -6754,8 +6877,8 @@ const VOX_COL = ['#4fc3ff', '#ffa53a', '#c07bff'];
 const VOX_MIC_COL = ['#ffffff', '#7dffb0', '#ff7ad9'];
 const VOX_PART_NAME = ['Harmony 1', 'Harmony 2', 'Harmony 3'];
 // Pitch window (semitones either side), share of a phrase to sing for a full meter, and points per full meter.
-const VOX_DIFF = { easy:{ win:1.7, hp:0.325, pts:400 }, medium:{ win:1.4, hp:0.4, pts:800 }, hard:{ win:1.1, hp:0.45, pts:1600 }, expert:{ win:0.8, hp:0.575, pts:2000 } };
-const VOX_PERFECT = 0.6, VOX_PERC_WIN = 0.12, VOX_PERC_PTS = 100;
+const VOX_DIFF = { easy:{ win:1.7, hp:0.325, pts:100 }, medium:{ win:1.4, hp:0.4, pts:200 }, hard:{ win:1.1, hp:0.45, pts:400 }, expert:{ win:0.8, hp:0.575, pts:500 } };
+const VOX_PERFECT = 0.6, VOX_PERC_WIN = 0.12, VOX_PERC_PTS = 25;
 // Vocal star cutoffs, as a share of the score for a perfect run without Overdrive; mapped onto the guitar scale for the star widgets.
 const VOX_STAR = [0, 0.05, 0.11, 0.19, 0.46, 0.77, 1.06], VOX_STAR_G = [0, 0.21, 0.46, 0.77, 1.85, 3.08, 4.2];
 function voxStarRatio(r){
@@ -7044,7 +7167,8 @@ function voxQ(m, tg, cfg){
   const w = cfg.win, pf = w * VOX_PERFECT;
   return d <= pf ? 1 : d >= w ? 0 : (w - d) / (w - pf);
 }
-const voxMult = V => Math.min(V.combo + 1, 4) * (V.odActive ? 2 : 1);
+const voxOdK = V => odStack(V.odActive, 2, V.bandOd);
+const voxMult = V => Math.min(V.combo + 1, 4) * voxOdK(V);
 async function voxPlay(){
   const song = RBE.song, chart = RBE.charts && RBE.charts[RBE.diff], band = !!RBE.band;
   // In an online band, a part that can't start sits this song out.
@@ -7070,7 +7194,7 @@ async function voxPlay(){
   }
   RBE.tm = null; RBE.tour = null;
   RBE.vox = voxState(chart, RBE.diff);
-  RBE.st = -1e9; RBE.vt = null; RBE.score = 0; RBE.down = false; RBE.unison = false;
+  RBE.st = -1e9; RBE.vt = null; RBE.score = 0; RBE.down = false; RBE.unison = false; RBE.vox.coop = band; RBE.vox.bandOd = 0; RBE.vox.sp = newSP();
   RBE.geo = layout(5, false, RB_COLORS);
   RBE.on = true; RBE.mode = 'play'; RBE.view = 'play';
   $('#rbx').hidden = true; menuEl.hidden = true;
@@ -7085,13 +7209,9 @@ async function voxPlay(){
 function voxResumed(V = RBE.vox){ if (!V) return; V.noCredit = RBE.pauseAt; V.ptrs.forEach(p => { p.ptr = 0; }); V.mics.forEach(m => { if (m.ptr) m.ptr.ptr = 0; m.trail = []; }); }
 function voxOD(how, V = RBE.vox){
   if (!V || !RBE.on || RBE.mode !== 'play' || V.odActive || V.od < 0.5) return;
-  const band = RBE.band && V === RBE.vox;
-  if (band && RBE.down) return;
   V.odActive = true; V.odUsed++;
-  V.pop = { text:'OVERDRIVE', sub:'Double points for what you fill', col:COL.tungsten, at:performance.now() };
+  V.pop = { text:'OVERDRIVE', sub:V.coop ? '2× more for the whole band' : 'Double points for what you fill', col:COL.tungsten, at:performance.now() };
   if (typeof ripSound === 'function') ripSound('shock');
-  // In a band, a singer's Overdrive brings back anyone who's down.
-  if (band) rbbSave();
 }
 function voxInZone(V, t){ return V.ch.zones.some(z => t >= z[0] && t <= z[1]); }
 function voxTap(perf, src, V = RBE.vox){
@@ -7125,10 +7245,11 @@ function voxEndPhrase(V, ph){
     text = V.harm && full >= 3 ? 'TRIPLE AWESOME!' : V.harm && full === 2 ? 'DOUBLE AWESOME!' : 'AWESOME!';
     col = full >= 2 ? COL.tungsten : '#7dffb0';
     if (ph.od){ V.od = Math.min(1, V.od + 0.25); }
-    V.rock = Math.min(1, V.rock + 0.07 + 0.02 * (full - 1));
+    V.rock = V.coop ? V.rock + 0.07 + 0.02 * (full - 1) : Math.min(1, V.rock + 0.07 + 0.02 * (full - 1));
   } else {
     V.combo = 0; text = voxRate(bestFill); col = bestFill >= 0.65 ? COL.ink : COL.miss;
-    V.rock = Math.max(0, V.rock - (bestFill >= 0.85 ? 0 : bestFill >= 0.65 ? 0.03 : bestFill >= 0.45 ? 0.06 : bestFill >= 0.25 ? 0.1 : 0.14));
+    const dr = bestFill >= 0.85 ? 0 : bestFill >= 0.65 ? 0.03 : bestFill >= 0.45 ? 0.06 : bestFill >= 0.25 ? 0.1 : 0.14;
+    V.rock = V.coop ? V.rock - dr : Math.max(0, V.rock - dr);
   }
   V.pop = { text, sub:`+${fmtNum(pts)}${pass && ph.od ? ' · Overdrive' : ''}${mult > 1 ? ' · ×' + mult : ''}`, col, at:performance.now() };
 }
@@ -7140,17 +7261,11 @@ function voxUpdate(dt, now){
   if (RBE.vt == null || Math.abs(aud - RBE.vt) > 0.1) RBE.vt = aud;
   else { RBE.vt += dt; RBE.vt += (aud - RBE.vt) * Math.min(1, dt * 4); }
   const st = RBE.vt; RBE.st = st;
-  const s0 = V.score, od0 = V.od;
   voxTick(V, st, dt, now);
-  // Down in a band: nothing counts until a bandmate's Overdrive saves you.
-  if (RBE.down){ V.score = s0; V.od = Math.min(V.od, od0); V.combo = 0; V.rock = 0; }
   RBE.score = V.score;
-  if (!rbNoFail() && V.rock <= 0 && !RBE.down){
-    if (RBE.band && rbbOthers().length){ rbDown(); V.combo = 0; V.odActive = false; V.pop = { text:'YOU’RE DOWN', sub:'A bandmate’s Overdrive can save you', col:COL.miss, at:performance.now() }; }
-    else return voxFinish(true);
-  }
+  if (RBE.band){ if (RBB.br) rbbFrame(now); if (RBB.bh && RBB.bh.fail && RBE.mode === 'play') return rbBandFailed(); }
+  else if (!rbNoFail() && V.rock <= 0) return voxFinish(true);
   if (st > ch.end){ voxFinish(false); return; }
-  if (RBE.band && RBB.br) rbbFrame(now);
 }
 // One frame of singing: listen to every mic, credit the parts, close finished phrases.
 function voxTick(V, st, dt, now){
@@ -7187,7 +7302,7 @@ function voxTick(V, st, dt, now){
       const x = tg[j], ph = ch.phrases[x.n.ph], tot = ph.parts[j].tot, m = V.mics[i];
       m.part = j; m.hitAt = now; m.hit = q;
       const add = Math.min(1 - ph.fill[j], q * d / Math.max(0.05, tot * cfg.hp));
-      if (add > 0){ ph.fill[j] += add; if (V.odActive) ph.fillOD[j] += add; }
+      if (add > 0){ ph.fill[j] += add; const k = voxOdK(V); if (k > 1) ph.fillOD[j] += add * (k - 1); }
       const n = x.n; if (!x.gap){ const k = clamp(Math.floor((t - n.t) * 30), 0, n.cov.length - 1); n.cov[k] = Math.max(n.cov[k], Math.round(q * 255)); }
     }
   }
@@ -7213,6 +7328,7 @@ function voxFinish(failed){
     vox:{ harm:V.harm, passed, scored:S.scored, awesome:S.awesome, dbl:S.dbl, tri:S.tri, best:V.best, perc:S.percTot ? `${S.percHit} of ${S.percTot}` : '', acc:Math.round(S.fillSum / Math.max(1, S.scored) * 100), od:V.odUsed, bot:V.bot, singers:V.singers } };
   const band = RBE.band;
   if (band) rbbFinish(Object.assign({}, RBE.result, { pct:Math.round(passed / Math.max(1, S.scored) * 100), best:V.best, fc:!failed && passed === S.scored && S.scored > 0 }));
+  hudLifeSet(0, false);
   setTimeout(() => {
     if (RBE.mode !== 'done') return;
     RBE.on = false; RBE.vox = null; btnOD.classList.remove('ready', 'active');
@@ -7394,46 +7510,17 @@ function voxRender(g, R, V, st, now, opt){
 function voxDraw(now){
   const V = RBE.vox, st = RBE.st, g = g2;
   // In a band, the bandmates' cards sit at the left, so the track starts after them.
-  const side = RBE.band && !$('#bandHud').hidden ? Math.min(158, W * 0.36 + 8) : 0;
-  const w = W - insets.l - insets.r - 24 - side, h = clamp(H * 0.5, 210, 460), y = clamp((H - h) / 2 - 40, insets.t + 66, H - h - 120);
+  // On a narrow screen the track goes below them instead.
+  const cards = RBE.band && !$('#bandHud').hidden, narrow = W < 700, side = cards && !narrow ? Math.min(158, W * 0.36 + 8) : 0;
+  const w = W - insets.l - insets.r - 24 - side, h = clamp(H * 0.5, 210, 460);
+  let y = clamp((H - h) / 2 - 40, insets.t + 66, H - h - 120);
+  if (cards && narrow){ const r = $('#bandHud').getBoundingClientRect(); if (r.height) y = Math.max(y, Math.min(r.bottom + 12, H - h - 90)); }
   const R = { x:insets.l + 12 + side, y, w, h };
   const L = voxRender(g, R, V, st, now);
-  // rating popup over the track
-  if (V.pop){
-    const age = (now - V.pop.at) / 1000;
-    if (age > 1.4) V.pop = null;
-    else {
-      const a = age < 1 ? 1 : 1 - (age - 1) / 0.4, s = 1 + 0.25 * Math.exp(-age * 9);
-      g.save(); g.translate(R.x + R.w * 0.55, L.y0 + (L.y1 - L.y0) * 0.22); g.scale(s, s);
-      g.textAlign = 'center'; g.font = `900 ${Math.round(L.fs * 1.6)}px ${FONT_D}`; g.fillStyle = rgba(V.pop.col, a); g.shadowColor = 'rgba(9,7,20,.9)'; g.shadowBlur = 12;
-      g.fillText(V.pop.text, 0, 0);
-      g.font = `700 ${L.fs}px ${FONT_B}`; g.fillStyle = rgba(COL.ink, 0.85 * a); g.fillText(V.pop.sub, 0, L.fs * 1.4);
-      g.restore();
-    }
-  }
-  // multiplier, Overdrive and the rock meter under the track
-  const by = R.y + R.h + 16, cx = R.x + R.w / 2, odW = Math.min(360, R.w * 0.5), m = voxMult(V);
-  g.textBaseline = 'alphabetic';
-  g.font = `900 34px ${FONT_D}`; g.textAlign = 'right'; g.fillStyle = V.odActive ? COL.tungsten : m >= 4 ? COL.iris : COL.ink;
-  g.fillText('×' + m, cx - odW / 2 - 16, by + 30);
-  for (let k = 0; k < 4; k++){ rrect(g, cx - odW / 2 + k * (odW / 4) + 1, by + 8, odW / 4 - 4, 12, 6); g.fillStyle = 'rgba(255,255,255,.08)'; g.fill(); const f = clamp(V.od * 4 - k, 0, 1); if (f > 0){ rrect(g, cx - odW / 2 + k * (odW / 4) + 1, by + 8, (odW / 4 - 4) * f, 12, 6); g.fillStyle = V.odActive ? COL.tungsten : '#8fd3ff'; g.fill(); } }
-  g.font = `800 11px ${FONT_B}`; g.textAlign = 'center'; g.fillStyle = rgba(COL.ink, 0.55);
-  g.fillText(V.odActive ? 'OVERDRIVE' : V.od >= 0.5 ? (voxOdMic() || V.bot ? 'READY · SING OR SHOUT IN A GAP, OR PRESS SPACE' : 'READY · PRESS SPACE') : 'OVERDRIVE', cx, by + 38);
-  for (let k = 0; k < 4; k++){ g.beginPath(); g.arc(cx + odW / 2 + 22 + k * 14, by + 14, 4.5, 0, Math.PI * 2); g.fillStyle = k < Math.min(V.combo, 4) ? COL.iris : 'rgba(255,255,255,.12)'; g.fill(); }
-  // score and stars
-  { const r = voxStarRatio(V.score / V.base), wide = R.w >= 640, sx = wide ? R.x + R.w : cx, sy = wide ? by + 30 : by + 96, sr = 9;
-    V.shown = V.shown == null ? V.score : V.shown + (V.score - V.shown) * 0.2;
-    g.textAlign = wide ? 'right' : 'center'; g.font = `900 ${wide ? 34 : 30}px ${FONT_D}`; g.fillStyle = r >= GOLD_T ? '#ffe2a0' : COL.ink; g.fillText(fmtNum(V.shown), sx, sy);
-    for (let i = 0; i < 5; i++){
-      const prev = i ? STAR_T[i - 1] : 0, f = clamp((r - prev) / (STAR_T[i] - prev), 0, 1), x = (wide ? sx - 4 * 2.4 * sr - sr : sx - 2 * 2.4 * sr) + i * 2.4 * sr, y = sy + 18;
-      starPoly(g, x, y, sr); g.fillStyle = 'rgba(14,11,28,.55)'; g.fill(); g.lineWidth = 1.5; g.strokeStyle = rgba(COL.ink, 0.35); g.stroke();
-      if (f > 0){ g.save(); g.beginPath(); g.rect(x - sr - 1, y + sr - 2 * sr * f, sr * 2 + 2, 2 * sr * f + 1); g.clip(); starPoly(g, x, y, sr); g.fillStyle = r >= GOLD_T ? '#ffd76a' : '#f2edfb'; g.fill(); g.restore(); }
-    } }
-  if (!rbNoFail()){
-    const rw = Math.min(200, R.w * 0.3), rx = cx - rw / 2, ry = by + 52;
-    [['#ff4d5e', 0, 0.33], ['#ffd23d', 0.33, 0.66], ['#35d46a', 0.66, 1]].forEach(([c, a, b]) => { g.fillStyle = rgba(c, V.rock >= a && V.rock < b + 0.001 ? 0.9 : 0.25); rrect(g, rx + a * rw, ry, (b - a) * rw - 2, 7, 3); g.fill(); });
-    const nx = rx + V.rock * rw; g.fillStyle = '#fff'; g.beginPath(); g.moveTo(nx - 5, ry - 6); g.lineTo(nx, ry); g.lineTo(nx + 5, ry - 6); g.closePath(); g.fill();
-  }
+  const m = voxMult(V);
+  voxHud(g, R, L, V, now, { band:RBE.band });
+  if (RBE.band) hudLifeSet(RBB.bh ? RBB.bh.H : 0.6);
+  else hudLifeSet(V.rock, !rbNoFail());
   // who's singing what
   g.font = `700 12px ${FONT_B}`; g.textAlign = 'left';
   V.mics.forEach((mm, i) => {
@@ -7451,6 +7538,26 @@ function voxDraw(now){
   if (m !== V.hudM){ V.hudM = m; $('#hudMult').textContent = '×' + m; }
   const pg = Math.floor(clamp(st / V.ch.end, 0, 1) * 500) / 5;
   if (pg > RBE.prog){ RBE.prog = pg; hudProg.style.width = pg + '%'; }
+}
+
+// The singer's HUD pieces, shared by every mode with a vocal track.
+function voxHud(g, R, L, V, now, o){
+  o = o || {};
+  // ratings and callouts sit in the space behind the now line, where they cover no notes
+  const cx = (R.x + L.nowX) / 2, maxW = Math.max(110, L.nowX - R.x - 16);
+  if (V.pop && (now - V.pop.at) / 1000 > CALLOUT_LIFE) V.pop = null;
+  if (V.pop) drawCallout(g, cx, L.y0 + 4, V.pop, now, maxW);
+  // the multiplier ring (it climbs a step for every phrase in a row) and the Overdrive cells
+  const m = voxMult(V), base = Math.min(V.combo + 1, 4);
+  const geo = { cx:o.cx != null ? o.cx : R.x + R.w / 2, bw:o.bw || Math.min(420, R.w * 0.7), laneW:o.mini ? 70 : 100, hitY:0 };
+  drawStrikeHud({ geo, hud:{ mult:m, base, cap:4, step:4, fill:Math.min(V.combo, 3) / 3, combo:0, od:V.od, odActive:V.odActive, multAt:V.multAt || 0, bandOd:V.bandOd | 0, bandK:odStack(V.odActive, 2, V.bandOd), label:voxOdMic() || V.bot ? 'SING IN A GAP OR PRESS SPACE' : 'PRESS SPACE', cy:o.cy != null ? o.cy : R.y + R.h + 30, r:o.mini ? 14 : 20, icon:o.icon || null }, judg:null, rb:true }, now);
+  if (m > (V.hudM2 || 0) && V.hudM2) V.multAt = now; V.hudM2 = m;
+  if (o.noScore) return;
+  // score and stars: above the track's right end (yours under the band's, in a band)
+  const fs = R.w >= 640 ? 34 : 30, Rs = 10;
+  const place = { fs, R:Rs, x:R.x + R.w - 66, align:'right', yStars:R.y - 14, yScore:R.y - 14 - Rs - 10, w:Math.min(320, R.w * 0.5) };
+  if (o.band) scorePanel({}, rbbBandScore(), rbbBandRatio(), now, V.sp || (V.sp = newSP()), { place, label:`BAND · YOU ${fmtNum(Math.round(V.score))}` });
+  else scorePanel({}, Math.round(V.score), voxStarRatio(V.score / V.base), now, V.sp || (V.sp = newSP()), { place });
 }
 
 /* ---------- the setup screen for vocals ---------- */
@@ -7764,7 +7871,7 @@ function scBuild(){
   const insts = [];
   SC_PARTS.forEach(([key, label]) => {
     const ch = key === 'drums' ? scDrumChart(midi, d) : scFiveChart(midi, key, d, song.hopo);
-    if (ch && key === 'drums') scDrumUnisons(ch, midi);
+    if (ch && key === 'drums'){ scDrumUnisons(ch, midi); ch.pro = ch.notes.some(n => n.cym); }
     if (ch) insts.push({ key, label, ch, od:0, odActive:false, readyAt:Infinity, scan:0, drawFrom:0, flash:[0, 0, 0, 0, 0], kickAt:0, holds:[], wh:0, hits:0, odUsed:0, msg:null,
       score:0, streak:0, cap:key === 'bass' ? 6 : 4 });
   });
@@ -7780,7 +7887,8 @@ function scBuild(){
   }
   const ends = insts.map(x => { const c = x.ch.chords[x.ch.chords.length - 1]; return c.end || c.t; }).concat(vch ? [vch.end - 1.5] : []);
   let endTick = 0; midi.tracks.forEach(t => t.notes.forEach(n => { if (n.tick + n.len > endTick) endTick = n.tick + n.len; }));
-  return { insts, vox, unis, beats:midiBeats(midi, toSec, endTick + midi.div * 4), E, end:Math.max(E.end || 0, ...ends, 1) + (E.end ? 0 : 2), t:-9, drums:insts.find(x => x.key === 'drums') || null, uniMsg:null };
+  if (vox){ vox.bandOd = 0; vox.coop = true; vox.key = vp; }
+  return { insts, vox, unis, beats:midiBeats(midi, toSec, endTick + midi.div * 4), E, end:Math.max(E.end || 0, ...ends, 1) + (E.end ? 0 : 2), t:-9, drums:insts.find(x => x.key === 'drums') || null, uniMsg:null, uniB:null, sp:newSP() };
 }
 // Unisons: Overdrive phrases that two or more instruments share. When every one of them completes it, each gets an extra bar.
 function scUnisons(insts){
@@ -7798,7 +7906,7 @@ function scUnisons(insts){
       if (!groups.includes(g)) groups.push(g);
     }
   }
-  groups.forEach(g => { g.t0 = Math.min(...g.members.map(m => m[1].t0)); g.members.forEach(m => { m[1].uni = true; }); });
+  groups.forEach(g => { g.t0 = Math.min(...g.members.map(m => m[1].t0)); g.t1 = Math.max(...g.members.map(m => m[1].t1)); g.members.forEach(m => { m[1].uni = true; }); });
   insts.forEach(x => {
     const ch = x.ch, mark = (c, list) => { const u = c.od >= 0 && !!ch.phrases[c.od].uni; list.forEach(n => { n.uni = u; }); };
     if (ch.kind === 'five') ch.chords.forEach(c => mark(c, c.gems)); else ch.chords.forEach(c => mark(c, c.notes));
@@ -7812,11 +7920,10 @@ function scPhraseDone(S, x, ph){
   const g = ph.group;
   if (g && !g.paid && g.members.every(m => m[1].done)){
     g.paid = true;
-    g.members.forEach(([m]) => { m.od = Math.min(1, m.od + 0.25); m.msg = { text:'UNISON BONUS', at:performance.now() }; });
-    S.uniMsg = { at:performance.now(), n:g.members.length };
+    g.members.forEach(([m]) => { m.od = Math.min(1, m.od + 0.25); });
   }
 }
-const scMult = x => x.multFn ? x.multFn() : Math.min(x.cap, 1 + Math.floor(x.streak / 10)) * (x.odActive ? 2 : 1);
+const scMult = x => x.multFn ? x.multFn() : Math.min(x.cap, 1 + Math.floor(x.streak / 10)) * odStack(x.odActive, 2, x.bandOd);
 function scDeploy(x, st, why){
   if (x.odActive || x.od < 0.5) return;
   x.odActive = true; x.odUsed++; x.readyAt = Infinity;
@@ -7868,7 +7975,7 @@ function scStep(S, t, dt){
         c.notes.forEach(n => { if (n.state === 'fill') return; n.state = 'hit'; any = true; if (n.kick) x.kickAt = performance.now(); else x.flash[n.lane] = performance.now(); });
         if (!any) continue;
         x.hits++; x.streak++;
-        x.score += 25 * c.notes.filter(n => n.state === 'hit').length * scMult(x);
+        x.score += (ch.pro ? 30 : 25) * c.notes.filter(n => n.state === 'hit').length * scMult(x);
         if (c.od >= 0){ const ph = ch.phrases[c.od]; ph.hit++; if (ph.hit >= ph.count && ph.live) scPhraseDone(S, x, ph); }
         if (c.solo >= 0) ch.solos[c.solo].hit++;
       }
@@ -7889,24 +7996,30 @@ function scStep(S, t, dt){
       m.voiced = !!b; if (b){ m.pitch = b.p; m.seenAt = performance.now(); m.hitAt = performance.now(); m.part = m.i;
         const n = b.n; if (!b.gap){ const k = clamp(Math.floor((t - n.t) * 30), 0, n.cov.length - 1); n.cov[k] = 255; } }
     });
-    { const ph = ch.phrases[V.pi]; if (ph && ph.sing && V.odActive && t >= ph.t0 && t <= ph.tEnd) ph.odT = (ph.odT || 0) + dt; }
-    for (const p of ch.perc){ if (p.t > t) break; if (!p.state){ p.state = 'hit'; p.at = performance.now(); V.score += VOX_PERC_PTS * Math.min(V.combo + 1, 4) * (V.odActive ? 2 : 1); } }
+    // what's sung while Overdrive is on counts 2x more for every player in it
+    { const ph = ch.phrases[V.pi], k = voxOdK(V); if (ph && ph.sing && k > 1 && t >= ph.t0 && t <= ph.tEnd) ph.odT = (ph.odT || 0) + dt * (k - 1); }
+    for (const p of ch.perc){ if (p.t > t) break; if (!p.state){ p.state = 'hit'; p.at = performance.now(); V.score += VOX_PERC_PTS * voxMult(V); } }
     while (V.pi < ch.phrases.length && t > ch.phrases[V.pi].tEnd + 0.05){
       const ph = ch.phrases[V.pi++]; ph.done = true; ph.res = { pass:true };
       if (!ph.sing) continue;
-      const share = clamp((ph.odT || 0) / Math.max(0.1, ph.tEnd - ph.t0), 0, 1), mult = Math.min(V.combo + 1, 4);
+      const share = Math.max(0, (ph.odT || 0) / Math.max(0.1, ph.tEnd - ph.t0)), mult = Math.min(V.combo + 1, 4);
       V.score += Math.round(V.pts * ph.nParts * mult * (1 + share)); V.combo++;
       if (ph.od) V.od = Math.min(1, V.od + 0.25);
     }
     if (V.odActive){ V.od -= dt * bps / 32; if (V.od <= 0){ V.od = 0; V.odActive = false; } }
     if (V.od >= 0.5 && !V.odActive && ch.zones.some(z => t >= z[0] && t <= z[1])){ V.odActive = true; V.odUsed++; }
   }
+  // Overdrive stacks: every part in Overdrive adds 2x for the whole band.
+  const inOd = S.insts.filter(x => x.odActive).length + (V && V.odActive ? 1 : 0);
+  S.insts.forEach(x => { x.bandOd = inOd - (x.odActive ? 1 : 0); });
+  if (V) V.bandOd = inOd - (V.odActive ? 1 : 0);
+  S.uniB = uniGroupBanner(S, S.unis, t, performance.now());
   S.t = t;
 }
 function scReplayTo(t){
   const S = scBuild();
   for (let x = 0; x < t; x += 1 / 30) scStep(S, x, 1 / 30);
-  S.insts.forEach(x => { x.flash = [0, 0, 0, 0, 0]; x.kickAt = 0; x.msg = null; }); S.uniMsg = null;
+  S.insts.forEach(x => { x.flash = [0, 0, 0, 0, 0]; x.kickAt = 0; x.msg = null; }); S.uniMsg = null; S.uniB = null; S.unis.forEach(g => { g.seen = g.t1 < t; });
   if (S.vox) S.vox.mics.forEach(m => { m.trail = []; m.dy = null; });
   return S;
 }
@@ -7999,10 +8112,6 @@ function scHighway(S, x, geo, now){
     const rails = (col, wid, a) => { g.lineWidth = wid; g.strokeStyle = rgba(col, a); for (const u of [0, L]){ g.beginPath(); g.moveTo(xAt(geo, u, sTop), yT); g.lineTo(xAt(geo, u, sBot), yB); g.stroke(); } };
     if (x.odActive) rails(COL.tungsten, 2.5, 0.9); else rails(COL.ink, 2, 0.22);
     for (const sp of ch.phrases){ if (!sp.uni) continue; const [d0, d1] = spanD(sp); if (d1 <= d0) continue; g.lineWidth = 3.5; g.strokeStyle = rgba(UNI_COL, sp.live || sp.done ? 0.95 : 0.35); railSeg(geo, 0, d0, d1); railSeg(geo, L, d0, d1); }
-    // solo labels ride with the section start
-    const tag = (sp, text, col) => { const d = (sp.t0 - t) / look; if (d < 0 || d > 0.95) return; const s = sAt(geo, d); g.font = `900 ${Math.round(clamp(geo.bw * 0.06, 10, 15) * Math.min(1.3, s + 0.2))}px ${FONT_D}`; g.textAlign = 'center'; g.textBaseline = 'bottom'; g.fillStyle = col; g.fillText(text, geo.cx, yAt(geo, s) - 2); };
-    for (const sp of ch.solos) tag(sp, 'SOLO', rgba(COL.iris, 0.9));
-    for (const sp of ch.phrases) if (sp.uni) tag(sp, 'UNISON', rgba(UNI_COL, 0.95));
     // beat lines
     for (let i = lowerBound(S.beats, t - 0.1); i < S.beats.length; i++){
       const b = S.beats[i], d = (b.t - t) / look; if (d > 1) break;
@@ -8059,53 +8168,55 @@ function scHighway(S, x, geo, now){
   }
   if (drums){ const age = (now - x.kickAt) / 1000; if (age < 0.15){ g.fillStyle = rgba(SC_KICK, 0.5 * (1 - age / 0.15)); g.fillRect(geo.left, yH - 4, geo.bw, 8); } }
   drawGeoFx(g, geo, now);
-  // name, multiplier, score and Overdrive under the highway
-  const fy = yH + 28, odW = Math.min(geo.bw * 0.7, 150), ox = geo.cx - odW / 2, m = scMult(x), fs = clamp(geo.bw * 0.05, 11, 14);
-  g.textBaseline = 'alphabetic'; g.font = `800 ${fs}px ${FONT_B}`;
-  g.textAlign = 'left'; g.fillStyle = rgba(x.odActive ? COL.tungsten : COL.ink, 0.8); g.fillText(x.label.toUpperCase(), geo.left + 4, fy);
-  g.textAlign = 'right'; g.fillStyle = rgba(COL.ink, 0.85); g.fillText(fmtNum(x.score), geo.left + geo.bw - 4, fy);
-  g.textAlign = 'center'; g.font = `900 ${Math.round(fs * 1.5)}px ${FONT_D}`; g.fillStyle = x.odActive ? COL.tungsten : m >= x.cap ? COL.iris : COL.ink; g.fillText('×' + m, geo.cx, fy + 1);
-  for (let k = 0; k < 4; k++){ rrect(g, ox + k * odW / 4 + 1, fy + 6, odW / 4 - 3, 6, 3); g.fillStyle = 'rgba(255,255,255,.08)'; g.fill(); const f = clamp(x.od * 4 - k, 0, 1); if (f > 0){ rrect(g, ox + k * odW / 4 + 1, fy + 6, (odW / 4 - 3) * f, 6, 3); g.fillStyle = x.odActive ? COL.tungsten : '#8fd3ff'; g.fill(); } }
-  if (x.showRock){ const rw = odW, rx = geo.cx - rw / 2, ry = fy + 16; [['#ff4d5e', 0, 0.33], ['#ffd23d', 0.33, 0.66], ['#35d46a', 0.66, 1]].forEach(([c, a, b]) => { g.fillStyle = rgba(c, x.rock >= a && x.rock < b + 0.001 ? 0.9 : 0.22); rrect(g, rx + a * rw, ry, (b - a) * rw - 2, 4, 2); g.fill(); }); g.fillStyle = '#fff'; g.fillRect(rx + clamp(x.rock, 0, 1) * rw - 1, ry - 2, 2, 8); }
-  if (x.msg){ const age = (now - x.msg.at) / 1000; if (age > 1.6) x.msg = null; else {
-    const y = yAt(geo, sAt(geo, 0.55)), f = clamp(geo.bw * 0.09, 14, 26);
-    g.globalAlpha = age > 1.2 ? 1 - (age - 1.2) / 0.4 : 1; g.textAlign = 'center'; g.font = `900 ${f}px ${FONT_D}`; g.fillStyle = /UNISON/.test(x.msg.text) ? UNI_COL : /SOLO/.test(x.msg.text) ? COL.iris : COL.tungsten; g.fillText(x.msg.text, geo.cx, y, geo.bw * 0.95);
-    if (x.msg.sub){ g.font = `800 ${Math.round(f * 0.6)}px ${FONT_D}`; g.fillStyle = COL.ink; g.fillText(x.msg.sub, geo.cx, y + f * 0.9); }
-    g.globalAlpha = 1; } }
+  // the same HUD as Quick Play under the strikeline: the instrument, the multiplier ring and the Overdrive cells
+  const m = scMult(x), combo = x.combo != null ? x.combo : x.streak || 0;
+  if (m > (x.hudM || 0) && x.hudM) x.multAt = now; x.hudM = m;
+  drawStrikeHud({ geo, hud:{ mult:m, base:Math.min(x.cap, 1 + Math.floor(combo / 10)), cap:x.cap, step:10, combo, od:x.od, odActive:x.odActive, multAt:x.multAt || 0, bandOd:x.bandOd | 0, bandK:odStack(x.odActive, 2, x.bandOd), label:x.odHint || 'READY', icon:x.key }, judg:null, rb:true }, now);
+  // the solo's running percentage and any callouts, at the far end
+  if (x.msg && (now - x.msg.at) / 1000 > CALLOUT_LIFE) x.msg = null;
+  const so = ch.solos.find(z => !z.done && t >= z.t0 - 0.2 && t < z.t1 + 0.1);
+  drawHwTop(g, geo, { solo:so ? { pct:Math.round(so.hit / Math.max(1, so.count) * 100) } : null, msgs:x.msg ? [x.msg] : [] }, now);
 }
-function scDraw(now){
-  const S = RBE.sc, g = g2, st = RBE.st;
-  const left = insets.l + 10, right = W - insets.r - 10, aw = right - left;
-  const n = S.insts.length, vh = S.vox ? (n ? clamp(H * 0.24, 120, 230) : clamp(H * 0.5, 200, 460)) : 0, vy = insets.t + 76;
-  if (S.vox){
+/* A band on one screen (local band, showcase): the vocal track on top, the highways side by side under it, the band's
+   score and stars over everything, one health meter in the top bar, and the unison banner over the highways. */
+function bandStageDraw(B, insts, V, st, now, o){
+  const g = g2, left = insets.l + 10, right = W - insets.r - 10, aw = right - left, n = insts.length;
+  const top = insets.t + 56, vy = top + 54;
+  const vh = V ? (n ? clamp(H * 0.24, 120, 240) : clamp(H * 0.5, 200, 460)) : 0;
+  if (V){
     const R = { x:left, y:vy, w:aw, h:vh };
-    voxRender(g, R, S.vox, st, now, { showcase:true, cov:true, arrows:true, zones:true });
-    const V = S.vox, odW = Math.min(160, aw * 0.25), vm = Math.min(V.combo + 1, 4) * (V.odActive ? 2 : 1);
-    g.textBaseline = 'alphabetic'; g.textAlign = 'right'; g.font = `800 12px ${FONT_B}`; g.fillStyle = rgba(V.odActive ? COL.tungsten : COL.ink, 0.8);
-    g.fillText(`${V.label.toUpperCase()}  ×${vm}  ${fmtNum(V.score)}`, right - odW - 12, vy - 8);
-    for (let k = 0; k < 4; k++){ rrect(g, right - odW + k * odW / 4, vy - 16, odW / 4 - 3, 6, 3); g.fillStyle = 'rgba(255,255,255,.08)'; g.fill(); const f = clamp(V.od * 4 - k, 0, 1); if (f > 0){ rrect(g, right - odW + k * odW / 4, vy - 16, (odW / 4 - 3) * f, 6, 3); g.fillStyle = V.odActive ? COL.tungsten : '#8fd3ff'; g.fill(); } }
+    const L = voxRender(g, R, V, st, now, o.showcase ? { showcase:true, cov:true, arrows:true, zones:true } : undefined);
+    voxHud(g, R, L, V, now, { mini:true, noScore:true, cx:right - 130, cy:top + 22, bw:240, icon:V.key || 'vocals' });
   }
-  // the section we're in
-  const secs = S.E.sections; let sec = null; for (const s of secs){ if (s.t <= st + 0.05) sec = s; else break; }
-  S.sec = sec ? sec.name : '';
-  const gap = Math.max(8, aw * 0.012), hw = n ? Math.min((aw - gap * (n - 1)) / n, 360) : 0, x0 = left + (aw - (hw * n + gap * (n - 1))) / 2;
-  const topY = vy + vh + 18, hitY = H - Math.max(insets.b + 50, 56);
-  S.insts.forEach((x, i) => {
-    const drums = x.key === 'drums', geo = scGeo(x0 + i * (hw + gap), hw, topY, hitY, drums ? 4 : 5, drums ? SC_DRUM_COL : RB_COLORS);
+  const gap = Math.max(8, aw * 0.012), hw = n ? Math.min((aw - gap * (n - 1)) / n, 380) : 0, x0 = left + (aw - (hw * n + gap * (n - 1))) / 2;
+  const topY = vy + vh + 14, hitY = H - Math.max(insets.b + 62, 70);
+  const S = { beats:B.beats };
+  insts.forEach((x, i) => {
+    const drums = x.key === 'drums', geo = x.geo || (x.geo = {});
+    Object.assign(geo, scGeo(x0 + i * (hw + gap), hw, topY, hitY, drums ? 4 : 5, drums ? SC_DRUM_COL : RB_COLORS));
     scHighway(S, x, geo, now);
   });
   for (const p of sparks){ if (p.shape !== 'dot') continue; g.fillStyle = rgba(p.col, clamp(p.life * 2.2, 0, 1)); g.beginPath(); g.arc(p.x, p.y, 2.2, 0, Math.PI * 2); g.fill(); }
-  // the whole band: score, and how many are in Overdrive
-  if (S.uniMsg){ const age = (now - S.uniMsg.at) / 1000; if (age > 2) S.uniMsg = null; else { g.globalAlpha = age > 1.5 ? 1 - (age - 1.5) / 0.5 : 1; g.textAlign = 'center'; g.font = `900 ${clamp(aw * 0.03, 18, 34)}px ${FONT_D}`; g.fillStyle = UNI_COL; g.fillText('UNISON BONUS · +1 OVERDRIVE BAR EACH', W / 2, topY + 34, aw * 0.9); g.globalAlpha = 1; } }
-  const band = S.insts.reduce((a, x) => a + x.score, 0) + (S.vox ? S.vox.score : 0), inOD = S.insts.filter(x => x.odActive).length + (S.vox && S.vox.odActive ? 1 : 0);
-  S.shown = S.shown == null ? band : S.shown + (band - S.shown) * 0.2;
-  g.textAlign = 'center'; g.textBaseline = 'alphabetic';
-  g.font = `900 22px ${FONT_D}`; g.fillStyle = inOD ? COL.tungsten : COL.ink; g.fillText(`BAND ${fmtNum(S.shown)}`, W / 2, vy - 8);
-  g.textAlign = 'left'; g.font = `800 12px ${FONT_B}`; g.fillStyle = rgba(COL.ink, 0.6);
-  g.fillText([`${fmtTime(Math.max(0, st))} / ${fmtTime(S.end)}`, S.sec, inOD ? `${inOD} in Overdrive` : ''].filter(Boolean).join(' · '), left + 2, vy - 8, Math.max(80, W / 2 - 110 - left));
-  const sc = fmtNum(band); if (sc !== S.hudT){ S.hudT = sc; $('#hudScore').textContent = sc; }
-  const pg = Math.floor(clamp(st / S.end, 0, 1) * 500) / 5;
+  drawSparks(g);
+  // the unison banner, over the middle of the highways
+  if (B.uniB && n) drawUniBanner(g, W / 2, yAt(insts[0].geo, insts[0].geo.topScale) + 4, B.uniB, now, Math.min(aw * 0.5, 320));
+  // the band's score and stars
+  let a = 0, w = 0, band = 0;
+  insts.forEach(x => { band += x.score; const base = x.ch.kind === 'five' ? x.ch.baseScore : x.ch.notes.length * (x.pro || x.ch.pro ? 30 : 25); if (base > 0){ a += x.score; w += base; } });
+  if (V){ band += V.score; if (V.base){ a += voxStarRatio(V.score / V.base) * V.base; w += V.base; } }
+  scorePanel({}, Math.round(band), w ? a / w : 0, now, B.sp || (B.sp = newSP()), { place:{ fs:28, R:9, x:W / 2, align:'center', yScore:top + 22, yStars:top + 38, w:260 } });
+  let sec = null; for (const s of (o.E || B.E).sections){ if (s.t <= st + 0.05) sec = s; else break; }
+  const inOd = insts.filter(x => x.odActive).length + (V && V.odActive ? 1 : 0);
+  g.textAlign = 'left'; g.textBaseline = 'alphabetic'; g.font = `800 12px ${FONT_B}`; g.fillStyle = rgba(COL.ink, 0.6);
+  g.fillText([`${fmtTime(Math.max(0, st))} / ${fmtTime(o.end)}`, sec ? sec.name : '', inOd > 1 ? `${inOd} in Overdrive · ×${2 * inOd}` : ''].filter(Boolean).join(' · '), left + 2, top + 22, Math.max(80, W / 2 - 150 - left));
+  if (o.health != null) hudLifeSet(o.health, !o.noFail); else hudLifeSet(0, false);
+  const sc = fmtNum(Math.round(band)); if (sc !== B.hudT){ B.hudT = sc; $('#hudScore').textContent = sc; }
+  const pg = Math.floor(clamp(st / o.end, 0, 1) * 500) / 5;
   if (pg !== RBE.prog){ RBE.prog = pg; hudProg.style.width = pg + '%'; }
+}
+function scDraw(now){
+  const S = RBE.sc;
+  bandStageDraw(S, S.insts, S.vox, RBE.st, now, { showcase:true, end:S.end, E:S.E });
 }
 
 /* ---------- Local band: everyone on one computer ---------- */
@@ -8289,9 +8400,11 @@ function lbViews(view, msg){
   if (view === 'lbresults'){
     const r = RBE.lbResult; if (!r){ rbView('lbsetup'); return true; }
     rbBody.innerHTML = `<p class="eyebrow">Local band · ${rbEsc(LBX.song ? LBX.song.name : '')}</p><h2 class="card-title">${r.failed ? 'The band failed' : 'Song complete'}</h2>
-      <div class="r-score">${fmtNum(r.score)}</div>
+      <p class="label" style="margin:0">Band score</p><div class="r-score">${fmtNum(r.score)}</div>
+      <div class="stars big" id="lbStars">${starsHTML()}</div>
       <div class="lines">${r.rows.map(x => `<div><span>${rbEsc(x.label)}</span><b>${rbEsc(x.text)}</b></div>`).join('')}</div>
       <div class="row"><button type="button" class="btn primary" id="lbAgain">Play again</button><button type="button" class="btn" id="lbChange">Change players</button><button type="button" class="btn" id="lbSongs">Songs</button></div>`;
+    setStars($('#lbStars'), r.failed ? 0 : r.ratio || 0, true);
     $('#lbAgain').addEventListener('click', () => { ensureCtx(); lbPlay(); });
     $('#lbChange').addEventListener('click', () => rbView('lbsetup'));
     $('#lbSongs').addEventListener('click', () => { RBE.pickFor = 'lb'; RBLOC.tab = 'mine'; rbView('load'); });
@@ -8324,11 +8437,11 @@ function lbBuild(){
     if (key === 'drums'){
       const ch = scDrumChart(midi, sl.diff, sl.x2); if (!ch) return;
       ch.chords.forEach(c => { c.left = c.notes.length; });
-      players.push(Object.assign(common, { lbp:true, kind:'drums', ch, pro:sl.pro, noCym:!sl.pro, scan:0, drawFrom:0, combo:0, best:0, hits:0, misses:0, score:0, od:0, odActive:false, odUsed:0, readyAt:Infinity, rock:0.5, cap:4, total:ch.notes.length }));
+      players.push(Object.assign(common, { lbp:true, kind:'drums', odHint:'READY · AT THE NEXT FILL', ch, pro:sl.pro, noCym:!sl.pro, scan:0, drawFrom:0, combo:0, best:0, hits:0, misses:0, score:0, od:0, odActive:false, odUsed:0, readyAt:Infinity, rock:0.5, cap:4, total:ch.notes.length }));
     } else {
       const ch = rbChart(midi, key, sl.diff, song.hopo); if (!ch) return;
       rbFixPhrases(ch, midi, key); ch.kind = 'five'; ch.notes = ch.gems;
-      const P = Object.assign(common, { lbp:true, on:true, mode:'play', kind:'five', ch, song, cap:key === 'bass' ? 6 : 4, band:false, down:false, tour:null, t0:RBE.t0, total:ch.chords.length });
+      const P = Object.assign(common, { lbp:true, on:true, mode:'play', kind:'five', odHint:'TILT OR SELECT TO DEPLOY', ch, song, cap:key === 'bass' ? 6 : 4, band:false, down:false, tour:null, t0:RBE.t0, total:ch.chords.length });
       lbWith(P, () => rbReset(ch));
       P.label = common.label; P.multFn = () => lbWith(P, rbMult);
       players.push(P);
@@ -8339,20 +8452,19 @@ function lbBuild(){
   if (LBS.vox.n > 0 && av.vox.length){
     const part = (LBS.vox.n > 1 || LBS.vox.harm) && av.vox.includes('harmonies') ? 'harmonies' : 'vocals';
     const ch = voxChart(midi, part);
-    if (ch){ vox = voxState(ch, LBS.vox.diff); vox.label = part === 'harmonies' ? 'Harmonies' : 'Vocals'; }
+    if (ch){ vox = voxState(ch, LBS.vox.diff); vox.label = part === 'harmonies' ? 'Harmonies' : 'Vocals'; vox.coop = true; vox.bandOd = 0; vox.key = part; }
   }
   let endTick = 0; midi.tracks.forEach(t => t.notes.forEach(n => { if (n.tick + n.len > endTick) endTick = n.tick + n.len; }));
   const toSec = midiTiming(midi), E = scEvents(midi, toSec), beats = midiBeats(midi, toSec, endTick + midi.div * 4);
   const ends = players.map(P => { const c = P.ch.chords[P.ch.chords.length - 1]; return c ? c.end || c.t : 0; }).concat(vox ? [vox.ch.end - 1.5] : []);
-  return { players, vox, groups, beats, E, end:Math.max(E.end || 0, ...ends, 1) + 1, uniMsg:null };
+  return { players, vox, groups, beats, E, end:Math.max(E.end || 0, ...ends, 1) + 1, uniMsg:null, uniB:null, health:0.6, prev:null, sp:newSP() };
 }
 // An Overdrive phrase is done: when every player in a unison has finished theirs, each gets an extra bar.
 function lbPhraseDone(P, ph){
   const g = ph.group;
   if (!g || g.paid || !g.members.every(m => m[1].done)) return;
   g.paid = true;
-  g.members.forEach(([m]) => { m.od = Math.min(1, m.od + 0.25); m.msg = { text:'UNISON BONUS', sub:'+1 Overdrive bar', at:performance.now() }; });
-  if (RBE.lb) RBE.lb.uniMsg = { at:performance.now() };
+  g.members.forEach(([m]) => { m.od = Math.min(1, m.od + 0.25); });
 }
 function lbOD(P){
   if (P.kind !== 'five') return;
@@ -8366,7 +8478,7 @@ function lbDrumOD(P){
   P.msg = { text:'OVERDRIVE', at:performance.now() };
   if (typeof ripSound === 'function') ripSound('shock');
 }
-const lbDrumMult = P => Math.min(4, 1 + Math.floor(P.combo / 10)) * (P.odActive ? 2 : 1);
+const lbDrumMult = P => Math.min(4, 1 + Math.floor(P.combo / 10)) * odStack(P.odActive, 2, P.bandOd);
 function lbDrumHit(P, key, perf){
   if (!RBE.lb || RBE.mode !== 'play') return;
   const t = rbTime(perf), [lane, cym] = LB_PADHIT[key], ch = P.ch, W = RB_WIN, now = performance.now();
@@ -8383,8 +8495,8 @@ function lbDrumHit(P, key, perf){
   }
   if (!best) return;          // extra hits cost nothing on drums
   best.state = 'hit'; P.hits++; P.combo++; P.best = Math.max(P.best, P.combo);
-  P.score += 25 * lbDrumMult(P);
-  P.rock = Math.min(1, P.rock + (P.odActive ? 0.03 : 0.018));
+  P.score += (P.pro ? 30 : 25) * lbDrumMult(P);
+  P.rock += P.odActive ? 0.03 : 0.018;
   if (lane >= 0) burst(lane, bd < 0.025 ? 'perfect' : bd < 0.045 ? 'great' : 'good', P.geo, now, false, P.odActive);
   const c = best.chord; c.left--;
   if (c.left <= 0){
@@ -8404,7 +8516,7 @@ function lbStepDrums(P, st, dt, now){
   }
   while (P.scan < ch.notes.length && ch.notes[P.scan].t < st - W){
     const n = ch.notes[P.scan++]; if (n.state) continue;
-    n.state = 'miss'; P.misses++; P.combo = 0; P.rock = Math.max(0, P.rock - 0.055);
+    n.state = 'miss'; P.misses++; P.combo = 0; P.rock -= 0.055;
     if (n.chord && n.chord.od >= 0 && ch.phrases[n.chord.od]) ch.phrases[n.chord.od].live = false;
     if (!n.kick) lbWith(P, () => missFx(n.lane));
   }
@@ -8507,7 +8619,17 @@ function lbUpdate(dt, now){
   const st = RBE.vt; RBE.st = st;
   LB.players.forEach(P => { P.t0 = RBE.t0; if (P.kind === 'five') lbStep5(P, st, dt, now); else lbStepDrums(P, st, dt, now); P.streak = P.combo; });
   if (LB.vox) voxTick(LB.vox, st, dt, now);
-  if (!LBS.noFail && (LB.players.some(P => P.rock <= 0) || (LB.vox && LB.vox.rock <= 0))) return lbFinish(true);
+  // Overdrive stacks: every player in Overdrive adds 2x for the whole band.
+  const inOd = LB.players.filter(P => P.odActive).length + (LB.vox && LB.vox.odActive ? 1 : 0);
+  LB.players.forEach(P => { P.bandOd = inOd - (P.odActive ? 1 : 0); });
+  if (LB.vox) LB.vox.bandOd = inOd - (LB.vox.odActive ? 1 : 0);
+  // One health meter for the band: everyone's hits and misses move it, at the band's average pace.
+  const rocks = LB.players.map(P => P.rock).concat(LB.vox ? [LB.vox.rock] : []);
+  if (!LB.prev) LB.prev = rocks.slice();
+  let d = 0; rocks.forEach((r, i) => { d += r - LB.prev[i]; }); LB.prev = rocks;
+  LB.health = clamp(LB.health + d / Math.max(1, rocks.length), 0, 1);
+  LB.uniB = uniGroupBanner(LB, LB.groups, st, now);
+  if (!LBS.noFail && LB.health <= 0) return lbFinish(true);
   if (st > LB.end + 0.5) lbFinish(false);
 }
 function lbEnd(){
@@ -8527,41 +8649,19 @@ function lbFinish(failed){
   LB.players.forEach(P => { total += P.score; rows.push({ label:P.label, text:`${fmtNum(Math.round(P.score))} · ${Math.round(P.hits / Math.max(1, P.total) * 100)}% · best streak ${P.best} · ${P.odUsed} OD` }); });
   const paid = LB.groups.filter(g => g.paid).length;
   if (LB.groups.length) rows.push({ label:'Unison bonuses', text:`${paid} of ${LB.groups.length}` });
-  RBE.lbResult = { failed:!!failed, score:Math.round(total), rows };
+  // the band's stars: everyone's star ratio, weighted by how much their part is worth
+  let a = 0, w = 0;
+  LB.players.forEach(P => { const base = P.kind === 'five' ? P.ch.baseScore : P.ch.notes.length * (P.pro ? 30 : 25); if (base > 0){ a += P.score / base * base; w += base; } });
+  if (LB.vox){ a += voxStarRatio(LB.vox.score / LB.vox.base) * LB.vox.base; w += LB.vox.base; }
+  const ratio = w ? a / w : 0;
+  RBE.lbResult = { failed:!!failed, score:Math.round(total), rows, ratio, stars:failed ? 0 : starCount(ratio) };
+  hudLifeSet(0, false);
   setTimeout(() => { if (RBE.mode !== 'done') return; lbEnd(); rbOpen('lbresults'); }, failed ? 1200 : 1500);
 }
 function lbQuit(){ rbStopAudio(); lbEnd(); rbOpen('lbsetup'); }
 function lbDraw(now){
   const LB = RBE.lb, g = g2, st = RBE.st;
-  const left = insets.l + 10, right = W - insets.r - 10, aw = right - left, n = LB.players.length;
-  const vh = LB.vox ? (n ? clamp(H * 0.26, 130, 250) : clamp(H * 0.5, 200, 460)) : 0, vy = insets.t + 76;
-  if (LB.vox){
-    const V = LB.vox, R = { x:left, y:vy, w:aw, h:vh };
-    const L = voxRender(g, R, V, st, now);
-    const odW = Math.min(160, aw * 0.25), vm = voxMult(V);
-    g.textBaseline = 'alphabetic'; g.textAlign = 'right'; g.font = `800 12px ${FONT_B}`; g.fillStyle = rgba(V.odActive ? COL.tungsten : COL.ink, 0.8);
-    g.fillText(`${V.label.toUpperCase()}  ×${vm}  ${fmtNum(Math.round(V.score))}`, right - odW - 12, vy - 8);
-    for (let k = 0; k < 4; k++){ rrect(g, right - odW + k * odW / 4, vy - 16, odW / 4 - 3, 6, 3); g.fillStyle = 'rgba(255,255,255,.08)'; g.fill(); const f = clamp(V.od * 4 - k, 0, 1); if (f > 0){ rrect(g, right - odW + k * odW / 4, vy - 16, (odW / 4 - 3) * f, 6, 3); g.fillStyle = V.odActive ? COL.tungsten : '#8fd3ff'; g.fill(); } }
-    if (V.pop){ const age = (now - V.pop.at) / 1000; if (age > 1.4) V.pop = null; else { g.globalAlpha = age < 1 ? 1 : 1 - (age - 1) / 0.4; g.textAlign = 'center'; g.font = `900 ${Math.round(L.fs * 1.3)}px ${FONT_D}`; g.fillStyle = V.pop.col; g.fillText(V.pop.text, R.x + R.w * 0.6, L.y0 + L.fs * 1.6); g.globalAlpha = 1; } }
-  }
-  const gap = Math.max(8, aw * 0.012), hw = n ? Math.min((aw - gap * (n - 1)) / n, 380) : 0, x0 = left + (aw - (hw * n + gap * (n - 1))) / 2;
-  const topY = vy + vh + 18, hitY = H - Math.max(insets.b + 62, 70);
-  const S = { beats:LB.beats };
-  LB.players.forEach((P, i) => {
-    const drums = P.kind === 'drums';
-    Object.assign(P.geo, scGeo(x0 + i * (hw + gap), hw, topY, hitY, drums ? 4 : 5, drums ? SC_DRUM_COL : RB_COLORS));
-    scHighway(S, P, P.geo, now);
-  });
-  drawSparks(g);
-  if (LB.uniMsg){ const age = (now - LB.uniMsg.at) / 1000; if (age > 2) LB.uniMsg = null; else { g.globalAlpha = age > 1.5 ? 1 - (age - 1.5) / 0.5 : 1; g.textAlign = 'center'; g.font = `900 ${clamp(aw * 0.03, 18, 34)}px ${FONT_D}`; g.fillStyle = UNI_COL; g.fillText('UNISON BONUS · +1 OVERDRIVE BAR EACH', W / 2, topY + 34, aw * 0.9); g.globalAlpha = 1; } }
-  const band = LB.players.reduce((a, P) => a + P.score, 0) + (LB.vox ? LB.vox.score : 0);
-  LB.shown = LB.shown == null ? band : LB.shown + (band - LB.shown) * 0.2;
-  g.textAlign = 'center'; g.textBaseline = 'alphabetic'; g.font = `900 22px ${FONT_D}`; g.fillStyle = COL.ink; g.fillText(`BAND ${fmtNum(Math.round(LB.shown))}`, W / 2, vy - 8);
-  let sec = null; for (const s of LB.E.sections){ if (s.t <= st + 0.05) sec = s; else break; }
-  g.textAlign = 'left'; g.font = `800 12px ${FONT_B}`; g.fillStyle = rgba(COL.ink, 0.6);
-  g.fillText([`${fmtTime(Math.max(0, st))} / ${fmtTime(LB.end)}`, sec ? sec.name : ''].filter(Boolean).join(' · '), left + 2, vy - 8, Math.max(80, W / 2 - 110 - left));
-  const pg = Math.floor(clamp(st / LB.end, 0, 1) * 500) / 5;
-  if (pg !== RBE.prog){ RBE.prog = pg; hudProg.style.width = pg + '%'; }
+  bandStageDraw(LB, LB.players, LB.vox, st, now, { health:LB.health, noFail:LBS.noFail, end:LB.end, E:LB.E });
 }
 
 /* ---------- online bands on the website copy ----------
@@ -8862,6 +8962,165 @@ function p2pFetch(from, x, onPct){
 // Who can send a song to a bandmate: on claude.ai, someone who can write to Stagelight's storage; on the website, anyone.
 const rbCanSend = () => RBLIB.canSend || p2pOn();
 
+/* ---------- playing together: the rules every band mode shares, and the pieces of the HUD they all use ---------- */
+// Overdrive is 2x while yours is on. In a band it stacks for the whole band: 2x for every player in Overdrive
+// (four at once is 8x), on top of each player's own streak multiplier, so deploying together pays.
+const odStack = (mine, x, others) => Math.max(1, (mine ? x : 0) + 2 * (others | 0));
+
+/* One health meter for the whole band. Each player keeps a running total of how their own play moved it (hits push
+   it up, misses pull it down). One player, the first in the lineup who's still playing, adds everyone's changes into
+   the meter, divided by the band's size so it moves at the band's average pace, and reports it to the others. */
+function bhNew(start){ return { H:start, seen:{}, mine:0, fail:false, auth:null }; }
+function bhStep(B, me, myD, rows, order, noFail){
+  const n = 1 + rows.length, has = id => id === me || rows.some(r => r.id === id);
+  const auth = (order || []).find(has) || me;
+  B.auth = auth;
+  if (auth === me){
+    let d = myD - B.mine;
+    rows.forEach(r => { if (typeof r.d === 'number') d += r.d - (B.seen[r.id] || 0); });
+    B.H = clamp(B.H + d / n, 0, 1);
+    if (!noFail && B.H <= 0) B.fail = true;
+  } else {
+    const a = rows.find(r => r.id === auth);
+    if (a && typeof a.H === 'number') B.H = clamp(a.H, 0, 1);
+    if (a && a.bf) B.fail = true;
+  }
+  rows.forEach(r => { if (typeof r.d === 'number') B.seen[r.id] = r.d; });
+  B.mine = myD;
+  return B;
+}
+// The meter itself sits in the top bar, under the song's progress, in every mode that has one.
+function hudLifeSet(f, show){
+  const el = $('#hudLife'); if (!el) return;
+  if (show === false){ el.hidden = true; return; }
+  el.hidden = false;
+  const lf = clamp(f, 0, 1), w = (lf * 100).toFixed(1) + '%';
+  if (el.dataset.w !== w){ el.dataset.w = w; $('#hudLifeFill').style.width = w; el.classList.toggle('warn', lf < 0.5 && lf >= 0.25); el.classList.toggle('low', lf < 0.25); }
+}
+
+/* Instrument icons, for the unison banner and the band's highways: a glyph in a small ring. */
+function instIcon(g, kind, cx, cy, r, col, lit){
+  g.save();
+  g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2);
+  g.fillStyle = lit ? rgba(col, 0.95) : 'rgba(14,11,28,.82)'; g.fill();
+  g.lineWidth = Math.max(1.5, r * 0.12); g.strokeStyle = lit ? 'rgba(255,255,255,.9)' : rgba(col, 0.75); g.stroke();
+  const ink = lit ? '#120f24' : rgba(COL.ink, 0.92), u = r * 0.52;
+  g.strokeStyle = ink; g.fillStyle = ink; g.lineWidth = Math.max(1.4, r * 0.11); g.lineCap = 'round'; g.lineJoin = 'round';
+  g.translate(cx, cy);
+  if (kind === 'guitar' || kind === 'bass' || kind === 'rhythm'){
+    const neck = kind === 'bass' ? 1.25 : 1;
+    g.rotate(-Math.PI / 4);
+    g.beginPath(); g.ellipse(0, u * 0.45, u * 0.42, u * 0.5, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(0, u * -0.05, u * 0.32, u * 0.34, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.moveTo(0, u * 0.1); g.lineTo(0, -u * 1.05 * neck); g.stroke();
+    g.fillRect(-u * 0.14, -u * 1.25 * neck, u * 0.28, u * 0.3);
+  } else if (kind === 'drums'){
+    g.beginPath(); g.ellipse(0, -u * 0.25, u * 0.75, u * 0.28, 0, 0, Math.PI * 2); g.stroke();
+    g.beginPath(); g.moveTo(-u * 0.75, -u * 0.25); g.lineTo(-u * 0.75, u * 0.45); g.ellipse(0, u * 0.45, u * 0.75, u * 0.28, 0, Math.PI, 0, true); g.lineTo(u * 0.75, -u * 0.25); g.stroke();
+    g.beginPath(); g.moveTo(-u * 0.25, -u * 0.55); g.lineTo(-u * 0.85, -u * 1.0); g.moveTo(u * 0.25, -u * 0.55); g.lineTo(u * 0.85, -u * 1.0); g.stroke();
+  } else if (kind === 'keys'){
+    rrect(g, -u * 0.9, -u * 0.55, u * 1.8, u * 1.1, u * 0.15); g.stroke();
+    for (let k = 1; k < 4; k++){ const x = -u * 0.9 + k * u * 0.45; g.beginPath(); g.moveTo(x, -u * 0.55); g.lineTo(x, u * 0.55); g.stroke(); }
+    for (const k of [0.62, 1.07, 1.52]) g.fillRect(-u * 0.9 + k * u * 0.5 - u * 0.09, -u * 0.55, u * 0.18, u * 0.6);
+  } else if (kind === 'vocals' || kind === 'harmonies'){
+    rrect(g, -u * 0.32, -u * 0.95, u * 0.64, u * 1.0, u * 0.32); g.fill();
+    g.beginPath(); g.arc(0, -u * 0.25, u * 0.55, 0.15 * Math.PI, 0.85 * Math.PI); g.stroke();
+    g.beginPath(); g.moveTo(0, u * 0.3); g.lineTo(0, u * 0.75); g.moveTo(-u * 0.35, u * 0.78); g.lineTo(u * 0.35, u * 0.78); g.stroke();
+  } else {
+    rrect(g, -u * 0.95, -u * 0.5, u * 1.9, u * 1.0, u * 0.45); g.stroke();
+    g.beginPath(); g.moveTo(-u * 0.55, 0); g.lineTo(-u * 0.15, 0); g.moveTo(-u * 0.35, -u * 0.2); g.lineTo(-u * 0.35, u * 0.2); g.stroke();
+    g.beginPath(); g.arc(u * 0.4, -u * 0.12, u * 0.1, 0, Math.PI * 2); g.arc(u * 0.6, u * 0.12, u * 0.1, 0, Math.PI * 2); g.fill();
+  }
+  g.restore();
+}
+
+/* Callouts: Overdrive, solo results, unison bonuses and the like, in a slim outlined tag at the far end of the highway,
+   above the notes you're about to play, the way Rock Band shows a solo's percentage. */
+const CALLOUT_LIFE = 1.9;
+function calloutBox(g, cx, y, text, sub, col, k, a, maxW){
+  const fs = clamp(maxW * 0.075, 13, 22), pad = fs * 0.55;
+  g.font = `900 ${Math.round(fs)}px ${FONT_D}`;
+  const tw = Math.min(maxW - pad * 2, g.measureText(text).width);
+  let sw = 0; if (sub){ g.font = `700 ${Math.round(fs * 0.55)}px ${FONT_B}`; sw = Math.min(maxW - pad * 2, g.measureText(sub).width); }
+  const w = Math.max(tw, sw) + pad * 2, h = fs * 1.35 + (sub ? fs * 0.75 : 0);
+  g.save(); g.globalAlpha = clamp(a, 0, 1); g.translate(cx, y + h / 2); g.scale(k, k);
+  rrect(g, -w / 2, -h / 2, w, h, 6); g.fillStyle = 'rgba(14,11,28,.8)'; g.fill();
+  g.lineWidth = 1.5; g.strokeStyle = rgba(col, 0.85); g.stroke();
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = `900 ${Math.round(fs)}px ${FONT_D}`; g.fillStyle = col; g.fillText(text, 0, -h / 2 + fs * 0.72, maxW - pad * 2);
+  if (sub){ g.font = `700 ${Math.round(fs * 0.55)}px ${FONT_B}`; g.fillStyle = rgba(COL.ink, 0.82); g.fillText(sub, 0, -h / 2 + fs * 1.55, maxW - pad * 2); }
+  g.restore();
+  return h * k;
+}
+// Draws a message given as { text, sub, col, at }; returns how much room it took (0 once it's gone).
+function drawCallout(g, cx, y, msg, now, maxW){
+  if (!msg || !msg.at) return 0;
+  const age = (now - msg.at) / 1000; if (age > CALLOUT_LIFE || age < 0) return 0;
+  const k = reduced ? 1 : age < 0.12 ? 0.86 + age / 0.12 * 0.14 : 1, a = age > CALLOUT_LIFE - 0.35 ? (CALLOUT_LIFE - age) / 0.35 : 1;
+  const col = msg.col || (/UNISON/.test(msg.text) ? UNI_COL : /SOLO/.test(msg.text) ? COL.iris : /DOWN|FAIL|BOOED|MISS|LOST|BROKEN/.test(msg.text) ? COL.miss : COL.tungsten);
+  return calloutBox(g, cx, y, String(msg.text).replace(/!+$/, ''), msg.sub || '', col, k, a, maxW) + 6;
+}
+// A solo in progress: its running percentage, in the same tag.
+function drawSoloTag(g, cx, y, pct, maxW){ return calloutBox(g, cx, y, `SOLO ${pct}%`, '', COL.iris, 1, 1, Math.min(maxW, 220)) + 6; }
+
+/* The unison banner: "UNISON PHRASE" with an icon for every instrument in it. Each icon lights up as that player
+   finishes their part of the phrase; when everyone has, it says so and fades out. U = { members:[{ kind, done, lost }],
+   state:'live'|'paid'|'lost', at } */
+function drawUniBanner(g, cx, y, U, now, maxW){
+  if (!U) return 0;
+  const age = U.state === 'live' ? 0 : (now - (U.endAt || now)) / 1000;
+  if (age > 1.8) return 0;
+  const a = age > 1.3 ? 1 - (age - 1.3) / 0.5 : 1, paid = U.state === 'paid', lost = U.state === 'lost';
+  const fs = clamp(maxW * 0.07, 12, 20), text = paid ? 'UNISON BONUS' : lost ? 'UNISON MISSED' : 'UNISON PHRASE';
+  const col = lost ? rgba(COL.ink, 0.55) : UNI_COL;
+  const k = paid && !reduced ? 1 + 0.08 * Math.max(0, 1 - age / 0.25) : 1;
+  const h = calloutBox(g, cx, y, text, paid ? (U.solo ? '+1 Overdrive bar' : '+1 Overdrive bar each') : '', col, k, a, Math.min(maxW, 300));
+  const m = U.members || [], r = clamp(fs * 0.62, 8, 13), gap = r * 2.5, x0 = cx - (m.length - 1) * gap / 2, iy = y + h + r + 5;
+  g.save(); g.globalAlpha = clamp(a, 0, 1);
+  m.forEach((x, i) => {
+    const lit = x.done && !lost, c = lost && !x.done ? COL.miss : UNI_COL;
+    if (lit && !reduced){ g.globalCompositeOperation = 'lighter'; g.beginPath(); g.arc(x0 + i * gap, iy, r + 4, 0, Math.PI * 2); g.fillStyle = rgba(UNI_COL, 0.25); g.fill(); g.globalCompositeOperation = 'source-over'; }
+    instIcon(g, x.kind, x0 + i * gap, iy, r, c, lit);
+  });
+  g.restore();
+  return h + r * 2 + 12;
+}
+// Everything that sits at the far end of one highway: the solo tag, the unison banner and the latest callout, stacked.
+function drawHwTop(g, geo, items, now){
+  const yT = yAt(geo, geo.topScale), maxW = Math.max(120, geo.bw * 0.9);
+  let y = yT + 6;
+  if (items.solo) y += drawSoloTag(g, geo.cx, y, items.solo.pct, maxW);
+  if (items.uni) y += drawUniBanner(g, geo.cx, y, items.uni, now, maxW);
+  for (const m of items.msgs || []) y += drawCallout(g, geo.cx, y, m, now, maxW);
+}
+
+/* Unison phrases in a solo game count as if the whole band nailed them: finishing your part pays the extra bar.
+   The banner shows the instruments that share the phrase in the song. */
+function uniPartsOf(midi, t0, t1, mine){
+  const out = [], toSec = midiTiming(midi);
+  const kinds = { 'PART GUITAR':'guitar', 'PART BASS':'bass', 'PART DRUMS':'drums', 'PART KEYS':'keys', 'PART RHYTHM':'rhythm' };
+  midi.tracks.forEach(t => {
+    const k = kinds[t.name.trim().toUpperCase()]; if (!k || out.includes(k)) return;
+    if (k === mine || t.notes.some(n => n.note === 116 && Math.min(toSec(n.tick + Math.max(1, n.len)), t1) - Math.max(toSec(n.tick), t0) > 0.5 * Math.min(t1 - t0, toSec(n.tick + Math.max(1, n.len)) - toSec(n.tick)))) out.push(k);
+  });
+  if (mine && !out.includes(mine)) out.unshift(mine);
+  const order = ['guitar', 'rhythm', 'drums', 'bass', 'keys'];
+  return out.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+}
+// For a band on one screen (local band, showcase): the unison group coming up, with everyone in it lit as they finish.
+function uniGroupBanner(H, groups, st, now){
+  let U = H.uniB;
+  if (U && U.state !== 'live' && now - U.endAt > 1800) U = H.uniB = null;
+  if (!U){ const gp = (groups || []).find(x => !x.seen && st > x.t0 - 0.5 && st < x.t1 + 0.5); if (gp){ gp.seen = true; U = H.uniB = { g:gp, state:'live', endAt:0, members:[] }; } }
+  if (!U) return null;
+  if (U.state === 'live'){
+    U.members = U.g.members.map(([P, ph]) => ({ kind:P.key, done:!!ph.done, lost:!ph.live && !ph.done }));
+    if (U.g.paid){ U.state = 'paid'; U.endAt = now; if (typeof ripSound === 'function') ripSound('glint'); }
+    else if (U.members.some(m => m.lost)){ U.state = 'lost'; U.endAt = now; }
+  }
+  return U;
+}
+
 /* ---------- update loop ---------- */
 function update(dt, now){
   // Frame-locked clock: advance by the display's frame timestamps and ease toward the audio clock,
@@ -8922,10 +9181,9 @@ function updateHud(){
   // Progress moves in 0.2% steps and never backward, so clock corrections can't make it twitch.
   const pg = Math.floor(clamp(G.st / G.endAt, 0, 1) * 500) / 5;
   if (pg > hc.prog){ hc.prog = pg; hudProg.style.width = pg + '%'; }
+  if (G.rbBand && RBB.bh) hudLifeSet(RBB.bh.H);
   if (G.career){
-    const lf = clamp(G.life / G.lifeMax, 0, 1), el = $('#hudLife');
-    $('#hudLifeFill').style.width = (lf * 100).toFixed(1) + '%';
-    el.classList.toggle('warn', lf < 0.5 && lf >= 0.25); el.classList.toggle('low', lf < 0.25);
+    hudLifeSet(G.band && BAND.bh ? BAND.bh.H : G.life / G.lifeMax);
     const gl = G.career.goal;
     let txt, ok;
     if (G.band) [txt, ok] = bandChText();
@@ -9072,11 +9330,14 @@ function drawGem(sc, n, t, look){
   const kx = SPR_W / GEM_W, ky = SPR_H / GEM_H;
   const spr = n.lift ? (od ? spriteFor('#d9d3ff', 'odlift') : spriteFor(geo.colors[n.lane], 'lift')) : (od ? odSprite() : spriteFor(geo.colors[n.lane]));
   if (n.hopo){
-    // Hammer-ons and pull-offs: a slightly smaller gem filled white, with a thick border in the fret colour.
-    const hw = w * 0.92, hh = h * 0.92, lw = Math.max(3.5, hh * 0.32), bc = n.state === 'miss' ? COL.muted : od ? '#a99cff' : geo.colors[n.lane];
-    pill(g2, x - hw / 2 + lw / 2, y - hh / 2 + lw / 2, hw - lw, hh - lw);
-    g2.fillStyle = n.state === 'miss' ? 'rgba(200,196,214,.9)' : '#ffffff'; g2.fill();
-    g2.lineWidth = lw; g2.strokeStyle = bc; g2.stroke();
+    // Hammer-ons and pull-offs: smaller than a strummed gem, in the fret colour with a bright white core running through it.
+    const hw = w * 0.78, hh = h * 0.66, bc = n.state === 'miss' ? COL.muted : od ? '#c9c0ff' : geo.colors[n.lane];
+    pill(g2, x - hw / 2, y - hh / 2, hw, hh);
+    g2.fillStyle = bc; g2.fill();
+    g2.lineWidth = Math.max(1, hh * 0.08); g2.strokeStyle = 'rgba(9,7,20,.55)'; g2.stroke();
+    const cw = hw * 0.64, ch = Math.max(2, hh * 0.36);
+    pill(g2, x - cw / 2, y - ch / 2, cw, ch);
+    g2.fillStyle = n.state === 'miss' ? 'rgba(220,216,232,.75)' : '#ffffff'; g2.fill();
   } else g2.drawImage(spr, x - w / 2 * kx, y - h / 2 * ky, w * kx, h * ky);
   if (!reduced && !n.state && skinOf('gem').style === 'mythic' && Math.random() < 0.14 && sparks.length < 400) sparks.push({ x:x + (Math.random() - 0.5) * w * 0.7, y:y - h * 0.3, vx:(Math.random() - 0.5) * 20, vy:-30 - Math.random() * 40, life:0.35, l0:0.35, col:Math.random() < 0.5 ? '#ff2e4d' : '#ff7a8a', shape:'dot', g:-40 });
   if (n.uni && !n.state){
@@ -9273,48 +9534,9 @@ function renderScene(sc, now){
   }
   drawGeoFx(g, geo, now); drawSparks(g);
   g.globalCompositeOperation = 'source-over';
-  let yLab = yT;
-  if (sc.solo){
-    const fs = clamp(geo.laneW * 0.3, 16, 30), yS = yT + fs * 1.1;
-    g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillStyle = COL.iris; g.font = `900 ${Math.round(fs)}px ${FONT_D}`; g.fillText('SOLO', geo.cx, yS);
-    g.fillStyle = COL.ink; g.font = `800 ${Math.round(fs * 0.85)}px ${FONT_D}`; g.fillText(sc.solo.pct + '%', geo.cx, yS + fs);
-    yLab = yS + fs * 1.6;
-  }
-  if (sc.uni){
-    const fs = clamp(geo.laneW * 0.27, 15, 26), yU = yLab + fs * 1.1, k = reduced ? 1 : 1 + 0.06 * Math.sin(now / 170);
-    g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.globalAlpha = sc.uni.ok ? 1 : 0.5;
-    g.fillStyle = UNI_COL; g.font = `900 ${Math.round(fs * k)}px ${FONT_D}`; g.fillText(sc.uni.ok ? 'UNISON BONUS' : 'UNISON LOST', geo.cx, yU, geo.bw * 0.9);
-    g.fillStyle = rgba(COL.ink, 0.75); g.font = `700 ${Math.round(fs * 0.5)}px ${FONT_B}`; g.fillText(sc.uni.sub || (sc.uni.ok ? 'Whole band: hit every ringed note' : 'You dropped a note in this one'), geo.cx, yU + fs * 0.85, geo.bw * 0.9);
-    g.globalAlpha = 1;
-  }
-  if (sc.soloMsg){
-    const age = (now - sc.soloMsg.at) / 1000;
-    if (age < 2){
-      const a = age > 1.6 ? 1 - (age - 1.6) / 0.4 : 1, yM = yAt(geo, sAt(geo, 0.62)), fs = clamp(geo.laneW * 0.42, 22, 48);
-      g.globalAlpha = clamp(a, 0, 1); g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillStyle = COL.tungsten; g.font = `900 ${Math.round(fs)}px ${FONT_D}`; g.fillText(sc.soloMsg.text, geo.cx, yM, innerWidth * 0.94);
-      g.fillStyle = COL.ink; g.font = `800 ${Math.round(fs * 0.6)}px ${FONT_D}`; g.fillText(sc.soloMsg.sub, geo.cx, yM + fs * 0.85, innerWidth * 0.92);
-      g.globalAlpha = 1;
-    }
-  }
-  if (sc.combo >= 5){
-    const yC = yAt(geo, sAt(geo, 0.38));
-    g.textAlign = 'center'; g.textBaseline = 'alphabetic';
-    g.fillStyle = rgba(COL.ink, 0.13); g.font = `900 ${Math.round(Math.min(geo.laneW * 0.95, (geo.hitY - geo.topY) * 0.42))}px ${FONT_D}`; g.fillText(String(sc.combo), geo.cx, yC);
-    g.fillStyle = rgba(COL.ink, 0.22); g.font = `800 ${Math.round(geo.laneW * 0.16)}px ${FONT_D}`; g.fillText('STREAK', geo.cx, yC + geo.laneW * 0.24);
-  }
-  if (sc.judg){
-    const age = (now - sc.judg.at) / 1000;
-    if (age < 0.6){
-      const k = age < 0.09 ? 1.22 - age * 2.4 : 1, a = age > 0.38 ? 1 - (age - 0.38) / 0.22 : 1, J = JUDG[sc.judg.kind], yJ = yH - geo.laneW * 0.95;
-      g.globalAlpha = clamp(a, 0, 1); g.fillStyle = J.col; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.font = `900 ${Math.round(Math.min(56, geo.laneW * 0.44) * k)}px ${FONT_D}`; g.fillText(J.label, geo.cx, yJ);
-      if (sc.judg.kind === 'great' || sc.judg.kind === 'good'){ g.font = `700 ${Math.round(clamp(geo.laneW * 0.14, 11, 16))}px ${FONT_B}`; g.fillStyle = rgba(COL.ink, 0.62); g.fillText(sc.judg.err < 0 ? 'EARLY' : 'LATE', geo.cx, yJ + Math.min(40, geo.laneW * 0.34)); }
-      g.globalAlpha = 1;
-    }
-  }
+  // Nothing written across the notes: solos, unisons and callouts sit in a tag at the far end of the highway,
+  // and your timing and streak sit with the multiplier under the strikeline.
+  drawHwTop(g, geo, { solo:sc.solo, uni:sc.uniB, msgs:sc.soloMsg ? [sc.soloMsg] : [] }, now);
   if (sc.hud) drawStrikeHud(sc, now);
 }
 // Score and stars sit right by the highway: beside it when the screen is wide, above it when it's tall.
@@ -9327,9 +9549,10 @@ function scorePanel(geo, score, ratio, now, sp, opt){
   sp.shown += (score - sp.shown) * 0.22; if (Math.abs(score - sp.shown) < 1) sp.shown = score;
   const room = W - insets.r - (geo.left + geo.bw), side = room >= 170;
   let fs, R, x, yScore, yStars, align;
-  if (side){ fs = clamp(room * 0.2, 34, 58); R = clamp(fs * 0.34, 12, 20); x = geo.left + geo.bw + 24; align = 'left'; yScore = geo.hitY - 40; yStars = yScore - fs * 0.95 - R; }
+  if (o.place){ ({ fs, R, x, yScore, yStars, align } = o.place); }
+  else if (side){ fs = clamp(room * 0.2, 34, 58); R = clamp(fs * 0.34, 12, 20); x = geo.left + geo.bw + 24; align = 'left'; yScore = geo.hitY - 40; yStars = yScore - fs * 0.95 - R; }
   else { fs = clamp(geo.bw * 0.12, 30, 48); R = clamp(fs * 0.34, 11, 17); x = geo.cx; align = 'center'; yStars = yAt(geo, geo.topScale) - R - 8 - (o.below || 0); yScore = yStars - R - 8; }
-  const gap = R * 2.35, x0 = align === 'left' ? x + R : x - gap * 2;
+  const gap = R * 2.35, x0 = align === 'left' ? x + R : align === 'right' ? x - R - gap * 4 : x - gap * 2;
   const T = STAR_T, gp = clamp((ratio - T[4]) / (GOLD_T - T[4]), 0, 1) * 5, allGold = ratio >= GOLD_T;
   if (allGold && !reduced){
     const gx = x0 + gap * 2, rad = gap * 3;
@@ -9354,24 +9577,29 @@ function scorePanel(geo, score, ratio, now, sp, opt){
   g.font = `900 ${Math.round(fs)}px ${FONT_D}`;
   g.shadowColor = 'rgba(9,7,20,.85)'; g.shadowBlur = 14;
   g.fillStyle = allGold ? '#ffe2a0' : COL.ink;
-  g.fillText(fmtNum(sp.shown), x, yScore + (side ? 0 : 0), side ? room - 34 : geo.bw);
+  const mw = o.place ? o.place.w || 300 : side ? room - 34 : geo.bw;
+  g.fillText(fmtNum(sp.shown), x, yScore, mw);
   g.shadowBlur = 0; g.shadowColor = 'transparent';
+  if (o.label){ g.font = `800 ${Math.round(clamp(fs * 0.26, 10, 13))}px ${FONT_B}`; g.fillStyle = rgba(COL.ink, 0.62); g.textBaseline = 'alphabetic'; g.fillText(o.label, x, side && !o.place ? yScore + fs * 0.42 : yScore - fs * 0.92, mw); }
 }
 // Multiplier and Overdrive, right under the strikeline where your eyes already are.
 const MULT_COL = () => [COL.ink, COL.ink, COL.amber, COL.teal, COL.iris, '#ff7ad9'];
 function drawStrikeHud(sc, now){
   const g = g2, geo = sc.geo, hd = sc.hud, padH = geo.laneW * GEM_FR * (GEM_H / GEM_W);
-  const r = clamp(geo.laneW * 0.2, 15, 22), room = H - insets.b - 4;
+  const r = hd.r || clamp(geo.laneW * 0.2, 15, 22), room = H - insets.b - 4;
   let cy = geo.hitY + padH / 2 + 9 + r;
   if (cy + r > room) cy = Math.max(geo.hitY + padH / 2 + r * 0.6, room - r);
-  const barW = clamp(geo.bw * 0.4, 96, 210), barH = Math.max(8, Math.round(r * 0.48)), gap = 10;
+  const barW = Math.max(40, Math.min(clamp(geo.bw * 0.4, 96, 210), geo.bw - r * 2 - 16)), barH = Math.max(8, Math.round(r * 0.48)), gap = 10;
+  if (hd.cy != null) cy = hd.cy;
   const total = r * 2 + gap + barW, x0 = geo.cx - total / 2, bcx = x0 + r, bx = x0 + r * 2 + gap, by = cy - barH / 2;
+  // whose highway this is, on the band's highways
+  if (hd.icon) instIcon(g, hd.icon, x0 - r * 0.75 - 6, cy, r * 0.7, hd.odActive ? COL.tungsten : COL.ink, false);
   const maxed = hd.base >= hd.cap, pulse = reduced ? 0.5 : 0.5 + 0.5 * Math.sin(now / 140);
   const colM = maxed ? MAXBLUE : MULT_COL()[Math.min(5, hd.base)];
   // badge
   g.beginPath(); g.arc(bcx, cy, r, 0, Math.PI * 2); g.fillStyle = rgba(COL.stage, 0.86); g.fill();
   if (maxed || hd.unison){ g.globalCompositeOperation = 'lighter'; g.lineWidth = 7; g.strokeStyle = rgba(hd.unison ? UNI_COL : MAXBLUE, 0.22 + 0.18 * pulse); g.beginPath(); g.arc(bcx, cy, r + 2, 0, Math.PI * 2); g.stroke(); g.globalCompositeOperation = 'source-over'; }
-  const segs = Math.max(4, Math.min(12, hd.step)), filled = maxed ? segs : Math.floor((hd.combo % hd.step) / hd.step * segs + 1e-6), sw = Math.PI * 2 / segs;
+  const segs = Math.max(4, Math.min(12, hd.step)), filled = maxed ? segs : hd.fill != null ? Math.round(clamp(hd.fill, 0, 1) * segs) : Math.floor((hd.combo % hd.step) / hd.step * segs + 1e-6), sw = Math.PI * 2 / segs;
   g.lineWidth = 3.5;
   for (let k = 0; k < segs; k++){ g.strokeStyle = k < filled ? colM : rgba(COL.ink, 0.13); g.beginPath(); g.arc(bcx, cy, r - 2, -Math.PI / 2 + k * sw + 0.09, -Math.PI / 2 + (k + 1) * sw - 0.09); g.stroke(); }
   const bump = hd.multAt ? Math.max(0, 1 - (now - hd.multAt) / 260) : 0;
@@ -9387,11 +9615,29 @@ function drawStrikeHud(sc, now){
     pill(g, cx0, by, cw, barH); g.fillStyle = rgba(COL.ink, 0.1); g.fill();
     if (f > 0){ g.save(); g.beginPath(); g.rect(cx0, by - 1, cw * f, barH + 2); g.clip(); pill(g, cx0, by, cw, barH); g.fillStyle = hd.odActive || ready ? COL.tungsten : rgba(COL.tungsten, 0.6); g.fill(); g.restore(); }
   }
-  const lab = hd.down ? 'YOU’RE DOWN' : hd.label && ready ? hd.label : hd.save && ready ? (hasTouch ? 'SWIPE UP · SAVE THEM' : 'SPACE · SAVE THEM') : hd.odActive ? 'OVERDRIVE' : ready ? (hasTouch && settings.swipeOD ? 'SWIPE UP TO DEPLOY' : hasTouch ? 'TAP OVERDRIVE' : 'SPACE TO DEPLOY') : 'OVERDRIVE';
-  g.font = `800 ${Math.round(clamp(barH * 1.15, 9, 12))}px ${FONT_B}`; g.textAlign = 'left'; g.textBaseline = 'bottom';
-  g.fillStyle = hd.down ? rgba(COL.miss, 0.9) : ready ? rgba(COL.tungsten, 0.65 + 0.35 * pulse) : hd.odActive ? COL.tungsten : rgba(COL.ink, 0.4);
-  g.fillText(lab, bx, by - 3, barW);
-  if (hd.unison){ g.textAlign = 'right'; g.fillStyle = UNI_COL; g.fillText('UNISON', bx + barW, by - 3); }
+  const lab = hd.label && ready ? hd.label : hd.odActive ? 'OVERDRIVE' : ready ? (hasTouch && settings.swipeOD ? 'SWIPE UP TO DEPLOY' : hasTouch ? 'TAP OVERDRIVE' : 'SPACE TO DEPLOY') : 'OVERDRIVE';
+  const lfs = Math.round(clamp(barH * 1.15, 9, 12));
+  g.font = `800 ${lfs}px ${FONT_B}`; g.textAlign = 'left'; g.textBaseline = 'bottom';
+  g.fillStyle = ready ? rgba(COL.tungsten, 0.65 + 0.35 * pulse) : hd.odActive ? COL.tungsten : rgba(COL.ink, 0.4);
+  const right = hd.bandOd > 0 ? `BAND ×${hd.bandK}` : hd.combo >= 5 ? `${hd.combo} STREAK` : '';
+  g.fillText(lab, bx, by - 3, barW - (right ? g.measureText(right).width + 8 : 0));
+  if (right){ g.textAlign = 'right'; g.fillStyle = hd.bandOd > 0 ? COL.tungsten : rgba(COL.ink, 0.55); g.fillText(right, bx + barW, by - 3); }
+  // Timing, for the modes that grade it: beside the multiplier rather than over the notes.
+  const jd = sc.judg;
+  if (jd && !sc.rb){
+    const age = (now - jd.at) / 1000;
+    if (age < 0.6){
+      const J = JUDG[jd.kind], k = age < 0.09 ? 1.18 - age * 2 : 1, a = age > 0.38 ? 1 - (age - 0.38) / 0.22 : 1, jx = x0 - 12;
+      g.globalAlpha = clamp(a, 0, 1); g.textAlign = 'right'; g.textBaseline = 'middle';
+      // shrink it to fit when the screen is narrow
+      let jfs = clamp(r * 0.95, 14, 21) * k; g.font = `900 ${Math.round(jfs)}px ${FONT_D}`;
+      const room = jx - insets.l - 6, tw = g.measureText(J.label).width;
+      if (tw > room){ jfs = Math.max(9, jfs * room / tw); g.font = `900 ${Math.round(jfs)}px ${FONT_D}`; }
+      g.fillStyle = J.col; g.fillText(J.label, jx, cy - (jd.kind === 'great' || jd.kind === 'good' ? 5 : 0));
+      if (jd.kind === 'great' || jd.kind === 'good'){ g.font = `700 ${Math.round(clamp(r * 0.5, 9, 11))}px ${FONT_B}`; g.fillStyle = rgba(COL.ink, 0.62); g.fillText(jd.err < 0 ? 'EARLY' : 'LATE', jx, cy + 10); }
+      g.globalAlpha = 1;
+    }
+  }
 }
 
 /* attract mode behind the menu */
@@ -9473,21 +9719,20 @@ function frame(now){
       if (maxed && !G.maxOn) G.maxAt = now;
       G.maxOn = maxed;
       const m = mult(); if (m > G.hudM && G.hudM) G.multAt = now; G.hudM = m;
-      let uni = null;
       const bch = G.band && BAND.ch;
-      if (bch && bch.type === 'unison' && bch.uniStart){
-        for (let k = 0; k < bch.uni.length; k++){
-          if (G.st > bch.uniStart[k] - 0.4 && G.st < bch.uniEnd[k] + 0.3){ const ph = G.phrases[bch.uni[k]]; uni = { ok:!!ph && ph.count > 0 && (ph.live || ph.hit >= ph.count) }; break; }
-        }
-      }
-      const hud = { mult:m, base, cap:G.mods.cap, step:G.mods.step, combo:G.combo, od:G.od, odActive:G.odActive, down:!!G.down, unison:!!G.unison, multAt:G.multAt, save:btnOD.classList.contains('save') };
+      const uniB = bch && bch.type === 'unison' && bch.uniStart ? bandUniBanner(bch, now) : null;
+      const hud = { mult:m, base, cap:G.mods.cap, step:G.mods.step, combo:G.combo, od:G.od, odActive:G.odActive, multAt:G.multAt, bandOd:G.bandOd | 0, bandK:odStack(G.odActive, G.mods.odX, G.bandOd) };
       const ik = G.introAt && !calmOn() ? clamp((now - G.introAt) / 1000, 0, 1) : 1, ie = 1 - Math.pow(1 - ik, 3);
       if (ik < 1){ g2.save(); g2.translate(0, geoPlay.hitY); g2.scale(1, 0.4 + 0.6 * ie); g2.translate(0, -geoPlay.hitY + (1 - ie) * H * 0.22); }
       const vis = sp => sp.t1 > G.st - look * 0.3 && sp.t0 < G.st + look, uniSpans = [];
       if (bch && bch.type === 'unison' && bch.uniStart) bch.uni.forEach((pi, k) => { const sp = { t0:bch.uniStart[k], t1:bch.uniEnd[k] }; if (vis(sp)){ const ph = G.phrases[pi]; uniSpans.push(Object.assign(sp, { ok:!!ph && ph.count > 0 && (ph.live || ph.hit >= ph.count) })); } });
-      renderScene({ soloSpans:G.solos.filter(x => x.count && vis(x)), uniSpans, wh:G.wh, geo:geoPlay, t:G.st, look, brutal:G.tmods.has('brutal') ? 0.06 + (G.tmods.has('fog') ? G.hfx.brutalFog : G.hfx.brutal) * Math.min(1, G.combo / 60) : null, fog:G.tmods.has('fog') ? G.hfx.fog : 0, notes:G.notes, phrases:G.phrases, beats:G.chart.beats, pressed:G.pressed, odActive:G.odActive, combo:G.combo, judg:G.judg, keys:true, drawFrom:G.drawFrom, solo:so ? { pct:Math.round(so.hit / so.count * 100) } : null, soloMsg:G.soloMsg, danger:!!G.career && !G.down && G.life / G.lifeMax < 0.25, maxed, maxAt:G.maxAt, uni, hud }, now);
+      const health = G.band && BAND.bh ? BAND.bh.H : G.rbBand && RBB.bh ? RBB.bh.H : G.career ? G.life / G.lifeMax : 1;
+      renderScene({ soloSpans:G.solos.filter(x => x.count && vis(x)), uniSpans, wh:G.wh, geo:geoPlay, t:G.st, look, brutal:G.tmods.has('brutal') ? 0.06 + (G.tmods.has('fog') ? G.hfx.brutalFog : G.hfx.brutal) * Math.min(1, G.combo / 60) : null, fog:G.tmods.has('fog') ? G.hfx.fog : 0, notes:G.notes, phrases:G.phrases, beats:G.chart.beats, pressed:G.pressed, odActive:G.odActive, combo:G.combo, judg:G.judg, keys:true, drawFrom:G.drawFrom, solo:so ? { pct:Math.round(so.hit / so.count * 100) } : null, soloMsg:G.soloMsg, danger:(!!G.career || G.rbBand) && health < 0.25, maxed, maxAt:G.maxAt, uniB, hud }, now);
       fretFlames(geoPlay, G.mode === 'play' ? G.held || [] : [], G.wh, now);
-      scorePanel(geoPlay, Math.round(G.score), (G.score - G.bonus) / (G.chart.potential * (G.potScale || 1)), now, G.sp);
+      // With a band, the big number is the band's score; yours sits under it.
+      if (G.band) scorePanel(geoPlay, bandScore(), bandRatio(), now, G.sp, { label:`BAND · YOU ${fmtNum(Math.round(G.score))}` });
+      else if (G.rbBand && RBB.br) scorePanel(geoPlay, rbbBandScore(), rbbBandRatio(), now, G.sp, { label:`BAND · YOU ${fmtNum(Math.round(G.score))}` });
+      else scorePanel(geoPlay, Math.round(G.score), (G.score - G.bonus) / (G.chart.potential * (G.potScale || 1)), now, G.sp);
       if (ik < 1){ g2.restore(); g2.fillStyle = `rgba(14,11,28,${(0.9 * (1 - ik)).toFixed(3)})`; g2.fillRect(0, 0, W, H); }
       if (G.band && settings.bandLanes) drawBandLanes(now);
     }
@@ -9557,6 +9802,10 @@ function renderSetlist(){
 function syncSettingsUI(){
   document.querySelectorAll('#diffSeg button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.d === settings.diff)));
   $('#speed').value = settings.speed; $('#speedVal').textContent = settings.speed;
+  $('#pSpeed').value = settings.speed; $('#pSpeedVal').textContent = settings.speed;
+  $('#pSong').value = settings.songVol; $('#pSongVal').textContent = settings.songVol || 'Off';
+  document.querySelectorAll('#pHwSeg button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.h === settings.hwLen)));
+  document.querySelectorAll('#pSfxSeg button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.s === settings.sfx)));
   $('#fps').value = fpsIndex(); $('#fpsVal').textContent = fpsLabel();
   $('#offVal').textContent = fmtOff(settings.offset);
   $('#pOffVal').textContent = fmtOff(settings.offset);
@@ -9575,17 +9824,26 @@ function syncSettingsUI(){
   $('#sfxVal').textContent = fmtOff(settings.sfxNudge); $('#pSfxVal').textContent = fmtOff(settings.sfxNudge);
 }
 document.querySelectorAll('#diffSeg button').forEach(b => b.addEventListener('click', () => { settings.diff = b.dataset.d; saveSettings(); syncSettingsUI(); renderSetlist(); }));
-$('#speed').addEventListener('input', e => { settings.speed = clamp(parseInt(e.target.value, 10) || 5, 1, 15); $('#speedVal').textContent = settings.speed; saveSettings(); });
+['#speed', '#pSpeed'].forEach(q => $(q).addEventListener('input', e => { settings.speed = clamp(parseInt(e.target.value, 10) || 5, 1, 15); saveSettings(); syncSettingsUI(); }));
+// The song's own volume (everything but your part), from the pause menu.
+const songK = () => clamp(settings.songVol == null ? 10 : settings.songVol, 0, 10) / 10;
+$('#pSong').addEventListener('input', e => {
+  settings.songVol = clamp(parseInt(e.target.value, 10) || 0, 0, 10); saveSettings(); syncSettingsUI();
+  if (!actx) return;
+  if (G.backGain) G.backGain.gain.setTargetAtTime((G.entry && G.entry.kind === 'built' ? 0.8 : 0.95) * songK(), actx.currentTime, 0.02);
+  if (RBE.backGain) RBE.backGain.gain.setTargetAtTime(0.9 * songK(), actx.currentTime, 0.02);
+});
 $('#fps').addEventListener('input', e => { const i = clamp(parseInt(e.target.value, 10) || 0, 0, FPS_STEPS.length - 1); settings.fps = FPS_STEPS[i]; $('#fpsVal').textContent = fpsLabel(); lastDraw = 0; vsK = Math.max(1, Math.round(displayHz / fpsCap() - 0.01)); vsyncNote(); saveSettings(); });
 document.querySelectorAll('#vsSeg button').forEach(b => b.addEventListener('click', () => { settings.vsync = b.dataset.v === 'on'; saveSettings(); syncSettingsUI(); }));
 document.querySelectorAll('#mtSeg button').forEach(b => b.addEventListener('click', () => { settings.motion = b.dataset.v; saveSettings(); syncSettingsUI(); }));
 document.querySelectorAll('#fxSeg button').forEach(b => b.addEventListener('click', () => { settings.fx = b.dataset.v; applyFx(); saveSettings(); syncSettingsUI(); }));
-document.querySelectorAll('#hwSeg button').forEach(b => b.addEventListener('click', () => { settings.hwLen = b.dataset.h; saveSettings(); syncSettingsUI(); resize(); }));
+document.querySelectorAll('#hwSeg button, #pHwSeg button').forEach(b => b.addEventListener('click', () => { settings.hwLen = b.dataset.h; saveSettings(); syncSettingsUI(); resize(); }));
 document.querySelectorAll('#swSeg button').forEach(b => b.addEventListener('click', () => { settings.swipeOD = b.dataset.v === 'on'; saveSettings(); syncSettingsUI(); }));
 document.querySelectorAll('#blSeg button').forEach(b => b.addEventListener('click', () => { settings.bandLanes = b.dataset.v === 'on'; saveSettings(); syncSettingsUI(); placeHud(); }));
 ['#leadVol', '#pLead'].forEach(q => $(q).addEventListener('input', e => {
   settings.leadVol = clamp(parseInt(e.target.value, 10) || 0, 0, 10); saveSettings(); syncSettingsUI();
   if (G.leadGain && !G.leadMuted && actx) G.leadGain.gain.setTargetAtTime(leadLevel(), actx.currentTime, 0.02);
+  if (RBE.on && RBE.stemGain && !RBE.stemMuted && actx && !RBE.vox && !(RBE.lb && RBE.lb.vox)) RBE.stemGain.gain.setTargetAtTime(settings.leadVol / 10 * 1.1, actx.currentTime, 0.02);
 }));
 $('#offDown').addEventListener('click', () => { settings.offset = clamp(settings.offset - 5, -500, 500); saveSettings(); syncSettingsUI(); });
 $('#offUp').addEventListener('click', () => { settings.offset = clamp(settings.offset + 5, -500, 500); saveSettings(); syncSettingsUI(); });
@@ -9810,7 +10068,7 @@ cSave.addEventListener('click', () => { if (CAL.result == null) return; settings
 $('#cClose').addEventListener('click', closeCalib);
 $('#calibBtn').addEventListener('click', () => { ensureCtx(); openCalib(); });
 $('#pCalib').addEventListener('click', () => { ensureCtx(); openCalib(); });
-document.querySelectorAll('#sfxSeg button').forEach(b => b.addEventListener('click', () => { settings.sfx = b.dataset.s; saveSettings(); syncSettingsUI(); if (settings.sfx === 'tap' || settings.sfx === 'notes'){ ensureCtx(); playSfx(actx.currentTime + 0.02, 2, false); } }));
+document.querySelectorAll('#sfxSeg button, #pSfxSeg button').forEach(b => b.addEventListener('click', () => { settings.sfx = b.dataset.s; saveSettings(); syncSettingsUI(); if (settings.sfx === 'tap' || settings.sfx === 'notes'){ ensureCtx(); playSfx(actx.currentTime + 0.02, 2, false); } }));
 const nudgeSfx = d => { settings.sfxNudge = clamp(settings.sfxNudge + d, -200, 200); saveSettings(); syncSettingsUI(); };
 $('#sfxDown').addEventListener('click', () => nudgeSfx(-5)); $('#sfxUp').addEventListener('click', () => nudgeSfx(5));
 $('#pSfxDown').addEventListener('click', () => nudgeSfx(-5)); $('#pSfxUp').addEventListener('click', () => nudgeSfx(5));
@@ -10124,7 +10382,7 @@ function lifeOut(){
     G.soloMsg = { text:'SECOND WIND', sub:'Life refilled to 60%', at:performance.now() };
     return;
   }
-  if (G.band){ if (G.mode === 'play') bandDown(); else G.life = 0; return; }
+  if (G.band){ G.life = 0; return; }
   G.life = 0;
   if (G.mode !== 'play') return;
   for (let l = 0; l < 5; l++) endHold(l, true);
@@ -10396,12 +10654,13 @@ function rbtSetup(chart){
   }
 }
 const rbtScoreMul = kind => RBE.tm ? RBE.tm.mods.scoreMul * (kind === 'perfect' ? RBE.tm.mods.perfMul : 1) : 1;
-function rbtHeal(kind, c){ RBE.life = Math.min(RBE.lifeMax, RBE.life + (kind === 'good' ? 2 : 3.5) * RBE.tm.mods.healMul * (c.lw || 1)); RBE.rock = RBE.life / RBE.lifeMax; }
+function rbtHeal(kind, c){ const v = RBE.life + (kind === 'good' ? 2 : 3.5) * RBE.tm.mods.healMul * (c.lw || 1); RBE.life = rbCoop() ? v : Math.min(RBE.lifeMax, v); RBE.rock = RBE.life / RBE.lifeMax; }
 function rbtHurt(c, k){
   const T = RBE.tm, m = T.mods;
   if (RBE.shield > 0) RBE.shield--; else RBE.combo = Math.floor(RBE.combo * Math.max(m.net ? 0.5 : 0, m.keep || 0));
   if (RBE.mode !== 'play') return;
   RBE.life -= T.g.drain * m.drainMul * RBE.tmDrain * (c ? c.lw || 1 : 1) * k;
+  if (rbCoop()){ RBE.rock = RBE.life / RBE.lifeMax; return; }
   if (m.secondWind && !RBE.swUsed && RBE.life < RBE.lifeMax * 0.2){ RBE.swUsed = true; RBE.life = RBE.lifeMax * 0.6; RBE.soloMsg = { text:'SECOND WIND', sub:'Lifeline set bonus', at:performance.now() }; }
   if (RBE.life <= 0){
     if (T.tmods.has('nofail')) RBE.life = 0;
@@ -10419,10 +10678,10 @@ function rbtHud(){
 }
 function rbtHudFrame(){
   const T = RBE.tm; if (!T) return;
-  const lf = clamp(RBE.life / RBE.lifeMax, 0, 1), w = (lf * 100).toFixed(1) + '%';
-  if (RBE.hudLf !== w){ RBE.hudLf = w; $('#hudLifeFill').style.width = w; const el = $('#hudLife'); el.classList.toggle('warn', lf < 0.5 && lf >= 0.25); el.classList.toggle('low', lf < 0.25); }
+  if (!RBE.band) hudLifeSet(RBE.life / RBE.lifeMax);
   const gl = T.g.goal; let txt, ok;
-  if (gl.type === 'stars'){ const sn = starCount(RBE.score / Math.max(1, RBE.chart.baseScore)); ok = sn >= gl.target; txt = `Goal: ${gl.target} stars · now ${sn}`; }
+  if (gl.type === 'stars' && RBE.band){ const sn = starCount(rbbBandRatio()); ok = sn >= gl.target; txt = `Band goal: ${gl.target} stars · now ${sn}`; }
+  else if (gl.type === 'stars'){ const sn = starCount(RBE.score / Math.max(1, RBE.chart.baseScore)); ok = sn >= gl.target; txt = `Goal: ${gl.target} stars · now ${sn}`; }
   else if (gl.type === 'points'){ ok = RBE.score >= gl.target; txt = `Goal: ${fmtNum(gl.target)} · now ${fmtNum(Math.round(RBE.score))}`; }
   else if (gl.type === 'hits'){ const spare = Math.floor(RBE.chords.length * (1 - gl.target / 100) + 1e-9) - RBE.misses; ok = spare >= 0; txt = ok ? `Goal: hit ${gl.target}% · ${spare} miss${spare === 1 ? '' : 'es'} to spare` : `Goal: hit ${gl.target}% · too many misses`; }
   else { ok = RBE.best >= gl.target; txt = `Goal: ${gl.target} streak · best ${RBE.best}`; }
@@ -10504,9 +10763,9 @@ function rbtApplyVerdict(v){
 function rbtJudge(st, mem){
   const t = st.tour, i = t.gig, goal = rbtBandGoalOf(t.seed, t.lv, i);
   const fins = st.lineup.map(id => { const p = mem.find(x => x.peer === id), f = p && p.presence.fin; return f && f.e === st.epoch ? { p:id, f } : null; }).filter(Boolean);
-  const trs = fins.map(x => x.f.tr).filter(Boolean), booed = fins.length > 0 && fins.every(x => x.f.f);
+  const trs = fins.map(x => x.f.tr).filter(Boolean), booed = fins.length > 0 && fins.some(x => x.f.f);
   let pass = false, got = '';
-  if (goal.type === 'stars'){ const avg = trs.reduce((a, x) => a + (+x.r || 0), 0) / Math.max(1, trs.length), sn = starCount(avg); pass = trs.length > 0 && sn >= goal.target; got = `${sn} star${sn === 1 ? '' : 's'}`; }
+  if (goal.type === 'stars'){ const wt = trs.reduce((a, x) => a + (+x.w > 0 ? +x.w : 1), 0), avg = trs.reduce((a, x) => a + (+x.r || 0) * (+x.w > 0 ? +x.w : 1), 0) / Math.max(1, wt), sn = starCount(avg); pass = trs.length > 0 && sn >= goal.target; got = `${sn} band star${sn === 1 ? '' : 's'}`; }
   else if (goal.type === 'hits'){ const H = trs.reduce((a, x) => a + (x.h | 0), 0), N = trs.reduce((a, x) => a + (x.t | 0), 0), pct = N ? H / N * 100 : 0; pass = pct + 1e-9 >= goal.target; got = `${pct.toFixed(1)}% of the notes`; }
   else { const b = trs.reduce((a, x) => Math.max(a, x.b | 0), 0); pass = trs.some(x => x.sm); got = `a best streak of ${b}`; }
   if (booed) pass = false;
@@ -10708,7 +10967,7 @@ function viewBand(){
   const b = tourKind === 'gacha';
   tourBody.innerHTML = `<p class="eyebrow">${b ? 'Backstage tour' : 'Tour mode'} · Co-op</p><h2 class="card-title">Play as a band</h2>
     ${playToggleHTML()}
-    <p class="t-sub">Tour together online, each on your own phone. Everyone plays the same gigs, and every gig is a band challenge you can only beat as a team: split the song into parts, nail unison phrases, fire Overdrive together, keep one shared streak, or feed your frontman. If your life runs out you're down, and any bandmate's Overdrive brings you back. A gig fails if the band misses the challenge or everyone is down at once. You each keep your own ${b ? 'picks and guitars' : 'cash and gear'}.</p>
+    <p class="t-sub">Tour together online, each on your own phone. Everyone plays the same gigs, and every gig is a band challenge you can only beat as a team: split the song into parts, nail unison phrases, fire Overdrive together, keep one shared streak, or feed your frontman. The band shares one life meter, and a gig fails if it runs out or the band misses the challenge. Overdrive stacks: every bandmate in it adds 2× for everyone. You each keep your own ${b ? 'picks and guitars' : 'cash and gear'}.</p>
     ${BAND.ok ? `<label class="field"><span class="label">Your name in the band</span><input type="text" id="bNick" maxlength="20" autocomplete="off" spellcheck="false" value="${escH(bandNickNow())}"></label>
       <button type="button" class="btn primary" id="bCreate">Start a band</button>
       ${BAND.p2p ? '' : '<div><span class="label">Bands looking for players</span><div class="bfind" id="bandFind"></div><p class="fine" id="bandOnline"></p><p class="fine" id="bandDiag"></p></div>'}
@@ -10924,7 +11183,7 @@ function bandDecide(finPeers){
   const ch = bandChallenge(st.gig, Array.isArray(st.lineup) && st.lineupGig === st.gig ? st.lineup : finPeers.map(p => p.peer));
   const booed = fins.some(f => f.b), best = Math.max(0, ...fins.map(f => f.cx | 0));
   let pass, got;
-  if (booed){ pass = false; got = 'the whole band went down'; }
+  if (booed){ pass = false; got = 'the band’s health ran out'; }
   else if (ch.type === 'tagteam'){ const h = fins.reduce((a, f) => a + (f.h | 0), 0), t = fins.reduce((a, f) => a + (f.n | 0), 0), pct = t ? h / t * 100 : 0; pass = pct + 1e-9 >= ch.target; got = `${pct.toFixed(1)}% of the notes`; }
   else { pass = best >= ch.target; got = ch.type === 'unison' ? `${best} unison phrase${best === 1 ? '' : 's'}` : ch.type === 'together' ? `${best} time${best === 1 ? '' : 's'} together` : ch.type === 'streak' ? `a band streak of ${best}` : `${best}s of frontman Overdrive`; }
   const next = st.gig + 1;
@@ -11023,7 +11282,7 @@ function bandStartPlay(){
   const p = BAND.pending; if (!p) return;
   BAND.pending = null; BAND.waitSince = 0;
   hideLoading(); showScreen('none');
-  Object.assign(BAND, { saveSeen:{}, myRes:null, myFinAt:0, allDownAt:0, hudHTML:'', meReady:false });
+  Object.assign(BAND, { myRes:null, myFinAt:0, hudHTML:'', meReady:false, bh:bhNew(0.7), life0:null });
   bandPres({ fin:null, ready:-1 });
   beginPlay(p.e, p.chart, p.diff, null, p.career);
 }
@@ -11033,8 +11292,9 @@ function bandLive(){
   BAND.lastLive = performance.now();
   if (!G.chart || !G.career) return;
   const c = G.counts;
+  const B = BAND.bh, ex = B && B.auth === myPeer() ? { H:+B.H.toFixed(3), bf:B.fail ? 1 : 0 } : {};
   bandPres({ live:{ g:G.career.i, s:Math.round(G.score), r:+((G.score - G.bonus) / (G.chart.potential * (G.potScale || 1))).toFixed(4), h:c.perfect + c.great + c.good, m:c.miss, mc:G.maxCombo,
-    l:+clamp(G.life / G.lifeMax, 0, 1).toFixed(3), od:+G.od.toFixed(2), on:!!G.odActive, dn:!!G.down, sv:BAND.mySv,
+    bd:+bandMyD().toFixed(3), ...ex, w:Math.round(G.chart.potential * (G.potScale || 1)), od:+G.od.toFixed(2), on:!!G.odActive,
     op:G.opCount | 0, odn:G.odn | 0, ot:+(G.odSec || 0).toFixed(1), ux:bandUx(), cx:BAND.cx ? BAND.cx.best | 0 : 0, own:G.ownTotal | 0, ...judgLog() } });
 }
 // The last 24 judged notes as a string (1 hit, 0 miss, g not mine, - not yet), ending at index jx, plus which lanes are holding.
@@ -11047,65 +11307,39 @@ function judgLog(){
   return { jx, jb, hd };
 }
 const liveOf = p => { const l = p.presence && p.presence.live; return l && G.career && l.g === G.career.i ? l : null; };
+// How my play has moved the band's health meter so far.
+const bandMyD = () => { if (BAND.life0 == null) BAND.life0 = G.life; return (G.life - BAND.life0) / Math.max(1, G.lifeMax); };
 function bandWatch(){
   if (!G.band || G.mode !== 'play') return;
   const others = bandMembers().filter(p => !p.sameTab);
-  if (G.down){
-    for (const p of others){
-      const l = liveOf(p);
-      if (l && !l.dn && (l.sv | 0) > (BAND.saveSeen[p.peer] | 0)){
-        G.down = false; G.life = G.lifeMax * 0.5; unmuteLead(); canvas.classList.remove('down');
-        G.soloMsg = { text:'SAVED!', sub:`${bName(p.peer)} brought you back`, at:performance.now() };
-        ripSound('glint'); bandLive();
-        break;
-      }
-    }
-  }
-  const alive = others.filter(p => { const l = liveOf(p); return l && !l.dn; });
-  const uni = G.odActive && !G.down && alive.length >= 1 && alive.every(p => liveOf(p).on);
-  if (uni && !G.unison) G.soloMsg = { text:'BAND UNISON!', sub:`Overdrive ×${G.mods.odX + 1}`, at:performance.now() };
-  G.unison = uni;
-}
-function bandSave(){
-  const down = bandMembers().filter(p => !p.sameTab && (liveOf(p) || {}).dn);
-  if (!down.length) return;
-  BAND.mySv++;
-  G.soloMsg = { text:'BAND SAVE!', sub:down.length > 1 ? `You saved ${down.length} bandmates` : `You saved ${bName(down[0].peer)}`, at:performance.now() };
-  bandLive();
-}
-function bandDown(){
-  G.life = 0; G.down = true; G.combo = 0; G.odActive = false; G.unison = false;
-  for (let l = 0; l < 5; l++) endHold(l, true);
-  muteLead(); canvas.classList.add('down');
-  BAND.saveSeen = {};
-  bandMembers().forEach(p => { const l = p.presence.live; BAND.saveSeen[p.peer] = l && typeof l.sv === 'number' ? l.sv : 0; });
-  G.soloMsg = { text:'YOU’RE DOWN', sub:'Overdrive can save you', at:performance.now() };
-  bandLive();
+  // Overdrive stacks: every bandmate in Overdrive adds 2x for everyone.
+  G.bandOd = others.filter(p => { const l = liveOf(p); return l && l.on; }).length;
 }
 function bandFrame(now){
+  const others = bandMembers().filter(p => !p.sameTab);
+  bhStep(BAND.bh || (BAND.bh = bhNew(0.7)), myPeer(), bandMyD(), others.map(p => { const l = liveOf(p); return l && !(p.presence.fin && p.presence.fin.g === G.career.i) ? { id:p.peer, d:l.bd, H:l.H, bf:l.bf } : null; }).filter(Boolean), BAND.lineup || bandLineup(), G.tmods.has('nofail'));
   if (now - BAND.lastLive > 200){ bandChTick(); bandLive(); }
-  if (G.down && G.mode === 'play'){
-    const others = bandMembers().filter(p => !p.sameTab);
-    const allDown = others.every(p => { const l = liveOf(p); return l && l.dn; });
-    if (allDown){ if (!BAND.allDownAt) BAND.allDownAt = now; else if (now - BAND.allDownAt > 900) bandBooed(); }
-    else BAND.allDownAt = 0;
-  } else BAND.allDownAt = 0;
+  if (others.some(p => p.presence.fin && p.presence.fin.g === G.career.i && p.presence.fin.b)) BAND.bh.fail = true;
+  if (BAND.bh.fail && G.mode === 'play') bandBooed();
   if (now - BAND.hudAt > 200){ BAND.hudAt = now; bandHud(); }
+}
+// The band's score: everyone's points, shown as the big number.
+function bandScore(){ return Math.round(G.score) + bandMembers().filter(p => !p.sameTab).reduce((a, p) => { const l = liveOf(p); return a + (l ? l.s | 0 : 0); }, 0); }
+function bandRatio(){
+  let w = G.chart.potential * (G.potScale || 1), a = (G.score - G.bonus) / Math.max(1, w) * w;
+  bandMembers().filter(p => !p.sameTab).forEach(p => { const l = liveOf(p); if (l && +l.w > 0){ a += (+l.r || 0) * +l.w; w += +l.w; } });
+  return w > 0 ? a / w : 0;
 }
 function bandHud(){
   const el = $('#bandHud'); if (!el || !G.career) return;
-  const others = bandMembers().filter(p => !p.sameTab), myOd = !G.odActive && G.od >= 0.5 && !G.down;
+  const others = bandMembers().filter(p => !p.sameTab);
   const html = others.map(p => {
-    const l = liveOf(p), lf = l ? clamp(+l.l || 0, 0, 1) : 1;
+    const l = liveOf(p);
     const ch = BAND.ch, fm = ch && ch.type === 'frontman' && ch.fm === p.peer, part = ch && ch.type === 'tagteam' && G.segLen && BAND.lineup[Math.floor(G.st / G.segLen) % BAND.lineup.length] === p.peer;
-    return `<div class="bm${l && l.dn ? ' down' : ''}${l && l.on ? ' on' : ''}${part ? ' part' : ''}"><div class="bm-top"><b>${fm ? '★ ' : ''}${escH(bName(p.peer))}</b><span>${l ? fmtNum(l.s | 0) : '…'}</span></div><div class="bm-life${lf < 0.25 ? ' low' : lf < 0.5 ? ' warn' : ''}"><i style="width:${(lf * 100).toFixed(0)}%"></i></div>${l && l.dn ? `<span class="bm-down">${myOd ? 'Down · Overdrive saves' : 'Down'}</span>` : ''}</div>`;
+    return `<div class="bm${l && l.on ? ' on' : ''}${part ? ' part' : ''}"><div class="bm-top"><b>${fm ? '★ ' : ''}${escH(bName(p.peer))}</b><span>${l ? fmtNum(l.s | 0) : '…'}</span></div><div class="bm-life od"><i style="width:${l ? Math.round(clamp(+l.od || 0, 0, 1) * 100) : 0}%"></i></div></div>`;
   }).join('');
   if (html !== BAND.hudHTML){ BAND.hudHTML = html; el.innerHTML = html; bandHudRect = null; }
   if (!bandHudRect && html) bandHudRect = el.getBoundingClientRect();
-  const save = myOd && others.some(p => (liveOf(p) || {}).dn);
-  btnOD.classList.toggle('save', save);
-  const lab = btnOD.querySelector('.od-label'), want = save ? 'Save them!' : 'Overdrive';
-  if (lab && lab.textContent !== want) lab.textContent = want;
 }
 // Bandmates' highways: everyone plays the same chart, so each mini highway scrolls our own notes and colours them from that bandmate's judgments.
 function drawBandLanes(now){
@@ -11161,14 +11395,13 @@ function drawBandLanes(now){
     g.textAlign = 'center'; g.textBaseline = 'middle';
     g.font = `700 10px ${FONT_B}`; g.fillStyle = rgba(COL.ink, 0.8);
     g.fillText(bName(p.peer), x + w / 2, y + 8, w - 8);
-    if (l.dn){ g.font = `900 ${Math.round(Math.min(16, w * 0.24))}px ${FONT_D}`; g.fillStyle = COL.miss; g.fillText('DOWN', x + w / 2, y + h / 2, w - 6); }
   });
 }
 function bandBooed(){
   if (G.mode !== 'play') return;
   for (let l = 0; l < 5; l++) endHold(l, true);
   G.mode = 'results'; detachSources(0.8); stopSfx(); unlockScreen();
-  G.soloMsg = { text:'BOOED OFF', sub:'The whole band is down', at:performance.now() };
+  G.soloMsg = { text:'BOOED OFF', sub:'The band’s health ran out', at:performance.now() };
   const res = gigRes(); res.booed = true;
   setTimeout(() => bandFinish(res), 1700);
 }
@@ -11199,7 +11432,7 @@ function bandGotVerdict(v){
   if (v.pass) gigWon(BAND.myRes, v);
   else tourOver(gigInfo(run.gig), v.booed ? 'booed' : 'goal');
 }
-const bandRowsHTML = v => `<div class="lines">${(v.rows || []).slice(0, BAND_MAX).map(r => `<div><span>${escH(bName(r.p))}${r.p === myPeer() ? ' (you)' : ''}${r.b ? ' · down' : ''}</span><b>${fmtNum(r.s | 0)}</b></div>`).join('')}</div>`;
+const bandRowsHTML = v => `<div class="lines"><div class="band-total"><span>Band score</span><b>${fmtNum((v.rows || []).slice(0, BAND_MAX).reduce((a, r) => a + (r.s | 0), 0))}</b></div>${(v.rows || []).slice(0, BAND_MAX).map(r => `<div><span>${escH(bName(r.p))}${r.p === myPeer() ? ' (you)' : ''}</span><b>${fmtNum(r.s | 0)}</b></div>`).join('')}</div>`;
 function bandEndButtons(){
   return `<div class="row"><button type="button" class="btn primary" id="tAgain">Back to the band</button><button type="button" class="btn" id="tMenu">Leave band</button></div>`;
 }
@@ -11213,9 +11446,9 @@ function wireBandEnd(){
    The challenge for each gig comes from the tour seed, so every bandmate gets the same one.
    Each player tracks progress from the band's presence and reports it; the leader judges the gig. */
 const BAND_CH = {
-  tagteam:{ name:'Tag Team', desc:'The song is cut into parts and dealt out to the band. Play your parts; the faded notes belong to your bandmates. If someone is down, their parts go unplayed, so save them fast.' },
-  unison:{ name:'Unison', desc:'Some Overdrive phrases are unison phrases, ringed in violet. One only counts if every bandmate clears all of it. Each one the band nails pays everyone 500 points and extra Overdrive.' },
-  together:{ name:'Overdrive Together', desc:'Save your Overdrive and deploy it at the same moment. When a bandmate deploys, you get a JOIN IN call. It counts when everyone still standing has Overdrive on at once.' },
+  tagteam:{ name:'Tag Team', desc:'The song is cut into parts and dealt out to the band. Play your parts; the faded notes belong to your bandmates, and every miss drains the band’s health.' },
+  unison:{ name:'Unison', desc:'Some Overdrive phrases are unison phrases, ringed in violet. One only counts if every bandmate clears all of it. Each one the band nails pays everyone 500 points and an extra bar of Overdrive.' },
+  together:{ name:'Overdrive Together', desc:'Save your Overdrive and deploy it at the same moment: it stacks, 2x more for every one of you in it. When a bandmate deploys, you get a JOIN IN call. It counts when the whole band has Overdrive on at once.' },
   streak:{ name:'Band Streak', desc:'The whole band shares one streak. Every note anyone hits adds to it, and anyone’s miss resets it to zero.' },
   frontman:{ name:'Frontman', desc:'One bandmate fronts the gig. Every Overdrive phrase anyone clears charges the frontman’s Overdrive, even while it’s running, so keep feeding them. The goal is how long the frontman spends in Overdrive.' },
 };
@@ -11312,7 +11545,8 @@ function bandChTick(){
       cx.uDone[k] = true;
       const ph = G.phrases[pi], mine = !!ph && ph.count > 0 && ph.hit >= ph.count;
       const missing = others.filter(p => { const l = liveOf(p); return !(l && ((l.ux | 0) >> k) & 1); });
-      if (mine && !missing.length){ cx.val++; G.score += 500; G.bonus += 500; G.od = Math.min(1, G.od + 0.25); say('UNISON!', '+500 and Overdrive for everyone'); ripSound('glint'); }
+      cx.uRes = cx.uRes || {}; cx.uRes[k] = { ok:mine && !missing.length, at:performance.now() };
+      if (mine && !missing.length){ cx.val++; G.score += 500; G.bonus += 500; G.od = Math.min(1, G.od + 0.25); ripSound('glint'); }
       else say('UNISON MISSED', !mine ? 'You dropped part of it' : `${missing.map(p => bName(p.peer)).join(' and ')} dropped part of it`);
       cx.best = cx.val;
     });
@@ -11342,6 +11576,19 @@ function bandChTick(){
       else say(`${bName(BAND.lineup[owner]).toUpperCase()}’S PART`, (owner + 1) % n === BAND.idx ? 'You’re up next' : 'Hang tight');
     }
   }
+}
+// The unison challenge's banner: everyone in the band, lit as they finish their part.
+function bandUniBanner(ch, now){
+  const cx = BAND.cx || {}, res = cx.uRes || {}, me = myPeer();
+  for (let k = 0; k < ch.uni.length; k++){
+    const r = res[k];
+    if (r ? now - r.at < 1800 : G.st > ch.uniStart[k] - 0.5 && G.st < ch.uniEnd[k] + 1.6){
+      const ph = G.phrases[ch.uni[k]], mine = !!ph && ph.count > 0 && ph.hit >= ph.count;
+      const members = (BAND.lineup || [me]).map(id => { const p = bandMembers().find(x => x.peer === id), l = id === me ? null : p && liveOf(p); return { kind:'pad', done:id === me ? mine : !!(l && ((l.ux | 0) >> k) & 1) }; });
+      return { members, state:r ? (r.ok ? 'paid' : 'lost') : ph && !ph.live && !mine ? 'lost' : 'live', endAt:r ? r.at : now };
+    }
+  }
+  return null;
 }
 // One line of challenge progress for the HUD.
 function bandChText(){
@@ -12480,7 +12727,9 @@ function renderMenuMusic(){
     else oc.oncomplete = e => fin(e.renderedBuffer);
   } catch (e){ MUSIC.busy = false; }
 }
-const musicVol = () => 0.5 * (settings.music / 10) * MUSIC.duck;
+const musicVol = () => 0.5 * (settings.music / 10) * MUSIC.duck * (MUSIC.pv ? 0 : 1);
+// A song preview playing in the Rock Band song list mutes the menu music until it stops.
+function musicPreview(on){ if (!!MUSIC.pv === !!on) return; MUSIC.pv = !!on; musicApply(); }
 function musicApply(){
   if (!actx || !MUSIC.buf || !master) return;
   const on = MUSIC.want && settings.music > 0 && !document.hidden, now = actx.currentTime;
