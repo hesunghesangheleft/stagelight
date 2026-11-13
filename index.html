@@ -989,7 +989,7 @@ html.calm .od.ready{animation:none}html.calm #hudMult.bump{animation:none}html.c
         <li><i style="background:var(--rose)"></i><span>Tap a lane as its gem reaches the line. Two thumbs work best. Easy uses three lanes.</span></li>
         <li><i style="background:var(--teal)"></i><span>Hold sustains until the tail runs out. Miss a note and the lead cuts out until you hit again.</span></li>
         <li><i style="background:var(--green)"></i><span>Whammy a held sustain by wiggling that finger side to side (or moving the mouse). The tail’s twist swings wider the more you wiggle, and whammying an Overdrive sustain tops up your meter.</span></li>
-        <li><i style="background:var(--ink)"></i><span>Your score and stars sit right by the highway. Each star fills from the bottom up as you earn it, and after five they fill again in gold. Five stars takes nearly a full combo; gold takes a full combo with Overdrive used well. Solo bonuses add to your score but not your stars.</span></li>
+        <li><i style="background:var(--ink)"></i><span>Your score and stars sit right by the highway. Each star fills from the bottom up as you earn it, and after five they fill again in gold. Five stars takes nearly a full combo; gold takes about 98% of the best score Overdrive allows, so a full combo with Overdrive used well. Solo bonuses add to your score but not your stars.</span></li>
         <li><i style="background:var(--tungsten)"></i><span>Clear every white gem in a phrase to charge Overdrive. The meter sits under the strikeline: when it glows, flick a finger up the screen (or tap Overdrive) for double points. Gold runs up the rails while it lasts.</span></li>
         <li><i style="background:var(--amber)"></i><span>Arrow gems are lifts, the up-strums in fast strumming: lift your finger off the lane as one crosses the line, or tap it again. Fast repeats in one lane alternate tap, lift, tap, lift.</span></li>
         <li><i style="background:var(--iris)"></i><span>The highway turns blue for a solo. Every solo note you hit adds a bonus, and a perfect solo pays half again.</span></li>
@@ -1594,6 +1594,24 @@ function liftSpam(notes){
 }
 // a full combo's average multiplier, from each note's (or chord's) points in the order they're played
 function fcMult(units, cap, step){ let a = 0, s = 0; for (let i = 0; i < units.length; i++){ a += units[i] * Math.min(cap, 1 + Math.floor(i / step)); s += units[i]; } return s > 0 ? a / s : 1; }
+// The same with Overdrive put to its best use: each finished phrase adds a quarter, it drains a 32nd a beat, and it's
+// deployed at half, three quarters or a full meter, whichever scores most. items: { u (points), b (beat), od (phrase), act (can deploy here) }.
+function fcOdMult(items, cap, step, actOnly){
+  const left = new Map(); items.forEach(x => { if (x.od >= 0) left.set(x.od, (left.get(x.od) || 0) + 1); });
+  let best = 0;
+  for (const need of [0.5, 0.75, 1]){
+    let a = 0, s = 0, od = 0, on = false, lastB = items.length ? items[0].b : 0; const rem = new Map(left);
+    items.forEach((x, i) => {
+      if (on){ od -= (x.b - lastB) / 32; if (od <= 0){ od = 0; on = false; } }
+      lastB = x.b;
+      if (!on && od >= need - 1e-9 && (!actOnly || x.act)) on = true;
+      a += x.u * Math.min(cap, 1 + Math.floor(i / step)) * (on ? 2 : 1); s += x.u;
+      if (x.od >= 0){ const r = rem.get(x.od) - 1; rem.set(x.od, r); if (r === 0) od = Math.min(1, od + 0.25); }
+    });
+    best = Math.max(best, s > 0 ? a / s : 1);
+  }
+  return best;
+}
 function finishChart(c){
   c.solos = c.solos || [];
   liftSpam(c.notes);
@@ -1601,6 +1619,7 @@ function finishChart(c){
   for (const n of c.notes){ pot += (c.ptsPer || 50) + (n.end - n.t) * c.bps * 25; if (n.end > last) last = n.end; }
   c.potential = Math.max(1, pot); c.lastNote = last;
   c.fcm = fcMult(c.notes.map(n => (c.ptsPer || 50) + (n.end - n.t) * c.bps * 25), 4, 10);
+  c.fco = fcOdMult(c.notes.map(n => ({ u:(c.ptsPer || 50) + (n.end - n.t) * c.bps * 25, b:n.t * c.bps, od:n.od == null ? -1 : n.od })), 4, 10);
   return c;
 }
 
@@ -2069,10 +2088,17 @@ const WIN = { perfect:0.045, great:0.09, good:0.14 };
 const BASE = { perfect:50, great:40, good:25 };
 // Stars are measured against the chart's own full combo without Overdrive, which is worth STAR_FC on this scale on any
 // chart, at any length, on any instrument: bass's ×6 multiplier and a short song's slow start don't change what a star takes.
-// Five stars takes nearly all of a full combo; gold takes a full combo with Overdrive put to good use. Solo and Big Rock
+// Five stars takes nearly all of a full combo; gold takes 98% of the best score a full combo can get with Overdrive. Solo and Big Rock
 // Ending bonuses add to your score but not to your stars, as in Rock Band.
-const STAR_T = [0.3, 0.8, 1.6, 2.6, 3.4], GOLD_T = 4.25, STAR_FC = 3.9;
-const starOf = (pts, base, fcm) => pts / Math.max(1, base * (fcm || STAR_FC) / STAR_FC);
+// Above a full combo the scale stretches so that GOLD_T falls at GOLD_PCT of the best score Overdrive allows.
+const STAR_T = [0.3, 0.8, 1.6, 2.6, 3.4], GOLD_T = 4.25, STAR_FC = 3.9, GOLD_PCT = 0.98;
+function starOf(pts, base, fcm, fco){
+  const r = pts / Math.max(1, base);
+  if (!fcm) return r;
+  if (r <= fcm || !fco) return r / fcm * STAR_FC;
+  const g = Math.max(fco * GOLD_PCT, fcm * 1.02);
+  return STAR_FC + (r - fcm) / (g - fcm) * (GOLD_T - STAR_FC);
+}
 const DIFF_LABEL = { easy:'Easy', medium:'Medium', hard:'Hard', expert:'Expert' };
 const NEUTRAL = { shield:0, scoreMul:1, perfMul:1, odX:2, net:false, jar:false, step:10, cap:4, odGain:1, odDrainMul:1, susMul:1, soloMul:1, lifeMax:100, healMul:1, drainMul:1, win:0, startOD:0, cashMul:1, keep:0, perfWin:0, secondWind:false };
 const KEYS = { 3:['d','f','j'], 4:['d','f','j','k'], 5:['a','s','d','f','g'] };
@@ -2614,7 +2640,7 @@ let hc = { score:-1, mult:0, ratio:-1, od:-1, prog:-1 };
 let menuDim = 0;
 
 const mult = () => Math.min(G.mods.cap, 1 + Math.floor(G.combo / G.mods.step)) * odStack(G.odActive, G.mods.odX, G.bandOd);
-const gStarRatio = scaled => G.chart ? starOf(G.score - G.bonus, G.chart.potential * (scaled === false ? 1 : G.potScale || 1), G.chart.fcm) : 0;
+const gStarRatio = scaled => G.chart ? starOf(G.score - G.bonus, G.chart.potential * (scaled === false ? 1 : G.potScale || 1), G.chart.fcm, G.chart.fco) : 0;
 function muteLead(){ if (!G.leadGain || G.leadMuted || !actx) return; G.leadMuted = true; G.leadGain.gain.cancelScheduledValues(actx.currentTime); G.leadGain.gain.setTargetAtTime(0.06, actx.currentTime, 0.015); }
 function unmuteLead(){ if (!G.leadGain || !actx) return; G.leadMuted = false; G.leadGain.gain.cancelScheduledValues(actx.currentTime); G.leadGain.gain.setTargetAtTime(leadLevel(), actx.currentTime, 0.01); }
 
@@ -3170,7 +3196,8 @@ function rbChart(midi, part, diff, hopoTicks){
   const ev = midi.tracks.find(t => t.name.trim().toUpperCase() === 'EVENTS'), endEv = ev && (ev.texts || []).find(x => /\[end\]/.test(x.text));
   const last = chords[chords.length - 1];
   const fcm = fcMult(chords.map(c => 25 * c.n + (c.sus ? 12 * c.n * c.beats : 0)), part === 'bass' ? 6 : 4, 10);
-  return { chords, gems, phrases:phrases.filter(p => p.count), solos:solos.filter(s => s.count), beats:midiBeats(midi, toSec, endTick + div * 4), baseScore, fcm,
+  const fco = fcOdMult(chords.map(c => ({ u:25 * c.n + (c.sus ? 12 * c.n * c.beats : 0), b:c.tick / div, od:c.od })), part === 'bass' ? 6 : 4, 10);
+  return { chords, gems, phrases:phrases.filter(p => p.count), solos:solos.filter(s => s.count), beats:midiBeats(midi, toSec, endTick + div * 4), baseScore, fcm, fco,
     bre:bre ? { t0:toSec(bre[0]), t1:toSec(bre[1]) } : null, rolls,
     end:endEv ? toSec(endEv.tick) : last.end + 2, odIdx:null, diff };
 }
@@ -3965,7 +3992,7 @@ function rbReset(chart){
   rbtSetup(chart);
 }
 const rbStep = () => RBE.tm ? RBE.tm.mods.step : 10;
-const rbStarRatio = () => RBE.chart ? starOf(RBE.score - (RBE.bonus || 0), RBE.chart.baseScore, RBE.chart.fcm) : 0;
+const rbStarRatio = () => RBE.chart ? starOf(RBE.score - (RBE.bonus || 0), RBE.chart.baseScore, RBE.chart.fcm, RBE.chart.fco) : 0;
 const rbMult = () => Math.min(RBE.cap, 1 + Math.floor(RBE.combo / rbStep())) * odStack(RBE.odActive, 2 + (RBE.tm ? RBE.tm.mods.odX - 2 : 0), RBE.bandOd);
 // In a band, your own play moves the band's health meter, so your part of it isn't capped at full or empty.
 const rbCoop = () => !!(RBE.band || RBE.lbp);
@@ -8104,7 +8131,10 @@ function scDrumChart(midi, diff, x2 = true){
   });
   const keep = phrases.filter(p => p.count), idx = phrases.map(p => keep.indexOf(p));
   chords.forEach(c => { c.od = c.od >= 0 ? idx[c.od] : -1; c.notes.forEach(n => { n.od = c.od; }); });
-  return { kind:'drums', fcm:fcMult(notes.map(() => 1), 4, 10), notes, chords, phrases:keep, solos:solos.filter(s => s.count), fills:fillR.map(r => ({ t0:r[0], t1:r[1], on:null, fired:false })), bre, rolls, disco:discoR.map(r => ({ t0:r[0], t1:r[1] })) };
+  // on drums Overdrive deploys from a fill, so the best score counts it only from the first note after one
+  const fillEnds = fillR.map(r => r[1]).sort((a, b) => a - b); let fe = 0;
+  const fco = fcOdMult(notes.map(n => { let act = false; while (fe < fillEnds.length && fillEnds[fe] <= n.t + 1e-4){ act = true; fe++; } return { u:1, b:n.tick / midi.div, od:n.od, act }; }), 4, 10, true);
+  return { kind:'drums', fcm:fcMult(notes.map(() => 1), 4, 10), fco, notes, chords, phrases:keep, solos:solos.filter(s => s.count), fills:fillR.map(r => ({ t0:r[0], t1:r[1], on:null, fired:false })), bre, rolls, disco:discoR.map(r => ({ t0:r[0], t1:r[1] })) };
 }
 function scFiveChart(midi, part, diff, hopo){
   const c = rbChart(midi, part, diff, hopo); if (!c) return null;
@@ -8581,7 +8611,7 @@ function bandStageDraw(B, insts, V, st, now, o){
   if (B.uniB && n) drawUniBanner(g, W / 2, yAt(insts[0].geo, insts[0].geo.topScale) + 4, B.uniB, now, Math.min(aw * 0.5, 320));
   // the band's score and stars
   let a = 0, w = 0, band = 0;
-  insts.forEach(x => { band += x.score; const base = x.ch.kind === 'five' ? x.ch.baseScore : x.ch.notes.length * (x.pro || x.ch.pro ? 30 : 25); if (base > 0){ a += starOf(x.score - (x.bonus || 0), base, x.ch.fcm) * base; w += base; } });
+  insts.forEach(x => { band += x.score; const base = x.ch.kind === 'five' ? x.ch.baseScore : x.ch.notes.length * (x.pro || x.ch.pro ? 30 : 25); if (base > 0){ a += starOf(x.score - (x.bonus || 0), base, x.ch.fcm, x.ch.fco) * base; w += base; } });
   if (V){ band += V.score; if (V.base){ a += voxStarRatio(V.score / V.base) * V.base; w += V.base; } }
   scorePanel({}, Math.round(band), w ? a / w : 0, now, B.sp || (B.sp = newSP()), { place:{ fs:28, R:9, x:W / 2, align:'center', yScore:top + 22, yStars:top + 38, w:260 } });
   let sec = null; for (const s of (o.E || B.E).sections){ if (s.t <= st + 0.05) sec = s; else break; }
@@ -9046,7 +9076,7 @@ function lbFinish(failed){
   if (LB.groups.length) rows.push({ label:'Unison bonuses', text:`${paid} of ${LB.groups.length}` });
   // the band's stars: everyone's star ratio, weighted by how much their part is worth
   let a = 0, w = 0;
-  LB.players.forEach(P => { const base = P.kind === 'five' ? P.ch.baseScore : P.ch.notes.length * (P.pro ? 30 : 25); if (base > 0){ a += starOf(P.score - (P.bonus || 0), base, P.ch.fcm) * base; w += base; } });
+  LB.players.forEach(P => { const base = P.kind === 'five' ? P.ch.baseScore : P.ch.notes.length * (P.pro ? 30 : 25); if (base > 0){ a += starOf(P.score - (P.bonus || 0), base, P.ch.fcm, P.ch.fco) * base; w += base; } });
   if (LB.vox){ a += voxStarRatio(LB.vox.score / LB.vox.base) * LB.vox.base; w += LB.vox.base; }
   const ratio = w ? a / w : 0;
   RBE.lbResult = { failed:!!failed, score:Math.round(total), rows, ratio, stars:failed ? 0 : starCount(ratio) };
