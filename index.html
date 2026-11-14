@@ -8259,7 +8259,8 @@ function scDiscoFlip(ch){
   return ch;
 }
 // Drums: kick, red, yellow, blue, green; yellow, blue and green are cymbals unless a tom marker covers them.
-function scDrumChart(midi, diff, x2 = true){
+// x2: Expert+ double-bass kicks (note 95) join the kick lane, when the drummer has 2x kick on
+function scDrumChart(midi, diff, x2 = false){
   const tr = scTrack(midi, /^PART DRUMS$/) || scTrack(midi, /^PART DRUMS_2X$/); if (!tr) return null;
   const toSec = midiTiming(midi), base = RB_BASE[diff];
   const tomR = { 2:scRanges(tr, 110, toSec), 3:scRanges(tr, 111, toSec), 4:scRanges(tr, 112, toSec) };
@@ -8272,8 +8273,7 @@ function scDrumChart(midi, diff, x2 = true){
   const rolls = rollR.map(r => ({ t0:r[0], t1:r[1], kind:r[2], mask:0, n:0 }));
   const notes = [];
   tr.notes.forEach(n => {
-    let k = n.note - base, x2 = false;
-    let dbl = false;
+    let k = n.note - base, dbl = false;
     if (diff === 'expert' && x2 && n.note === 95){ k = 0; dbl = true; }
     if (k < 0 || k > 4) return;
     const t = toSec(n.tick);
