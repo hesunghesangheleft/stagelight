@@ -928,6 +928,52 @@ html.calm .od.ready{animation:none}html.calm #hudMult.bump{animation:none}html.c
 
 /* big screens: the menus and cards are laid out for a 1366×840 screen and scaled up to fill this one (see uiScale) */
 #menu,.overlay,#toast{zoom:var(--z,1);--vh1:var(--zvh);--vw1:var(--zvw)}
+
+/* players on this computer */
+.lp-panel{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(17,14,34,.45)}
+.lp-ph{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}.lp-ph .label{margin:0}.lp-ph .fine{margin:0}
+.lp-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.lp-row{appearance:none;display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 10px;border-radius:12px;border:1px solid var(--line);border-left:4px solid var(--pc);background:var(--stage);color:var(--ink);cursor:pointer;font:inherit}
+.lp-row b{display:block;font-size:14px;line-height:1.2}.lp-row small{display:block;color:var(--muted);font-size:12px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}
+.lp-row:hover{border-color:var(--pc)}
+.lp-badge{flex:0 0 auto;display:inline-grid;place-items:center;min-width:34px;height:26px;padding:0 7px;border-radius:9px;background:var(--pc,var(--tungsten));color:#110e22;font-family:var(--f-display);font-weight:900;font-size:15px;letter-spacing:.03em;line-height:1}
+.lp-hint{margin:0}.lp-hint b{color:var(--ink)}
+.lp-card{max-width:620px;gap:14px}
+.lp-head{display:flex;align-items:center;gap:12px}.lp-head .lp-badge{min-width:48px;height:38px;font-size:20px;border-radius:12px}.lp-head .eyebrow{margin:0}.lp-head .card-title{margin:2px 0 0}
+.p-player .lp-head{margin-bottom:6px}.p-player .lp-head b{font-size:15px}
+.p-player{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:14px;border:1px solid var(--line);background:rgba(17,14,34,.35)}.p-player .fine{margin:0}
+.lp-opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lp-opt{appearance:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:14px;border:2px solid var(--line);background:var(--stage);color:var(--ink);cursor:pointer;font:inherit;text-align:center}
+.lp-opt canvas{width:48px;height:48px}.lp-opt b{display:block;font-size:15px}
+.lp-opt small{display:block;color:var(--muted);font-size:11.5px;line-height:1.3}
+.lp-opt.taken{opacity:.42;cursor:not-allowed}
+.lp-card .sel{border-color:var(--pc)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--pc) 45%,transparent);outline:none}
+.lp-diffs{display:grid;grid-template-columns:repeat(4,1fr)}
+.lp-tog{align-self:flex-start}
+.lb-row.lp{grid-template-columns:auto 1fr auto}.lb-row.lp .lp-mini{width:auto;padding:6px 10px}.lb-row.lp.off{opacity:.6}
+@media (max-width:640px){.lp-opts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* the Start menu: on a wide screen, the player's options and Resume on the left, timing and sound on the right */
+@media (min-width:860px){
+  #pause .card{max-width:900px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;align-items:start}
+  #pause .card>.eyebrow,#pause .card>.card-title,#pause .card>.p-player,#pause .card>.p-main{grid-column:1}
+  #pause .card>.p-side{grid-column:2;grid-row:1 / span 5;display:flex;flex-direction:column;gap:14px;border-left:1px solid var(--line);padding-left:24px}
+  #pause .card>.p-side>.p-timing{border-top:0;margin-top:0;padding-top:0}
+}
+@media (min-width:980px) and (min-height:560px){
+  #rbBody.wide .rbh-go small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+  .lp-row{padding:6px 8px}
+}
+
+/* with a few players joined, the side column tightens up so it still fits */
+.rbh-side.many .rbh-go small,.rbh-side.many .lp-row small{display:none}.rbh-side.many .rbh-go{padding-top:8px;padding-bottom:8px}.rbh-side.many .rbh-go .rbh-ic{width:34px;height:34px;padding:6px}
+.rbh-side.many .lp-hint{font-size:12px}
+
+#rbBody .rbh-side.many .rbh-launch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+#rbBody .rbh-side.many .rbh-go{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;padding:8px 4px}
+#rbBody .rbh-side.many .rbh-go b{font-size:12px;line-height:1.15}
+#rbBody .rbh-side.many .rbh-go small,#rbBody .rbh-side.many .lp-row small{display:none}
+#rbBody .rbh-side.many .rbh-tools .btn span{display:none}
 </style>
 
 <canvas id="stage" aria-label="Note highway"></canvas>
@@ -1005,6 +1051,7 @@ html.calm .od.ready{animation:none}html.calm #hudMult.bump{animation:none}html.c
         <li><i style="background:var(--iris)"></i><span>Backstage: the same tour, but your boosts come from gear packs: guitars, amps and pedals in four sets, from Common up to the very rare red Mythic. Fame and your Vault carry over to the next tour.</span></li>
         <li><i style="background:var(--teal)"></i><span>Co-op band: pick Co-op band in Tour or Backstage to play the tour together online, each on your own phone. Every gig is a band challenge (Tag Team, Unison, Overdrive Together, Band Streak or Frontman), and the whole band shares one life meter. Overdrive stacks: each bandmate in Overdrive adds ×2 for everyone. In a unison phrase the highway glows violet: every bandmate has to hit every ringed note.</span></li>
         <li><i style="background:#35d46a"></i><span>Rock Band charts (beta): load a Rock Band custom (CON file) and play its guitar part on a real guitar controller with strums, hammer-ons, chords, sustains, Overdrive, solos and a rock meter. Run controller setup once if your guitar isn’t recognized. Its own Tour and Backstage build seven-gig tours from your Rock Band songs, on any part (Gamepad included), solo or as a band.</span></li>
+        <li><i style="background:var(--amber)"></i><span>Playing together on one computer: in Rock Band songs, press Start on each controller (or Enter on the keyboard) to join as a numbered player, then pick guitar, bass, keys, drums, Gamepad or vocals. One player plays solo; two or more play as a band, each on their own highway. A player’s Start pauses the song and opens their own note speed, visual offset and drop-out.</span></li>
         <li><i style="background:#8692ff"></i><span>On a controller: the D-pad or left stick (or a guitar's strum bar) moves around every screen, A or green presses, B or red goes back, the bumpers switch tabs and the right stick scrolls. In Quick Play the D-pad, face buttons and triggers play the lanes (a guitar plays them on its frets), Back or a stick click deploys Overdrive and Start pauses.</span></li>
         <li><i style="background:var(--tungsten)"></i><span>Locker: finishing tour gigs earns Tickets. Spend them on skin crates for new highways, notes and hit effects, from Common to Legendary.</span></li>
       </ul>
@@ -1153,11 +1200,13 @@ html.calm .od.ready{animation:none}html.calm #hudMult.bump{animation:none}html.c
   <div class="card center">
     <p class="eyebrow">Paused</p>
     <h2 class="card-title" id="pTitle"></h2>
-    <div class="stack">
+    <div class="p-player" id="pPlayer" hidden></div>
+    <div class="stack p-main">
       <button type="button" class="btn primary" id="pResume">Resume</button>
       <button type="button" class="btn" id="pRestart">Restart song</button>
       <button type="button" class="btn" id="pQuit">Back to setlist</button>
     </div>
+    <div class="p-side">
     <div class="p-timing">
       <span class="label" style="margin:0">Timing offset</span>
       <span class="ctl"><button type="button" class="step" id="pOffDown" aria-label="Lower offset by 10 ms">−</button><span class="val" id="pOffVal">+0 ms</span><button type="button" class="step" id="pOffUp" aria-label="Raise offset by 10 ms">+</button></span>
@@ -1171,6 +1220,7 @@ html.calm .od.ready{animation:none}html.calm #hudMult.bump{animation:none}html.c
       <div class="p-row"><span class="label">Song</span><span class="ctl"><input type="range" id="pSong" min="0" max="10" step="1" aria-label="Song volume"><span class="val" id="pSongVal">10</span></span></div>
       <div class="p-row"><span class="label">Your part</span><span class="ctl"><input type="range" id="pLead" min="0" max="10" step="1" aria-label="Your part's volume"><span class="val" id="pLeadVal">7</span></span></div>
       <div class="p-row"><span class="label">Note sounds</span><div class="seg seg3" role="radiogroup" aria-label="Note sounds" id="pSfxSeg"><button type="button" role="radio" data-s="notes">With notes</button><button type="button" role="radio" data-s="tap">On tap</button><button type="button" role="radio" data-s="off">Off</button></div></div>
+    </div>
     </div>
   </div>
 </div>
@@ -2143,7 +2193,7 @@ const store = {
   get(k, d){ try { const v = localStorage.getItem('stagelight.' + k); return v ? JSON.parse(v) : d; } catch (e){ return d; } },
   set(k, v){ try { localStorage.setItem('stagelight.' + k, JSON.stringify(v)); } catch (e){} },
 };
-const settings = Object.assign({ diff:'medium', speed:5, songVol:10, offset:0, sfx:'notes', sfxNudge:0, fps:60, vsync:true, music:6, hwLen:'medium', swipeOD:true, bandLanes:true, leadVol:7, motion:'on', fx:'auto' }, store.get('settings', {}));
+const settings = Object.assign({ diff:'medium', speed:5, songVol:10, offset:0, sfx:'notes', sfxNudge:0, fps:60, vsync:true, music:6, hwLen:'medium', voff:0, swipeOD:true, bandLanes:true, leadVol:7, motion:'on', fx:'auto' }, store.get('settings', {}));
 const applyFx = () => { reduced = settings.fx === 'off'; };
 applyFx();
 if (!(settings.leadVol >= 0 && settings.leadVol <= 10)) settings.leadVol = 7;
@@ -2158,7 +2208,7 @@ if (!['notes', 'tap', 'off'].includes(settings.sfx)) settings.sfx = 'notes';
 if (!DIFFS.includes(settings.diff)) settings.diff = 'medium';
 const best = store.get('best', {}) || {};
 const saveSettings = () => store.set('settings', settings);
-const lookahead = () => settings.speed <= 10 ? 2.3 - (settings.speed - 1) * 0.16 : 0.86 * Math.pow(0.9, settings.speed - 10);
+const lookahead = (sp = settings.speed) => sp <= 10 ? 2.3 - (sp - 1) * 0.16 : 0.86 * Math.pow(0.9, sp - 10);
 
 /* ---------- songs ---------- */
 const entries = SONGS.map(S => {
@@ -2701,6 +2751,7 @@ function showScreen(s){
 }
 
 function beginPlay(entry, chart, diff, inst, career, gacha){
+  if (!entry || entry.kind !== 'rbpad') songStartFx();
   G.rbBand = false;
   G.career = career || null; G.gacha = !G.career && !!gacha;
   G.band = !!(G.career && G.career.band); G.down = false; G.unison = false; G.bandOd = 0; G.uniB = null; G.opCount = 0; G.odn = 0; G.odSec = 0; G.maxOn = false; G.maxAt = 0; G.hudM = 0; G.multAt = 0; G.potScale = 1; G.ownTotal = 0; G.segLen = 0; G.segHas = null;
@@ -2776,11 +2827,12 @@ function pauseGame(){
   G.pausePerf = performance.now();
   quitArmed = false; $('#pQuit').textContent = G.band ? 'Leave the band' : G.career ? 'Abandon gig' : G.rbBand ? 'Leave this song' : G.entry.kind === 'rbpad' ? 'Back to songs' : 'Back to setlist';
   $('#pResume').textContent = G.rbBand ? 'Jump back in' : 'Resume';
-  G.mode = 'pause'; showScreen('pause');
+  G.mode = 'pause'; lpPauseFill(); showScreen('pause');
 }
 function resumeGame(){
   if (RBE.on) return rbResume();
   if (G.mode !== 'pause') return;
+  lpPauseClear();
   ensureCtx();
   showScreen('play');
   G.st = -1e9; G.vt = null;
@@ -2815,6 +2867,22 @@ function press(lane, perf, id){
     if (n.state || n.lane !== lane) continue;
     if (Math.abs(n.t - t) <= G.win.good){ hit(n, t, id); return; }
   }
+  // On the Gamepad part a press with nothing to hit is an overhit, like an overstrum on guitar: the streak breaks and it
+  // costs health. Not when it's getting ready for a lift coming up in that lane, a bounce right after a hit, or before
+  // the song's first note.
+  if (G.instLabel === 'Gamepad' && G.mode === 'play' && !G.down && N.length && t > N[0].t - 1){
+    let excuse = (G.lastHitT || [])[lane] != null && t - G.lastHitT[lane] < 0.06;
+    for (let i = G.scan; i < N.length && !excuse; i++){ const n = N[i]; if (n.t - t > 0.6) break; if (!n.state && n.lift && n.lane === lane) excuse = true; }
+    if (!excuse) overhit(lane);
+  }
+}
+function overhit(lane){
+  G.counts.over = (G.counts.over || 0) + 1;
+  if (G.shield > 0) G.shield--; else G.combo = Math.floor(G.combo * Math.max(G.mods.net ? 0.5 : 0, G.mods.keep || 0));
+  G.cold = true;
+  if (G.career && G.mode === 'play'){ G.life -= G.career.drain * 0.5 * G.mods.drainMul * G.tmDrain; if (G.life <= 0 && !G.band) lifeOut(); }
+  G.judg = { kind:'miss', err:0, at:performance.now(), over:true };
+  muteLead();
 }
 function release(lane, id, perf){
   G.pressed[lane] = Math.max(0, G.pressed[lane] - 1);
@@ -2843,7 +2911,7 @@ function hit(n, t, id){
   G.cold = false;
   if (settings.sfx === 'tap') playSfx(actx.currentTime, n.lane, odLive, n.lift);
   const j = a <= G.win.perfect ? 'perfect' : a <= G.win.great ? 'great' : 'good';
-  n.state = 'hit'; G.counts[j]++; G.combo++;
+  n.state = 'hit'; G.counts[j]++; G.combo++; (G.lastHitT || (G.lastHitT = []))[n.lane] = t;
   if (G.combo > G.maxCombo) G.maxCombo = G.combo;
   G.score += (G.chart.ptsPer || BASE[j]) * mult() * G.mods.scoreMul * (j === 'perfect' ? G.mods.perfMul : 1);
   if (G.career){ const v = G.life + (j === 'good' ? 2 : 3.5) * G.mods.healMul * (n.lw || 1); G.life = G.band ? v : Math.min(G.lifeMax, v); }
@@ -4191,6 +4259,7 @@ function rbBandFailed(){
 
 /* ---------- playback ---------- */
 function rbStartAudio(at){
+  if (RBX.prev) rbxPreviewStop(true);
   const ctx = actx;
   RBE.srcs = [];
   RBE.stemGain = ctx.createGain(); RBE.backGain = ctx.createGain();
@@ -4206,7 +4275,7 @@ function rbStartAudio(at){
 }
 function rbStopAudio(){ (RBE.srcs || []).forEach(s => { try { s.stop(); } catch (e){} try { s.disconnect(); } catch (e){} }); RBE.srcs = []; }
 async function rbPlay(){
-  rbxPreviewStop(); rbxNoteRecent(RBE.song);
+  ensureCtx(); songStartFx(); rbxNoteRecent(RBE.song); lpSoloKeep();
   if (RBE.part === 'gamepad') return rbPadPlay();
   if (isVox(RBE.part)) return voxPlay();
   RBE.vox = null;
@@ -4250,10 +4319,12 @@ function rbPause(){
   $('#pTitle').textContent = RBE.song.name;
   $('#pRestart').hidden = !!(RBE.band || RBE.tm); $('#pQuit').textContent = RBE.band ? 'Leave this song' : RBE.tm ? 'End the tour' : RBE.sc ? 'Stop the showcase' : RBE.lb ? 'Back to the band setup' : 'Back to songs';
   $('#pResume').textContent = RBE.band ? 'Jump back in' : 'Resume';
+  lpPauseFill();
   showScreen('pause');
 }
 function rbResume(){
   if (!RBE.on || RBE.mode !== 'pause') return;
+  lpPauseClear(); RBE.pauseBy = null;
   ensureCtx(); showScreen('play'); RBE.mode = 'play'; RBE.vt = null;
   $('#pResume').textContent = 'Resume';
   if (RBE.band){
@@ -4400,6 +4471,7 @@ function rbRockMeter(now){
 /* ---------- keyboard (for testing without a controller) ---------- */
 const RB_KEYS = { '1':0, '2':1, '3':2, '4':3, '5':4, a:0, s:1, d:2, f:3, g:4, f1:0, f2:1, f3:2, f4:3, f5:4 };
 window.addEventListener('keydown', e => {
+  if (lpKeyFirst(e)) return;
   if (!RBE.on && LBX.kit && LBX.kit.src === 'kbd' && !rbEl.hidden){
     e.preventDefault(); e.stopImmediatePropagation();
     const kk = (e.key || '').toLowerCase();
@@ -4411,7 +4483,7 @@ window.addEventListener('keydown', e => {
   if (RBE.mode === 'pause'){ if (k === 'escape'){ e.preventDefault(); e.stopImmediatePropagation(); rbResume(); } return; }
   if (RBE.mode !== 'play') return;
   e.stopImmediatePropagation();
-  if (k === 'escape' || k === 'p'){ e.preventDefault(); rbPause(); return; }
+  if (k === 'escape' || k === 'p'){ e.preventDefault(); if (RBE.lb) RBE.pauseBy = RBE.lb.players.find(x => x.inp === 'kbd') || null; rbPause(); return; }
   if (e.repeat){ e.preventDefault(); return; }
   if (RBE.lb){ lbKey(e, true); return; }
   if (RBE.sc){ e.preventDefault(); if (k === 'arrowleft') scSeek(-5); else if (k === 'arrowright') scSeek(5); else if (k === ' ') rbPause(); return; }
@@ -4470,7 +4542,8 @@ function rbWire(){
   RBE.liveEl = $('#rbLive');
 }
 function rbView(view, msg){
-  if (view !== 'load') rbxPreviewStop();
+  // the song's preview keeps playing while you set the song up, and fades under the song when it starts
+  if (!['load', 'setup', 'lbsetup', 'scsetup', 'loading'].includes(view)) rbxPreviewStop();
   const lbMic = LBS.vox.n > 0 && ['lbsetup', 'lbkit', 'lbresults', 'loading'].includes(view);
   if (!lbMic && (!isVox(RBE.part) || !['setup', 'loading', 'results', 'band', 'bandres'].includes(view))) voxMicsStop();
   RBE.view = view;
@@ -4497,12 +4570,15 @@ function rbView(view, msg){
   if (view === 'load'){
     rbLocLoadIndex();
     const tab = RBLOC.tab === 'lib' && !RBLIB_NONE() ? 'lib' : 'mine', good = msg && /library now|out of the library|^Removed|^Found \d/.test(msg);
+    if (RBE.pickFor === 'lb') RBE.pickFor = null;
     const pick = RBE.pickFor || 'solo', n = RBLOC.index.length, live = RBLOC.files.size > 0;
-    const PF = { solo:['Play solo', 'Pick a song, then your part and difficulty: guitar, bass, keys, gamepad, vocals or harmonies.'], lb:['Local band', 'Everyone on this computer: up to three mics, and guitar, drums, bass and keys on their own controllers.'], show:['Showcase', 'Every part plays itself with the song, so you can check a chart.'] };
+    const nR = lpReady().length;
+    const PF = { solo:['Play', nR > 1 ? `Your band of ${nR} plays the song you pick, each on their own highway.` : nR === 1 ? `P1 plays the song you pick, as ${LP_LABEL[lpReady()[0].inst].toLowerCase()} on ${RB_DIFF_LABEL[lpReady()[0].diff]}.` : 'Pick a song, then your part and difficulty. Everyone else at this computer can press Start (or Enter) to join and make it a band.'], show:['Showcase', 'Every part plays itself with the song, so you can check a chart.'] };
     const songsHead = !RBLOC.loaded ? 'Loading your songs…' : n ? `${n} song${n === 1 ? '' : 's'}${RBLOC.folder ? ` from ${rbEsc(RBLOC.folder)}` : ''}${live ? '' : ' · pick the folder again to play them this visit'}` : '';
-    rbBody.innerHTML = `<div class="rbh-side"><div class="rbh-top"><div><p class="eyebrow">Rock Band charts · beta</p><h2 class="card-title">Rock Band songs</h2></div>
+    rbBody.innerHTML = `<div class="rbh-side${LP.list.length >= 3 ? ' many' : ''}"><div class="rbh-top"><div><p class="eyebrow">Rock Band charts · beta</p><h2 class="card-title">Rock Band songs</h2></div>
         <div class="rbh-tools"><button type="button" class="btn small" id="rbSrcB" aria-label="Song sources">${RBH_ICON.folder}<span>Song sources</span></button><button type="button" class="btn small" id="rbPadB" aria-label="Controller">${RBH_ICON.pad}<span>Controller</span></button></div></div>
       ${msg ? `<p class="${good ? 'rb-ok' : 'rb-err'}" role="alert">${rbEsc(msg)}</p>` : ''}
+      ${pick === 'show' ? '' : lpPanelHTML()}
       <div class="rbh-launch">
         <button type="button" class="rbh-go band" id="rbBand">${RBH_ICON.band}<span><b>Play with friends</b><small>${BAND.p2p || !window.claude ? 'Online, each on your own device, with a band code' : 'Online, each on your own device'}</small></span></button>
         <button type="button" class="rbh-go tour" id="rbTourB">${RBH_ICON.tour}<span><b>Tour</b><small>${rbGearRun ? `Continue · Gig ${rbGearRun.gig + 1} of ${VENUES.length}` : 'Seven gigs from your songs, with goals and gear'}</small></span></button>
@@ -4512,7 +4588,7 @@ function rbView(view, msg){
       ${!window.claude ? '<p class="fine rbh-note">You’re on the website: mics, MIDI drum kits and online bands all work here. The shared song library and uploads are in the claude.ai version.</p>' : ''}</div>
       <section class="rbh-songs">
         <div class="rbh-sh"><span class="label">Pick a song to</span>
-          <div class="seg seg3 rbh-pf" role="radiogroup" aria-label="What a song starts">${Object.entries(PF).map(([k, v]) => `<button type="button" role="radio" id="${{ solo:'rbSoloB', lb:'rbLbB', show:'rbShowB' }[k]}" data-pf="${k}" aria-checked="${pick === k}">${v[0]}</button>`).join('')}</div></div>
+          <div class="seg rbh-pf" role="radiogroup" aria-label="What a song starts">${Object.entries(PF).map(([k, v]) => `<button type="button" role="radio" id="${{ solo:'rbSoloB', show:'rbShowB' }[k]}" data-pf="${k}" aria-checked="${pick === k}">${v[0]}</button>`).join('')}</div></div>
         <p class="fine rbh-pfd">${PF[pick][1]}${pick === 'show' ? ' <button type="button" class="linkb" id="scSendCon">Or send a CON file</button>' : ''}</p>
         ${RBLIB_NONE() ? '' : `<div class="tabs rb-tabs" role="tablist"><button type="button" role="tab" data-tab="mine" aria-selected="${tab === 'mine'}">Your songs${n ? ' · ' + n : ''}</button><button type="button" role="tab" data-tab="lib" aria-selected="${tab === 'lib'}">Song library${RBLIB.list.length ? ' · ' + RBLIB.list.length : ''}</button></div>`}
         ${tab === 'mine' ? (n ? `<p class="t-sub rbh-count">${songsHead}${live ? '' : ` <button type="button" class="linkb" id="rbPickDir">Pick the folder</button>`}</p>${rbxHTML('mine')}`
@@ -4525,6 +4601,7 @@ function rbView(view, msg){
     rbBody.querySelectorAll('[data-tab]').forEach(x => x.addEventListener('click', () => { RBLOC.tab = x.dataset.tab; store.set('rbTab', RBLOC.tab); rbView('load'); }));
     rbBody.querySelectorAll('[data-pf]').forEach(x => x.addEventListener('click', () => { uiTick(); ensureCtx(); RBE.pickFor = x.dataset.pf === 'solo' ? null : x.dataset.pf; if (RBE.pickFor) RBLOC.tab = 'mine'; rbView('load'); }));
     $('#rbExit').addEventListener('click', rbClose);
+    lpPanelWire();
     $('#rbSrcB').addEventListener('click', () => { uiTick(); rbView('rbsrc'); });
     $('#rbPadB').addEventListener('click', () => { uiTick(); rbView('rbpad'); });
     $('#rbBand').addEventListener('click', () => { uiTick(); RBE.pickFor = null; rbView('bandfind'); });
@@ -4599,7 +4676,7 @@ function rbView(view, msg){
         : `<label class="rb-tog"><input type="checkbox" id="rbNoFail" ${RBE.noFail ? 'checked' : ''}> <span>No Fail (the rock meter can’t end the song)</span></label>
       ${rbPadPanel()}`}
       <div class="row"><button type="button" class="btn primary" id="rbGo">Play</button><button type="button" class="btn" id="rbBackS">Songs</button></div>
-      ${RBE.band ? '' : '<div class="row"><button type="button" class="btn small" id="rbShowS">Showcase every part</button><button type="button" class="btn small" id="rbLbS">Play as a local band</button></div>'}
+      ${RBE.band ? '' : '<div class="row"><button type="button" class="btn small" id="rbShowS">Showcase every part</button></div><p class="fine">Someone else here? Press Start on another controller (or Enter on the keyboard) to join and play it as a band.</p>'}
       ${ld ? `<div class="row rb-libact">${RBLIB.cached.has(ld.sha) ? '<button type="button" class="btn small" id="rbForget">Remove the download from this device</button>' : ''}${RBLIB.canAdd ? '<button type="button" class="btn small danger" id="rbRemove">Remove from the library</button>' : ''}</div>`
         : !s.lib && RBLIB.canAdd && (s.src || s.folder) ? `<div class="row rb-libact">${rbInLib(s) ? '<span class="rb-tag ok">In the song library</span>' : '<button type="button" class="btn small" id="rbToLib">Add to the song library</button>'}</div>`
         : !s.lib && RBLIB.err === 'nohost' ? '<p class="fine">This copy isn’t running on claude.ai, so adding songs to the shared song library has to be done in the claude.ai version.</p>' : ''}`;
@@ -4649,7 +4726,8 @@ function rbView(view, msg){
 async function rbSelect(song){
   rbView('loading', 'Reading the chart');
   if (RBE.pickFor === 'show'){ if (await rbLoadSong(song)) return scOpen(song, RBE.midi); return scOpen(song); }
-  if (RBE.pickFor === 'lb'){ if (await rbLoadSong(song)) return lbOpen(song, RBE.midi); return lbOpen(song); }
+  if (RBE.pickFor === 'lb' || lpBand()){ if (await rbLoadSong(song)) return lbOpen(song, RBE.midi); return lbOpen(song); }
+  lpSoloApply();
   if (await rbLoadSong(song)) rbView('setup');
   else rbView(song.lib || song.local || song.recv ? 'load' : 'songs', `I couldn’t find a guitar, bass, keys or vocals chart to play in “${song.name}”.`);
 }
@@ -6257,12 +6335,40 @@ async function rbxSegFiles(files, meta, tok){
   }
   return out && out.length > out.sampleRate * 2 ? out : null;
 }
-function rbxPreviewStop(){
+function rbxPreviewStop(slow){
   RBX.prevTok++;
   const p = RBX.prev; RBX.prev = null;
-  if (p && actx){ try { p.g.gain.setTargetAtTime(0, actx.currentTime, 0.12); setTimeout(() => { try { p.s.stop(); } catch (e){} try { p.g.disconnect(); } catch (e){} }, 500); } catch (e){} }
+  if (p && actx){ try { const tc = slow ? 0.35 : 0.12; p.g.gain.cancelScheduledValues(actx.currentTime); p.g.gain.setTargetAtTime(0, actx.currentTime, tc); setTimeout(() => { try { p.s.stop(); } catch (e){} try { p.g.disconnect(); } catch (e){} (p.fx || []).forEach(n => { try { n.disconnect(); } catch (e){} }); }, slow ? 2200 : 500); } catch (e){} }
   const el = $('#rbxPv'); if (el) el.classList.remove('on');
   musicPreview(false);
+}
+/* Starting a song, the way osu! does it: whatever's playing (the song's preview, or the menu music) drops away as if
+   heard from the next room, its highs rolling off and a little room sound around it, under a soft whoosh, until the
+   song itself comes in. */
+let roomIR = null;
+function songStartFx(){
+  if (!actx || !master) return;
+  const now = actx.currentTime;
+  const far = (g, dest, keep) => {
+    const f = actx.createBiquadFilter(); f.type = 'lowpass'; f.Q.value = 0.8; f.frequency.setValueAtTime(16000, now); f.frequency.exponentialRampToValueAtTime(700, now + 0.55);
+    if (!roomIR){ const n = Math.floor(actx.sampleRate * 1.4); roomIR = actx.createBuffer(2, n, actx.sampleRate); for (let c = 0; c < 2; c++){ const a = roomIR.getChannelData(c); for (let i = 0; i < n; i++) a[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3.2); } }
+    const cv = actx.createConvolver(), wet = actx.createGain(); cv.buffer = roomIR; wet.gain.setValueAtTime(0, now); wet.gain.linearRampToValueAtTime(0.35, now + 0.4);
+    g.disconnect(); g.connect(f); f.connect(dest); f.connect(cv); cv.connect(wet); wet.connect(dest);
+    const v = g.gain.value; g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(v, now); g.gain.linearRampToValueAtTime(v * keep, now + 0.5);
+    return [f, cv, wet];
+  };
+  try {
+    const p = RBX.prev; if (p && !p.fx) p.fx = far(p.g, master, 0.6);
+    if (MUSIC.sg && MUSIC.an && !MUSIC.far){ MUSIC.far = far(MUSIC.sg, MUSIC.an, 0.6); const sg = MUSIC.sg; setTimeout(() => { if (MUSIC.sg !== sg){ (MUSIC.far || []).forEach(n => { try { n.disconnect(); } catch (e){} }); MUSIC.far = null; } }, 2500); }
+    // the whoosh: a breath of noise swept up through a band-pass and back down
+    const len = 0.8, n = Math.floor(actx.sampleRate * len), b = actx.createBuffer(1, n, actx.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    const s = actx.createBufferSource(), bp = actx.createBiquadFilter(), g = actx.createGain();
+    s.buffer = b; bp.type = 'bandpass'; bp.Q.value = 1.6; bp.frequency.setValueAtTime(320, now); bp.frequency.exponentialRampToValueAtTime(2600, now + 0.28); bp.frequency.exponentialRampToValueAtTime(500, now + len);
+    const vol = 0.2 * (settings.sfxVol != null ? settings.sfxVol / 10 : 1);
+    g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(vol, now + 0.22); g.gain.exponentialRampToValueAtTime(0.0001, now + len);
+    s.connect(bp); bp.connect(g); g.connect(master); s.start(now); s.stop(now + len + 0.05);
+  } catch (e){ console.warn('songStartFx', e); }
 }
 async function rbxPreview(it){
   rbxPreviewStop();
@@ -6343,7 +6449,9 @@ function rbxHTML(tab){
 }
 function rbxOpen(it){
   if (!it) return;
-  rbxPreviewStop();
+  // the preview carries on into the song's setup (it's that song's); any other one stops
+  if (RBX.prev && RBX.prev.id !== it.id) rbxPreviewStop();
+  RBX.prevTok++;
   uiTick();
   if (it.src === 'lib') rbLibPlay(it.d);
   else if (it.src === 'recv') rbRecvOpen(it.r);
@@ -6922,7 +7030,7 @@ async function rbPadPlay(){
   rbEl.hidden = true;
   ensureCtx();
   const entry = { id:'rbpad:' + (song.mh || song.key), name:song.name, kind:'rbpad', audio:{ back:RBE.audio.back, lead:RBE.audio.stem }, charts:{}, meta:'' };
-  showScreen('none');
+  showScreen('none'); if (RBX.prev) rbxPreviewStop(true);
   const career = RBE.tour ? RBE.tour.g : null; RBE.tour = null;
   if (career) rbtPersonalGoal(career, chart.notes.length);
   beginPlay(entry, chart, RBE.diff, null, career, false);
@@ -8010,7 +8118,7 @@ function voxSetupHTML(msg){
     <label class="rb-tog"><input type="checkbox" id="vxBot" ${bot ? 'checked' : ''}> <span>Let the bot sing (to try the mode without a mic)</span></label>
     <label class="rb-tog"><input type="checkbox" id="rbNoFail" ${RBE.noFail ? 'checked' : ''}> <span>No Fail (the rock meter can’t end the song)</span></label>
     <div class="row"><button type="button" class="btn primary" id="rbGo">Sing</button><button type="button" class="btn" id="rbBackS">Songs</button></div>
-    <div class="row"><button type="button" class="btn small" id="rbShowS">Showcase every part</button><button type="button" class="btn small" id="rbLbS">Play as a local band</button></div>
+    <div class="row"><button type="button" class="btn small" id="rbShowS">Showcase every part</button></div><p class="fine">Someone else here? Press Start on another controller (or Enter on the keyboard) to join and play it as a band.</p>
     ${ld ? `<div class="row rb-libact">${RBLIB.cached.has(ld.sha) ? '<button type="button" class="btn small" id="rbForget">Remove the download from this device</button>' : ''}</div>`
       : !s.lib && RBLIB.canAdd && (s.src || s.folder) ? `<div class="row rb-libact">${rbInLib(s) ? '<span class="rb-tag ok">In the song library</span>' : '<button type="button" class="btn small" id="rbToLib">Add to the song library</button>'}</div>`
       : !s.lib && RBLIB.err === 'nohost' ? '<p class="fine">This copy isn’t running on claude.ai, so adding songs to the shared song library has to be done in the claude.ai version.</p>' : ''}`;
@@ -8369,7 +8477,8 @@ function scUnisons(insts){
   groups.forEach(g => { g.t0 = Math.min(...g.members.map(m => m[1].t0)); g.t1 = Math.max(...g.members.map(m => m[1].t1)); g.members.forEach(m => { m[1].uni = true; }); });
   insts.forEach(x => {
     const ch = x.ch, mark = (c, list) => { const u = c.od >= 0 && !!ch.phrases[c.od].uni; list.forEach(n => { n.uni = u; }); };
-    if (ch.kind === 'five') ch.chords.forEach(c => mark(c, c.gems)); else ch.chords.forEach(c => mark(c, c.notes));
+    if (ch.kind === 'pad') ch.notes.forEach(n => { n.uni = n.od >= 0 && !!ch.phrases[n.od] && !!ch.phrases[n.od].uni; });
+    else if (ch.kind === 'five') ch.chords.forEach(c => mark(c, c.gems)); else ch.chords.forEach(c => mark(c, c.notes));
   });
   return groups.sort((a, b) => a.t0 - b.t0);
 }
@@ -8398,10 +8507,10 @@ function scStep(S, t, dt){
     for (const f of dx.ch.fills){
       if (f.on === null && t >= f.t0 - 2){
         f.on = dx.od >= 0.5 && !dx.odActive && dx.readyAt <= f.t0 - 1 && f.t0 < S.E.coda;
-        if (f.on) dx.ch.notes.forEach(n => { if (n.t >= f.t0 - 1e-3 && n.t < f.t1 - 0.02 && !n.state) n.state = 'fill'; });
+        if (f.on) dx.ch.notes.forEach(n => { if (n.t >= f.t0 - 1e-3 && n.t <= f.t1 + 0.02 && !n.state) n.state = Math.abs(n.t - f.t1) <= 0.03 ? 'fillend' : 'fill'; });
       }
       if (f.on && !f.fired && t >= f.t1){
-        f.fired = true;
+        f.fired = true; f.actHit = performance.now(); dx.flash[3] = performance.now();
         if (dx.od >= 0.5 && !dx.odActive){
           scDeploy(dx, t);
           S.insts.forEach(x => { if (x !== dx) scDeploy(x, t); });
@@ -8432,7 +8541,7 @@ function scStep(S, t, dt){
       while (x.scan < ch.chords.length && ch.chords[x.scan].t <= t){
         const c = ch.chords[x.scan++];
         let any = false;
-        c.notes.forEach(n => { if (n.state === 'fill'){ n.state = 'fillhit'; if (n.kick) x.kickAt = performance.now(); else x.flash[n.lane] = performance.now(); return; } n.state = 'hit'; any = true; if (n.kick) x.kickAt = performance.now(); else x.flash[n.lane] = performance.now(); });
+        c.notes.forEach(n => { if (n.state === 'fillend') return; if (n.state === 'fill'){ n.state = 'fillhit'; if (n.kick) x.kickAt = performance.now(); else x.flash[n.lane] = performance.now(); return; } n.state = 'hit'; any = true; if (n.kick) x.kickAt = performance.now(); else x.flash[n.lane] = performance.now(); });
         if (!any) continue;
         x.hits++; x.streak++;
         x.score += (ch.pro ? 30 : 25) * c.notes.filter(n => n.state === 'hit').length * scMult(x);
@@ -8484,6 +8593,7 @@ function scReplayTo(t){
   return S;
 }
 async function scPlay(){
+  ensureCtx(); songStartFx();
   const song = SHOW.song; if (!song) return;
   ensureCtx();
   rbView('loading', `Loading ${song.name}`);
@@ -8547,6 +8657,20 @@ function scGeo(x, w, topY, hitY, L, colors, ts){
   const topScale = ts || 0.42;
   return { L, bw:w, cx:x + w / 2, left:x, laneW:w / L, hitY, topY, topScale, K:1 / topScale - 1, vpY:(topY - topScale * hitY) / (1 - topScale), trussY:topY, menu:false, colors };
 }
+// The note that ends an open fill: green, a tom gem under a cymbal's outline since either one takes it, glowing.
+function scFillEnd(g, geo, f, t, look, now){
+  if (f.actHit) return;
+  const d = (f.t1 - t) / look; if (d > 1 || d < -0.3) return;
+  const s = sAt(geo, d), y = yAt(geo, s), x = xAt(geo, 3.5, s), w = geo.laneW * 0.86 * s, col = SC_DRUM_COL[3], a = d < 0 ? 0.35 : d > 0.82 ? (1 - d) / 0.18 : 1;
+  g.save(); g.globalAlpha = clamp(a, 0, 1);
+  if (!reduced){ const R = w * (0.75 + 0.12 * Math.sin(now / 90)), rg = g.createRadialGradient(x, y, 0, x, y, R); rg.addColorStop(0, rgba(col, 0.55)); rg.addColorStop(1, rgba(col, 0)); g.fillStyle = rg; g.beginPath(); g.ellipse(x, y, R, R * 0.5, 0, 0, Math.PI * 2); g.fill(); }
+  const h = w * (GEM_H / GEM_W); pill(g, x - w / 2, y - h / 2, w, h); g.fillStyle = col; g.fill(); g.lineWidth = Math.max(1.5, 2.5 * s); g.strokeStyle = '#ffffff'; g.stroke();
+  // the cymbal's outline over it
+  const cw = w * 1.18, ch = cw * 0.34, cy = y - h * 0.1;
+  g.beginPath(); g.moveTo(x - cw / 2, cy); g.lineTo(x - cw * 0.32, cy - ch / 2); g.lineTo(x + cw * 0.32, cy - ch / 2); g.lineTo(x + cw / 2, cy); g.lineTo(x + cw * 0.32, cy + ch / 2); g.lineTo(x - cw * 0.32, cy + ch / 2); g.closePath();
+  g.lineWidth = Math.max(1, 1.6 * s); g.strokeStyle = rgba('#ffffff', 0.8); g.stroke();
+  g.restore();
+}
 function scCymbal(g, x, y, w, col, od){
   const h = w * 0.34;
   g.beginPath(); g.moveTo(x - w / 2, y); g.lineTo(x - w * 0.32, y - h / 2); g.lineTo(x + w * 0.32, y - h / 2); g.lineTo(x + w / 2, y); g.lineTo(x + w * 0.32, y + h / 2); g.lineTo(x - w * 0.32, y + h / 2); g.closePath();
@@ -8556,7 +8680,8 @@ function scCymbal(g, x, y, w, col, od){
 }
 const SC_FILL_COL = '#35d46a';
 function scHighway(S, x, geo, now){
-  const g = g2, ch = x.ch, L = geo.L, t = RBE.st, look = lookahead(), drums = ch && ch.kind === 'drums';
+  // each player's own note speed and visual offset (which draws the notes later or sooner without moving the timing)
+  const g = g2, ch = x.ch, L = geo.L, t = RBE.st - (x.voff || 0) / 1000, look = lookahead(x.speed), drums = ch && ch.kind === 'drums';
   const sTop = geo.topScale, yT = yAt(geo, sTop), yB = H + 6, sBot = (yB - geo.vpY) / (geo.hitY - geo.vpY);
   const odAt = odEdge(x, x.odActive, now), odf = x.odActive ? odFillD(geo, odAt, now, yB) : null, railOD = x.odActive && !odf;
   const hwPath = () => { g.beginPath(); g.moveTo(xAt(geo, 0, sTop), yT); g.lineTo(xAt(geo, L, sTop), yT); g.lineTo(xAt(geo, L, sBot), yB); g.lineTo(xAt(geo, 0, sBot), yB); g.closePath(); };
@@ -8587,11 +8712,11 @@ function scHighway(S, x, geo, now){
     // with a line where the hit that deploys Overdrive goes; a faint outline otherwise
     if (drums) for (const f of ch.fills){
       const d0 = Math.max(0, (f.t0 - t) / look), d1 = Math.min(1, (f.t1 - t) / look); if (d1 <= d0) continue;
+      if (f.on && (!f.fired || f.actHit)) scFillEnd(g, geo, f, t, look, now);
       if (f.on && !f.fired){
         g.save(); g.shadowColor = SC_FILL_COL; g.shadowBlur = reduced ? 0 : 10; g.lineCap = 'round';
         g.lineWidth = 3.5; g.strokeStyle = rgba(SC_FILL_COL, 0.95); railSeg(geo, 0, d0, d1); railSeg(geo, L, d0, d1);
         g.restore();
-        const de = (f.t1 - t) / look; if (de <= 1 && de >= -0.1){ const s = sAt(geo, de); g.lineWidth = Math.max(3, 7 * s); g.strokeStyle = rgba(SC_FILL_COL, 0.95); g.beginPath(); g.moveTo(xAt(geo, 0.05, s), yAt(geo, s)); g.lineTo(xAt(geo, L - 0.05, s), yAt(geo, s)); g.stroke(); }
       } else if (f.on === null || !f.on){
         g.setLineDash([4, 5]); g.lineWidth = 1.2; g.strokeStyle = rgba(COL.ink, 0.22); hwQuad(geo, 0.06, L - 0.06, d0, d1); g.stroke(); g.setLineDash([]);
       }
@@ -8607,7 +8732,7 @@ function scHighway(S, x, geo, now){
     for (let i = x.drawFrom; i < N.length; i++){ const n = N[i]; if (n.t - t > look) break; vis.push(n); }
     if (drums){
       for (let k = vis.length - 1; k >= 0; k--){
-        const n = vis[k]; if (n.state === 'hit' || n.state === 'fillhit' || !n.kick) continue;
+        const n = vis[k]; if (n.state === 'hit' || n.state === 'fillhit' || n.state === 'fillend' || !n.kick) continue;
         const d = (n.t - t) / look; if (d > 1 || d < -0.3) continue;
         const s = sAt(geo, d), y = yAt(geo, s), a = (d > 0.82 ? (1 - d) / 0.18 : 1) * (n.state === 'miss' ? 0.35 : 1), od = n.od >= 0 && ch.phrases[n.od] && ch.phrases[n.od].live;
         g.globalAlpha = clamp(a, 0, 1);
@@ -8615,7 +8740,7 @@ function scHighway(S, x, geo, now){
         g.globalAlpha = 1;
       }
       for (let k = vis.length - 1; k >= 0; k--){
-        const n = vis[k]; if (n.state === 'hit' || n.state === 'fillhit' || n.kick) continue;
+        const n = vis[k]; if (n.state === 'hit' || n.state === 'fillhit' || n.state === 'fillend' || n.kick) continue;
         const d = (n.t - t) / look; if (d > 1 || d < -0.3) continue;
         if (n.cym && !x.noCym){
           const s = sAt(geo, d), y = yAt(geo, s), a = (d > 0.82 ? (1 - d) / 0.18 : 1) * (n.state === 'miss' ? 0.35 : 1), od = n.od >= 0 && ch.phrases[n.od] && ch.phrases[n.od].live;
@@ -8650,6 +8775,11 @@ function scHighway(S, x, geo, now){
 }
 /* A band on one screen (local band, showcase): the vocal track on top, the highways side by side under it, the band's
    score and stars over everything, one health meter in the top bar, and the unison banner over the highways. */
+// a player's number in their colour, over the far end of their highway
+function lpBadgeAt(g, n, x, y, fs){
+  const t = 'P' + n; g.save(); g.font = `900 ${fs}px ${FONT_D}`; const w = g.measureText(t).width + fs * 0.9, h = fs * 1.45;
+  rrect(g, x, y - h, w, h, h * 0.32); g.fillStyle = lpCol(n); g.fill(); g.fillStyle = '#110e22'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(t, x + w / 2, y - h / 2 + 1); g.restore();
+}
 function bandStageDraw(B, insts, V, st, now, o){
   const g = g2, left = insets.l + 10, right = W - insets.r - 10, aw = right - left, n = insts.length;
   const top = insets.t + 56, vy = top + 54;
@@ -8664,9 +8794,10 @@ function bandStageDraw(B, insts, V, st, now, o){
   const gap = Math.max(8, aw * 0.012), slot = n ? Math.min((aw - gap * (n - 1)) / n, hwMaxW() * sBot) : 0, hw = slot / sBot, x0 = left + (aw - (slot * n + gap * (n - 1))) / 2 + (slot - hw) / 2;
   const S = { beats:B.beats };
   insts.forEach((x, i) => {
-    const drums = x.key === 'drums', geo = x.geo || (x.geo = {});
-    Object.assign(geo, scGeo(x0 + i * (slot + gap), hw, topY, hitY, drums ? 4 : 5, drums ? SC_DRUM_COL : RB_COLORS, ts));
+    const drums = x.key === 'drums', pad = x.kind === 'pad', geo = x.geo || (x.geo = {});
+    Object.assign(geo, scGeo(x0 + i * (slot + gap), hw, topY, hitY, drums || pad ? 4 : 5, drums ? SC_DRUM_COL : pad ? paletteFor(x.ch) : RB_COLORS, ts));
     scHighway(S, x, geo, now);
+    if (x.n) lpBadgeAt(g, x.n, xAt(geo, 0, geo.topScale), yAt(geo, geo.topScale) - 6, Math.max(12, Math.min(16, hw * 0.05)));
   });
   for (const p of sparks){ if (p.shape !== 'dot') continue; g.fillStyle = rgba(p.col, clamp(p.life * 2.2, 0, 1)); g.beginPath(); g.arc(p.x, p.y, 2.2, 0, Math.PI * 2); g.fill(); }
   drawSparks(g);
@@ -8674,7 +8805,7 @@ function bandStageDraw(B, insts, V, st, now, o){
   if (B.uniB && n) drawUniBanner(g, W / 2, yAt(insts[0].geo, insts[0].geo.topScale) + 4, B.uniB, now, Math.min(aw * 0.5, 320));
   // the band's score and stars
   let a = 0, w = 0, band = 0;
-  insts.forEach(x => { band += x.score; const base = x.ch.kind === 'five' ? x.ch.baseScore : x.ch.notes.length * (x.pro || x.ch.pro ? 30 : 25); if (base > 0){ a += starOf(x.score - (x.bonus || 0), base, x.ch.fcm, x.ch.fco) * base; w += base; } });
+  insts.forEach(x => { band += x.score; const base = x.ch.kind === 'five' ? x.ch.baseScore : x.ch.kind === 'pad' ? x.ch.potential : x.ch.notes.length * (x.pro || x.ch.pro ? 30 : 25); if (base > 0){ a += starOf(x.score - (x.bonus || 0), base, x.ch.fcm, x.ch.fco) * base; w += base; } });
   if (V){ band += V.score; if (V.base){ a += voxStarRatio(V.score / V.base) * V.base; w += V.base; } }
   scorePanel({}, Math.round(band), w ? a / w : 0, now, B.sp || (B.sp = newSP()), { place:{ fs:28, R:9, x:W / 2, align:'center', yScore:top + 22, yStars:top + 38, w:260 } });
   let sec = null; for (const s of (o.E || B.E).sections){ if (s.t <= st + 0.05) sec = s; else break; }
@@ -8751,7 +8882,7 @@ function lbDrumPoll(P, pad, ts){
   const map = store.get('lbKit:' + pad.id, null) || (pad.mapping === 'standard' ? LB_PADSTD : null);
   const rest = P.rest || (P.rest = pad.axes.slice());
   const cur = lbSig(pad, rest), prev = P.prevSig || new Set(); P.prevSig = cur;
-  const start = !!(pad.buttons[9] && pad.buttons[9].pressed); if (start && !P.prevStart) lbPauseToggle(); P.prevStart = start;
+  const start = !!(pad.buttons[9] && pad.buttons[9].pressed); if (start && !P.prevStart) lbPauseToggle(P); P.prevStart = start;
   if (!map || RBE.mode !== 'play') return;
   const hit = new Set();
   for (const e of cur){
@@ -8797,6 +8928,7 @@ async function lbOpen(song, midi){
     ['guitar', 'bass', 'keys'].forEach(p => { av[p] = Object.keys(RB_DIFF_LABEL).filter(d => rbChart(midi, p, d, song.hopo)); });
     av.drums = Object.keys(RB_DIFF_LABEL).filter(d => scDrumChart(midi, d));
     av.vox = voxPartsOf(midi);
+    av.gamepad = rbPadSource(midi) ? Object.keys(RB_DIFF_LABEL) : [];
     LBX.avail = av;
     rbView('lbsetup');
   } catch (e){ console.warn(e); rbView('load', `I couldn’t read the chart in “${song.name}”.`); }
@@ -8806,6 +8938,7 @@ const lbInputs = () => {
   return [['off', 'Nobody'], ['kbd', 'Keyboard']].concat(pads);
 };
 function lbSetupHTML(msg){
+  if (lpReady().length) return lbPlayersHTML(msg);
   const s = LBX.song, av = LBX.avail, ins = lbInputs(), used = {};
   LB_INST.forEach(([k]) => { const v = LBS.slots[k].in; if (v !== 'off' && av[k] && av[k].length) used[v] = (used[v] || 0) + 1; });
   const clash = Object.keys(used).filter(k => used[k] > 1);
@@ -8838,10 +8971,37 @@ function lbSetupHTML(msg){
     <div class="row"><button type="button" class="btn primary" id="lbGo" ${clash.length ? 'disabled' : ''}>Play</button><button type="button" class="btn" id="lbBack">Songs</button></div>
     <p class="fine">Keyboard: guitar, bass or keys use 1–5 (or A S D F G) and Enter to strum, Space for Overdrive. Drums use Space or B for the kick, F J K L for the pads and U I O for cymbals. Escape or a controller’s Start pauses. Drummers deploy Overdrive at the end of a fill, as in Rock Band.</p>`;
 }
+// The band's setup with players: one row each, in their colour, with what they play here and how hard.
+function lbPlayersHTML(msg){
+  const s = LBX.song, av = LBX.avail, R = lpReady(), opt = (val, label, sel) => `<option value="${rbEsc(val)}" ${val === sel ? 'selected' : ''}>${rbEsc(label)}</option>`;
+  const V = R.filter(p => p.inst === 'vocals'), hasV = av.vox.length > 0, hasH = av.vox.includes('harmonies');
+  const rows = R.map(P => {
+    const k = P.inst === 'vocals' ? 'vox' : P.inst, diffs = k === 'vox' ? (hasV ? Object.keys(RB_DIFF_LABEL) : []) : av[k] || [];
+    const head = `<button type="button" class="lp-row lp-mini" data-lpn="${P.n}" style="--pc:${lpCol(P.n)}" aria-label="Change P${P.n}"><span class="lp-badge">P${P.n}</span><span><b>${LP_LABEL[P.inst]}</b><small>${rbEsc(lpDevLabel(P.dev))}</small></span></button>`;
+    if (!diffs.length) return `<div class="lb-row lp off" style="--pc:${lpCol(P.n)}">${head}<span class="fine">Not in this song, so P${P.n} sits this one out</span></div>`;
+    if (!diffs.includes(P.diff)) P.diff = diffs[diffs.length - 1];
+    const extra = P.inst === 'drums' ? `<span class="lb-x"><select data-lpkit="${P.n}" aria-label="P${P.n} plays on"><option value="" ${P.kit === 'midi' ? '' : 'selected'}>On ${rbEsc(P.dev === 'kbd' ? 'the keyboard' : 'their controller')}</option><option value="midi" ${P.kit === 'midi' ? 'selected' : ''}>On a MIDI drum kit</option></select><label><input type="checkbox" data-lpx2="${P.n}" ${P.x2 ? 'checked' : ''}> 2x kick</label><button type="button" class="btn small" id="lbKit">Set up the kit</button></span>` : '';
+    return `<div class="lb-row lp" style="--pc:${lpCol(P.n)}">${head}<span class="lb-lit" data-lit="${rbEsc(P.dev)}"></span><select data-lpd="${P.n}" aria-label="P${P.n} difficulty">${diffs.map(d => opt(d, RB_DIFF_LABEL[d], P.diff)).join('')}</select>${extra}</div>`;
+  }).join('');
+  const mics = V.length && hasV ? `${V.length === 1 && hasH ? `<span class="lb-x"><label><input type="checkbox" data-lbharm ${LBS.vox.harm ? 'checked' : ''}> Sing the harmony parts</label></span>` : ''}${voxMicsHTML(V.length > 1 || (LBS.vox.harm && hasH), Math.min(3, V.length), false, false)}` : '';
+  const midiSel = LBS.slots.drums.in === 'midi';
+  return `<p class="eyebrow">${R.length === 1 ? 'One player' : `A band of ${R.length}`} · ${rbEsc(s.artist)}</p><h2 class="card-title">${rbEsc(s.name)}</h2>
+    ${msg ? `<p class="${/saved/i.test(msg) ? 'rb-ok' : 'rb-err'}" role="alert">${rbEsc(msg)}</p>` : ''}
+    <div class="lb-rows">${rows}</div>${mics}
+    ${midiSel ? `<p class="${LBX.midiErr ? 'rb-err' : 'fine'}">${rbEsc(LBX.midiErr || '')}</p>` : ''}
+    <label class="rb-tog"><input type="checkbox" id="lbNoFail" ${LBS.noFail ? 'checked' : ''}> <span>No Fail</span></label>
+    <div class="row"><button type="button" class="btn primary" id="lbGo">Play</button><button type="button" class="btn" id="lbBack">Songs</button></div>
+    <p class="fine">Press Start (or Enter) to join; pick a player to change their part. In the song, a player’s Start pauses and opens their own note speed, visual offset and drop-out. Keyboard: guitar, bass or keys use 1–5 (or A S D F G) and Enter to strum; Gamepad uses ${(KEYS[4] || []).map(x => x.toUpperCase()).join(' ')}; drums use Space or B for the kick, F J K L for the pads and U I O for cymbals; Space deploys Overdrive.</p>`;
+}
 function lbViews(view, msg){
   if (view === 'lbsetup'){
     if (!LBX.song){ rbView('load'); return true; }
+    if (lpReady().length) lpToLBS();
     rbBody.innerHTML = lbSetupHTML(msg);
+    rbBody.querySelectorAll('[data-lpn]').forEach(b => b.addEventListener('click', () => { const P = LP.list.find(x => x.n === +b.dataset.lpn); if (P) lpOpenPick(P); }));
+    rbBody.querySelectorAll('[data-lpd]').forEach(el => el.addEventListener('change', () => { const P = LP.list.find(x => x.n === +el.dataset.lpd); if (P){ P.diff = el.value; lpSave(P); lpToLBS(); lbSave(); } }));
+    rbBody.querySelectorAll('[data-lpkit]').forEach(el => el.addEventListener('change', () => { const P = LP.list.find(x => x.n === +el.dataset.lpkit); if (P){ P.kit = el.value || null; lpSave(P); lpToLBS(); lbSave(); rbView('lbsetup'); } }));
+    rbBody.querySelectorAll('[data-lpx2]').forEach(el => el.addEventListener('change', () => { const P = LP.list.find(x => x.n === +el.dataset.lpx2); if (P){ P.x2 = el.checked; lpSave(P); lpToLBS(); } }));
     const re = () => { lbSave(); rbView('lbsetup'); };
     rbBody.querySelectorAll('[data-lbin]').forEach(el => el.addEventListener('change', () => { LBS.slots[el.dataset.lbin].in = el.value; re(); }));
     rbBody.querySelectorAll('[data-lbd]').forEach(el => el.addEventListener('change', () => { LBS.slots[el.dataset.lbd].diff = el.value; lbSave(); }));
@@ -8851,7 +9011,7 @@ function lbViews(view, msg){
     const vd = rbBody.querySelector('[data-lbvd]'); if (vd) vd.addEventListener('change', () => { LBS.vox.diff = vd.value; lbSave(); });
     const hm = rbBody.querySelector('[data-lbharm]'); if (hm) hm.addEventListener('change', () => { LBS.vox.harm = hm.checked; re(); });
     if (LBS.vox.n) voxMicsWire('lbsetup');
-    const kit = $('#lbKit'); if (kit) kit.addEventListener('click', () => { uiTick(); const src = LBS.slots.drums.in; if (src === 'midi') lbMidiInit().then(ok => ok ? lbKitStart('midi', LBS.slots.drums.pro) : rbView('lbsetup', LBX.midiErr)); else lbKitStart(src, LBS.slots.drums.pro); });
+    const kit = $('#lbKit'); if (kit) kit.addEventListener('click', () => { uiTick(); if (lpReady().length) lpToLBS(); const src = LBS.slots.drums.in; if (src === 'midi') lbMidiInit().then(ok => ok ? lbKitStart('midi', LBS.slots.drums.pro) : rbView('lbsetup', LBX.midiErr)); else lbKitStart(src, LBS.slots.drums.pro); });
     $('#lbNoFail').addEventListener('change', e => { LBS.noFail = e.target.checked; lbSave(); });
     $('#lbGo').addEventListener('click', () => { uiTick(); ensureCtx(); lbPlay(); });
     $('#lbBack').addEventListener('click', () => { RBE.pickFor = 'lb'; RBLOC.tab = 'mine'; rbView('load'); });
@@ -8905,7 +9065,8 @@ function lbBuild(){
   const midi = LBX.midi, song = LBX.song, players = [], av = LBX.avail;
   LB_INST.forEach(([key, label]) => {
     const sl = LBS.slots[key]; if (sl.in === 'off' || !(av[key] || []).length) return;
-    const common = { key, label:`${label} · ${RB_DIFF_LABEL[sl.diff]}`, inp:sl.in, diff:sl.diff, flash:[0, 0, 0, 0, 0], kickAt:0, msg:null, geo:{}, showRock:!LBS.noFail, kmask:0, whIn:0, whMove:0, lastWh:0 };
+    const who = lpOf(sl.in) || (sl.in === 'midi' ? lpReady().find(p => p.inst === 'drums') : null);
+    const common = { key, n:who ? who.n : 0, speed:who ? who.speed : settings.speed, voff:who ? who.voff : 0, label:`${label} · ${RB_DIFF_LABEL[sl.diff]}`, inp:sl.in, diff:sl.diff, flash:[0, 0, 0, 0, 0], kickAt:0, msg:null, geo:{}, showRock:!LBS.noFail, kmask:0, whIn:0, whMove:0, lastWh:0 };
     if (key === 'drums'){
       const ch = scDrumChart(midi, sl.diff, sl.x2); if (!ch) return;
       if (sl.pro) scDiscoFlip(ch);
@@ -8920,6 +9081,11 @@ function lbBuild(){
       players.push(P);
     }
   });
+  if (LBS.pad && LBS.pad.in !== 'off' && (av.gamepad || []).length){
+    const who = lpOf(LBS.pad.in), d = LBS.pad.diff;
+    const P = lbPadPlayer({ n:who ? who.n : 0, speed:who ? who.speed : settings.speed, voff:who ? who.voff : 0, label:`Gamepad · ${RB_DIFF_LABEL[d]}`, inp:LBS.pad.in, diff:d, lbp:true, kickAt:0, msg:null, geo:{}, showRock:!LBS.noFail }, midi, song, d);
+    if (P) players.push(P);
+  }
   const groups = scUnisons(players);
   let vox = null;
   if (LBS.vox.n > 0 && av.vox.length){
@@ -8929,7 +9095,7 @@ function lbBuild(){
   }
   let endTick = 0; midi.tracks.forEach(t => t.notes.forEach(n => { if (n.tick + n.len > endTick) endTick = n.tick + n.len; }));
   const toSec = midiTiming(midi), E = scEvents(midi, toSec), beats = midiBeats(midi, toSec, endTick + midi.div * 4);
-  const ends = players.map(P => { const c = P.ch.chords[P.ch.chords.length - 1]; return c ? c.end || c.t : 0; }).concat(vox ? [vox.ch.end - 1.5] : []);
+  const ends = players.map(P => { const c = P.ch.kind === 'pad' ? P.ch.notes[P.ch.notes.length - 1] : P.ch.chords[P.ch.chords.length - 1]; return c ? c.end || c.t : 0; }).concat(vox ? [vox.ch.end - 1.5] : []);
   return { players, vox, groups, beats, E, end:Math.max(E.end || 0, ...ends, 1) + 1, uniMsg:null, uniB:null, health:0.6, prev:null, sp:newSP() };
 }
 // An Overdrive phrase is done: when every player in a unison has finished theirs, each gets an extra bar.
@@ -8951,6 +9117,11 @@ function lbDrumOD(P){
   P.msg = { text:'OVERDRIVE', at:performance.now() };
   if (typeof ripSound === 'function') ripSound('shock');
 }
+function lbOverhit(P, lane, now){
+  P.over = (P.over || 0) + 1; P.combo = 0; P.rock -= 0.035;
+  P.msg = null;
+  if (lane >= 0) lbWith(P, () => missFx(lane));
+}
 const lbDrumMult = P => Math.min(4, 1 + Math.floor(P.combo / 10)) * odStack(P.odActive, 2, P.bandOd);
 function lbDrumHit(P, key, perf){
   if (!RBE.lb || RBE.mode !== 'play') return;
@@ -8959,12 +9130,14 @@ function lbDrumHit(P, key, perf){
   // The Big Rock Ending: every hit adds to it, and it pays when its line goes by.
   if (ch.bre && t >= ch.bre.t0 - W && t <= ch.bre.t1 + 0.1){ ch.bre.pts = (ch.bre.pts || 0) + 25 * Math.min(4, 1 + Math.floor(P.combo / 10)); if (lane >= 0) burst(lane, 'perfect', P.geo, now, false, P.odActive); return; }
   // In a roll or swell lane, keep hitting at any speed.
-  if (lane >= 0 && ch.rolls){ const r = ch.rolls.find(r => (r.mask & (1 << lane)) && t >= r.t0 - W && t <= r.t1 + 0.05); if (r){ P.rollAt = P.rollAt || []; P.rollAt[lane] = t; } }
-  // An open fill is freestyle (its notes still show, and light up as you play them); a hit right at its end is the one that deploys Overdrive.
-  const f = ch.fills.find(f => f.on && !f.fired && t >= f.t0 - W && t <= f.t1 + 0.15);
+  let inRoll = false;
+  if (lane >= 0 && ch.rolls){ const r = ch.rolls.find(r => (r.mask & (1 << lane)) && t >= r.t0 - W && t <= r.t1 + 0.05); if (r){ P.rollAt = P.rollAt || []; P.rollAt[lane] = t; inRoll = true; } }
+  // An open fill is freestyle (its notes still show, and light up as you play them). It ends on one green note, the
+  // tom or the cymbal: that hit deploys Overdrive. Missing it just means no Overdrive this time; the streak is safe.
+  const f = ch.fills.find(f => f.on && !f.fired && t >= f.t0 - W && t <= f.t1 + W * 1.5);
   if (f){
+    if (lane === 3 && Math.abs(t - f.t1) <= W * 1.5){ f.fired = true; f.actHit = now; burst(3, 'perfect', P.geo, now, false, true); lbDrumOD(P); return; }
     const fn = ch.notes.find(n => n.state === 'fill' && Math.abs(n.t - t) <= W && (lane < 0 ? n.kick : !n.kick && n.lane === lane)); if (fn) fn.state = 'fillhit';
-    if (t >= f.t1 - 0.15){ f.fired = true; lbDrumOD(P); }
     return;
   }
   let best = null, bd = W + 1e-9;
@@ -8974,7 +9147,14 @@ function lbDrumHit(P, key, perf){
     const ok = lane < 0 ? n.kick : !n.kick && n.lane === lane && (!P.pro || !!n.cym === cym);
     if (ok && d < bd){ bd = d; best = n; }
   }
-  if (!best) return;          // extra hits cost nothing on drums
+  // A hit with nothing to hit is an overhit, as in Rock Band: the streak breaks and it costs health. Not in a roll, not a
+  // kit's double trigger right after a hit on the same pad, and not before the first note.
+  if (!best){
+    const k = lane + 1, last = (P.lastHitT || [])[k];
+    if (!inRoll && !(last != null && t - last < 0.06) && ch.notes.length && t > ch.notes[0].t - 1) lbOverhit(P, lane, now);
+    return;
+  }
+  (P.lastHitT || (P.lastHitT = []))[lane + 1] = t;
   lbDrumCredit(P, best, bd, lane, now);
 }
 function lbDrumCredit(P, best, bd, lane, now){
@@ -8995,9 +9175,9 @@ function lbStepDrums(P, st, dt, now){
   for (const f of ch.fills){
     if (f.on === null && st >= f.t0 - 2){
       f.on = P.od >= 0.5 && !P.odActive && P.readyAt <= f.t0 - 1 && f.t0 < RBE.lb.E.coda;
-      if (f.on) ch.notes.forEach(n => { if (n.t >= f.t0 - 1e-3 && n.t <= f.t1 + 0.02 && !n.state){ n.state = 'fill'; if (n.chord){ n.chord.left--; } } });
+      if (f.on) ch.notes.forEach(n => { if (n.t >= f.t0 - 1e-3 && n.t <= f.t1 + 0.02 && !n.state){ n.state = Math.abs(n.t - f.t1) <= 0.03 ? 'fillend' : 'fill'; if (n.chord){ n.chord.left--; } } });
     }
-    if (f.on && !f.fired && st > f.t1 + 0.2) f.fired = true;
+    if (f.on && !f.fired && st > f.t1 + W * 1.5 + 0.02) f.fired = true;
   }
   while (P.scan < ch.notes.length && ch.notes[P.scan].t < st - W){
     const n = ch.notes[P.scan++]; if (n.state) continue;
@@ -9033,7 +9213,7 @@ function lbStep5(P, st, dt, now){
     RBE.solos.forEach(so => { if (!so.done && st > so.t1 + 0.1){ so.done = true; const pct = so.hit / so.count, b = so.hit * 100 * (pct >= 1 ? 2 : 1); RBE.score += b; RBE.bonus = (RBE.bonus || 0) + b; RBE.msg = { text:pct >= 1 ? 'PERFECT SOLO' : 'SOLO', sub:`${Math.round(pct * 100)}% · +${fmtNum(b)}`, at:performance.now() }; } });
   });
 }
-function lbPauseToggle(){ if (RBE.mode === 'play') rbPause(); else if (RBE.mode === 'pause') rbResume(); }
+function lbPauseToggle(P){ if (RBE.mode === 'play'){ RBE.pauseBy = P || null; rbPause(); } else if (RBE.mode === 'pause'){ if (P && RBE.pauseBy !== P){ RBE.pauseBy = P; lpPauseFill(); } else rbResume(); } }
 function lbPoll(){
   const LB = RBE.lb, pads = rbPadList(), now = performance.now();
   LB.players.forEach(P => {
@@ -9041,9 +9221,10 @@ function lbPoll(){
     const pad = pads.find(p => p.index === +P.inp.slice(4)); if (!pad) return;
     const ts = pad.timestamp > now - 40 && pad.timestamp <= now + 1 ? pad.timestamp : now;
     if (P.kind === 'drums'){ lbDrumPoll(P, pad, ts); return; }
+    if (P.kind === 'pad'){ lbPadPoll(P, pad, ts); return; }
     const st = rbReadPad(pad) || { mask:0, up:false, down:false, od:false, pause:false, wh:0 }, p = P.prevIn || { mask:0, up:false, down:false, od:false, pause:false, wh:0 };
     P.prevIn = st;
-    if (st.pause && !p.pause){ lbPauseToggle(); return; }
+    if (st.pause && !p.pause){ lbPauseToggle(P); return; }
     if (RBE.mode !== 'play') return;
     lbWith(P, () => {
       if (st.mask !== p.mask) rbFrets(st.mask | P.kmask, ts);
@@ -9057,6 +9238,12 @@ function lbPoll(){
 function lbKey(e, down){
   const k = (e.key || '').toLowerCase(), P = RBE.lb.players.find(x => x.inp === 'kbd');
   if (!P) return;
+  if (P.kind === 'pad'){
+    const l = (KEYS[4] || ['d', 'f', 'j', 'k']).indexOf(k);
+    if (l >= 0){ e.preventDefault(); if (down) lbPadPress(P, l, evPerf(e)); else lbPadRelease(P, l, evPerf(e)); }
+    else if (down && (k === ' ' || k === 'shift')){ e.preventDefault(); lbPadOD(P); }
+    return;
+  }
   if (P.kind === 'five'){
     if (k in RB_KEYS){ e.preventDefault(); const bit = 1 << RB_KEYS[k]; P.kmask = down ? P.kmask | bit : P.kmask & ~bit; lbWith(P, () => rbFrets(P.kmask, evPerf(e))); }
     else if (down && (k === 'arrowup' || k === 'arrowdown' || k === 'enter')){ e.preventDefault(); lbWith(P, () => rbStrum(evPerf(e))); }
@@ -9070,7 +9257,7 @@ function lbKey(e, down){
 /* playing */
 async function lbPlay(){
   const song = LBX.song; if (!song) return;
-  ensureCtx();
+  ensureCtx(); songStartFx(); if (lpReady().length) lpToLBS();
   const sing = LBS.vox.n > 0 && LBX.avail.vox.length > 0;
   if (sing && !VOXM.live.length){ rbView('loading', 'Turning on the microphones'); if (!(await voxMicsOn())){ rbView('lbsetup', VOXM.err); return; } }
   const part = sing ? 'vocals' : 'showcase', key = song.key + ':' + part;
@@ -9105,7 +9292,7 @@ function lbUpdate(dt, now){
   if (RBE.vt == null || Math.abs(aud - RBE.vt) > 0.1) RBE.vt = aud;
   else { RBE.vt += dt; RBE.vt += (aud - RBE.vt) * Math.min(1, dt * 4); }
   const st = RBE.vt; RBE.st = st;
-  LB.players.forEach(P => { P.t0 = RBE.t0; if (P.kind === 'five') lbStep5(P, st, dt, now); else lbStepDrums(P, st, dt, now); P.streak = P.combo; });
+  LB.players.forEach(P => { P.t0 = RBE.t0; if (P.kind === 'five') lbStep5(P, st, dt, now); else if (P.kind === 'pad') lbStepPad(P, st, dt, now); else lbStepDrums(P, st, dt, now); P.streak = P.combo; });
   if (LB.vox) voxTick(LB.vox, st, dt, now);
   // Overdrive stacks: every player in Overdrive adds 2x for the whole band.
   const inOd = LB.players.filter(P => P.odActive).length + (LB.vox && LB.vox.odActive ? 1 : 0);
@@ -9134,12 +9321,12 @@ function lbFinish(failed){
   const rows = [];
   let total = 0;
   if (LB.vox){ const V = LB.vox, S = V.stats; total += V.score; rows.push({ label:`${V.label} · ${RB_DIFF_LABEL[LBS.vox.diff]}`, text:`${fmtNum(Math.round(V.score))} · ${S.awesome + S.dbl + S.tri} of ${S.scored} phrases · ${V.odUsed} OD` }); }
-  LB.players.forEach(P => { total += P.score; rows.push({ label:P.label, text:`${fmtNum(Math.round(P.score))} · ${Math.round(P.hits / Math.max(1, P.total) * 100)}% · best streak ${P.best} · ${P.odUsed} OD` }); });
+  LB.players.forEach(P => { total += P.score; rows.push({ label:(P.n ? `P${P.n} · ` : '') + P.label, text:`${fmtNum(Math.round(P.score))} · ${Math.round(P.hits / Math.max(1, P.total) * 100)}% · best streak ${P.best} · ${P.odUsed} OD${P.over ? ` · ${P.over} overhit${P.over > 1 ? 's' : ''}` : ''}` }); });
   const paid = LB.groups.filter(g => g.paid).length;
   if (LB.groups.length) rows.push({ label:'Unison bonuses', text:`${paid} of ${LB.groups.length}` });
   // the band's stars: everyone's star ratio, weighted by how much their part is worth
   let a = 0, w = 0;
-  LB.players.forEach(P => { const base = P.kind === 'five' ? P.ch.baseScore : P.ch.notes.length * (P.pro ? 30 : 25); if (base > 0){ a += starOf(P.score - (P.bonus || 0), base, P.ch.fcm, P.ch.fco) * base; w += base; } });
+  LB.players.forEach(P => { const base = P.kind === 'five' ? P.ch.baseScore : P.kind === 'pad' ? P.ch.potential : P.ch.notes.length * (P.pro ? 30 : 25); if (base > 0){ a += starOf(P.score - (P.bonus || 0), base, P.ch.fcm, P.ch.fco) * base; w += base; } });
   if (LB.vox){ a += voxStarRatio(LB.vox.score / LB.vox.base) * LB.vox.base; w += LB.vox.base; }
   const ratio = w ? a / w : 0;
   RBE.lbResult = { failed:!!failed, score:Math.round(total), rows, ratio, stars:failed ? 0 : starCount(ratio) };
@@ -9150,6 +9337,290 @@ function lbQuit(){ rbStopAudio(); lbEnd(); rbOpen('lbsetup'); }
 function lbDraw(now){
   const LB = RBE.lb, g = g2, st = RBE.st;
   bandStageDraw(LB, LB.players, LB.vox, st, now, { health:LB.health, noFail:LBS.noFail, end:LB.end, E:LB.E });
+}
+
+/* ---------- Players on this computer ---------- */
+// Everyone at this computer is a numbered player in Stagelight's colours. Press Start on a controller (or Enter on the
+// keyboard) to join, then pick what you're playing and how hard, on that same controller. Nobody joined plays solo the
+// classic way; one player plays solo as that player; two or more play together as a band, each on their own highway.
+// Start during a song pauses it and opens that player's own options: note speed, visual offset and dropping out.
+// Online bands are unchanged: they still use a band code.
+const LP_INST = [['guitar', 'Guitar', 'Five frets and a strum bar'], ['bass', 'Bass', 'Five frets and a strum bar'], ['keys', 'Keys', 'Five lanes'], ['drums', 'Drums', 'A kit, a controller or the keyboard'], ['gamepad', 'Gamepad', 'Four lanes on any controller'], ['vocals', 'Vocals', 'A microphone']];
+const LP_LABEL = Object.fromEntries(LP_INST.map(x => [x[0], x[1]]));
+const LP_DIFFS = ['easy', 'medium', 'hard', 'expert'];
+const lpCol = n => [COL.rose, COL.teal, COL.amber, COL.iris, COL.orange, COL.tungsten, '#5fd38d', '#ff8fd0'][(n - 1) % 8];
+const LP = { list:[], pick:null, queue:[], prefs:store.get('lpPrefs', {}) || {} };
+const lpOf = dev => LP.list.find(p => p.dev === dev);
+const lpReady = () => LP.list.filter(p => !p.pending && p.inst);
+const lpPad = dev => dev && dev.startsWith('pad:') ? rbPadList().find(x => x.index === +dev.slice(4)) : null;
+function lpDevLabel(dev){
+  if (dev === 'kbd') return 'Keyboard';
+  const p = lpPad(dev); if (!p) return `Controller ${+dev.slice(4) + 1} (not connected)`;
+  const name = (p.id || '').replace(/\s*\(.*$/, '').replace(/\s+/g, ' ').trim().slice(0, 28);
+  return `Controller ${p.index + 1}${name ? ' · ' + name : ''}`;
+}
+function lpDevKey(dev){ const p = lpPad(dev); return dev === 'kbd' ? 'kbd' : p ? 'pad:' + (p.id || '').slice(0, 80) : dev; }
+function lpSave(P){ LP.prefs[lpDevKey(P.dev)] = { inst:P.inst, diff:P.diff, pro:P.pro, x2:P.x2, kit:P.kit || null, speed:P.speed, voff:P.voff }; store.set('lpPrefs', LP.prefs); }
+// One player for each instrument, but up to three singers.
+function lpTaken(inst, me){
+  const others = LP.list.filter(p => p !== me && p.inst === inst && !p.pending);
+  return inst === 'vocals' ? (others.length >= 3 ? others[0] : null) : others[0] || null;
+}
+// Who's playing decides how: one player plays solo (a drummer on the band screen), two or more as a band.
+const lpBand = () => { const r = lpReady(); return r.length > 1 || (r.length === 1 && r[0].inst === 'drums'); };
+function lpCanJoin(){ return !rbEl.hidden && !RBE.on && RBE.pickFor !== 'show' && ['load', 'setup', 'lbsetup'].includes(RBE.view) && !LBX.kit && !RBI.wiz && !RBE.band; }
+
+/* joining, and the picker each player drives from their own controller */
+function lpJoin(dev){
+  const had = lpOf(dev); if (had){ lpOpenPick(had); return; }
+  if (LP.list.length >= 8) return;
+  let n = 1; while (LP.list.some(p => p.n === n)) n++;
+  const pr = LP.prefs[lpDevKey(dev)] || {};
+  const P = { n, dev, inst:null, want:pr.inst, diff:pr.diff || 'expert', pro:pr.pro !== false, x2:!!pr.x2, kit:pr.kit || null, speed:pr.speed || settings.speed, voff:pr.voff || 0, pending:true };
+  LP.list.push(P); LP.list.sort((a, b) => a.n - b.n);
+  uiTick(); ensureCtx();
+  lpOpenPick(P);
+}
+function lpRemove(P){
+  LP.list = LP.list.filter(x => x !== P); LP.queue = LP.queue.filter(x => x !== P);
+  if (LP.pick && LP.pick.P === P){ LP.pick = null; lpPickEl().hidden = true; const nx = LP.queue.shift(); if (nx) return lpOpenPick(nx); }
+  lpRefresh();
+}
+function lpPickEl(){
+  let el = $('#lpPick');
+  if (!el){ el = document.createElement('div'); el.id = 'lpPick'; el.className = 'overlay'; el.hidden = true; el.innerHTML = '<div class="card lp-card" id="lpBody" role="dialog" aria-modal="true" aria-label="Player"></div>'; document.body.appendChild(el); }
+  return el;
+}
+function lpOpenPick(P){
+  if (LP.pick){ if (LP.pick.P !== P && !LP.queue.includes(P)) LP.queue.push(P); return; }
+  const k = P.inst || (P.want && !lpTaken(P.want, P) ? P.want : LP_INST.find(x => !lpTaken(x[0], P))[0]);
+  LP.pick = { P, step:'inst', idx:LP_INST.findIndex(x => x[0] === k) };
+  lpRenderPick();
+}
+function lpClosePick(){
+  LP.pick = null; lpPickEl().hidden = true;
+  const nx = LP.queue.shift(); if (nx && LP.list.includes(nx)) return lpOpenPick(nx);
+  lpRefresh();
+}
+function lpOptions(){
+  const { P, step } = LP.pick;
+  return step === 'inst' ? LP_INST.map(x => x[0]).concat(['leave']) : LP_DIFFS.concat(P.inst === 'drums' ? ['pro'] : [], ['back']);
+}
+function lpRenderPick(){
+  const el = lpPickEl(), body = $('#lpBody'), pk = LP.pick, { P, step } = pk, col = lpCol(P.n), opts = lpOptions();
+  pk.idx = clamp(pk.idx, 0, opts.length - 1);
+  const sel = k => opts[pk.idx] === k ? ' sel' : '';
+  let h = `<div class="lp-head"><span class="lp-badge">P${P.n}</span><div><p class="eyebrow">${rbEsc(lpDevLabel(P.dev))}</p><h2 class="card-title">${step === 'inst' ? 'What are you playing?' : `${LP_LABEL[P.inst]}: how hard?`}</h2></div></div>`;
+  if (step === 'inst'){
+    h += `<div class="lp-opts">${LP_INST.map(([k, label, sub]) => { const by = lpTaken(k, P); return `<button type="button" class="lp-opt${sel(k)}${by ? ' taken' : ''}" data-lpo="${k}"${by ? ' aria-disabled="true"' : ''}><canvas width="96" height="96" data-lpic="${k}" aria-hidden="true"></canvas><span><b>${label}</b><small>${by ? `P${by.n} has it` : sub}</small></span></button>`; }).join('')}</div>
+      <div class="row"><button type="button" class="btn${sel('leave')}" data-lpo="leave">${P.pending ? 'Cancel' : 'Drop out'}</button></div>`;
+  } else {
+    h += `<div class="seg lp-diffs" role="radiogroup" aria-label="Difficulty">${LP_DIFFS.map(d => `<button type="button" role="radio" class="${sel(d).trim()}" data-lpo="${d}" aria-checked="${P.diff === d}">${RB_DIFF_LABEL[d]}</button>`).join('')}</div>
+      ${P.inst === 'drums' ? `<button type="button" class="btn small lp-tog${sel('pro')}" data-lpo="pro" aria-pressed="${P.pro}">${P.pro ? '✓ ' : ''}Pro drums: yellow, blue and green cymbals</button>` : ''}
+      <div class="row"><button type="button" class="btn${sel('back')}" data-lpo="back">Back</button></div>`;
+  }
+  h += `<p class="fine">${P.dev === 'kbd' ? 'Arrow keys to choose, Enter to pick, Escape to go back.' : 'Up and down to choose, A (or green) to pick, B (or red) to go back.'} Only P${P.n}’s ${P.dev === 'kbd' ? 'keyboard' : 'controller'} drives this.</p>`;
+  body.innerHTML = h; body.style.setProperty('--pc', col); el.hidden = false;
+  body.querySelectorAll('[data-lpic]').forEach(c => { const g = c.getContext('2d'); g.clearRect(0, 0, 96, 96); instIcon(g, c.dataset.lpic, 48, 48, 42, col, opts[pk.idx] === c.dataset.lpic); });
+  body.querySelectorAll('[data-lpo]').forEach(b => b.addEventListener('click', () => { if (!LP.pick) return; LP.pick.idx = lpOptions().indexOf(b.dataset.lpo); lpPickAct('ok'); }));
+  const s = body.querySelector('.sel'); if (s) s.focus({ preventScroll:true });
+}
+function lpPickAct(a){
+  const pk = LP.pick; if (!pk) return;
+  const { P } = pk, opts = lpOptions(), k = opts[pk.idx];
+  if (a === 'up' || a === 'left' || a === 'down' || a === 'right'){
+    const cols = pk.step === 'inst' && innerWidth > 640 ? 3 : pk.step === 'inst' ? 2 : 1, nI = LP_INST.length;
+    let i = pk.idx;
+    if (pk.step === 'inst' && i < nI && (a === 'up' || a === 'down')){ i += a === 'down' ? cols : -cols; if (i >= nI) i = nI; else if (i < 0) i = nI; }
+    else if (pk.step === 'inst' && i === nI && (a === 'up' || a === 'down')) i = a === 'up' ? nI - 1 : 0;
+    else i = (i + (a === 'down' || a === 'right' ? 1 : -1) + opts.length) % opts.length;
+    pk.idx = i; uiTick(); lpRenderPick(); return;
+  }
+  if (a === 'back'){
+    if (pk.step === 'diff'){ pk.step = 'inst'; pk.idx = LP_INST.findIndex(x => x[0] === P.inst); lpRenderPick(); }
+    else if (P.pending) lpRemove(P); else lpClosePick();
+    return;
+  }
+  if (pk.step === 'inst'){
+    if (k === 'leave'){ lpRemove(P); return; }
+    if (lpTaken(k, P)) return;
+    P.inst = k; pk.step = 'diff'; pk.idx = Math.max(0, LP_DIFFS.indexOf(P.diff)); uiTick(); lpRenderPick(); return;
+  }
+  if (k === 'back'){ pk.step = 'inst'; pk.idx = LP_INST.findIndex(x => x[0] === P.inst); lpRenderPick(); return; }
+  if (k === 'pro'){ P.pro = !P.pro; lpRenderPick(); return; }
+  P.diff = k; P.pending = false; lpSave(P); uiTick(); lpClosePick();
+}
+// A controller's buttons, while the picker is open: only its owner moves it; anyone else's Start queues them up to join.
+function lpNavPad(index, hit){
+  const pk = LP.pick; if (!pk) return false;
+  if (pk.P.dev !== 'pad:' + index){ if (hit('start') && lpCanJoin()) lpJoin('pad:' + index); return true; }
+  for (const d of ['up', 'down', 'left', 'right']) if (hit(d)) lpPickAct(d);
+  if (hit('a') || hit('start')) lpPickAct('ok'); else if (hit('b') || hit('back')) lpPickAct('back');
+  return true;
+}
+// The keyboard: Enter joins it as a player; while it owns the picker, arrows, Enter and Escape drive it.
+function lpKeyFirst(e){
+  if (RBE.on) return false;
+  const k = (e.key || '').toLowerCase();
+  if (LP.pick){
+    if (LP.pick.P.dev !== 'kbd'){ if (k === 'enter' && !e.repeat && !lpOf('kbd') && lpCanJoin()){ e.preventDefault(); e.stopImmediatePropagation(); lpJoin('kbd'); return true; } if (k === 'escape'){ e.preventDefault(); e.stopImmediatePropagation(); return true; } return false; }
+    const map = { arrowup:'up', arrowdown:'down', arrowleft:'left', arrowright:'right', enter:'ok', ' ':'ok', escape:'back', backspace:'back' };
+    if (map[k]){ e.preventDefault(); e.stopImmediatePropagation(); if (!e.repeat || map[k] !== 'ok') lpPickAct(map[k]); return true; }
+    return false;
+  }
+  if (k === 'enter' && !e.repeat && !lpOf('kbd') && lpCanJoin()){
+    const a = document.activeElement;
+    if (a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)) return false;
+    e.preventDefault(); e.stopImmediatePropagation(); lpJoin('kbd'); return true;
+  }
+  return false;
+}
+// After players change: the song list shows them; a song's setup switches between solo and band to match.
+function lpRefresh(){
+  if (rbEl.hidden || RBE.on) return;
+  if (RBE.view === 'load') rbView('load', RBE.loadMsg);
+  else if (RBE.view === 'setup' || RBE.view === 'lbsetup') lpReroute();
+}
+async function lpReroute(){
+  const s = RBE.song; if (!s) return;
+  if (lpBand()){ lbOpen(s, RBE.midi); return; }
+  lpSoloApply();
+  if (await rbLoadSong(s)) rbView('setup'); else rbView('load');
+}
+// One player: solo, on their part, at their difficulty, from their controller, with their note speed and visual offset.
+function lpSoloApply(){
+  const r = lpReady(); if (r.length !== 1) return null;
+  const P = r[0];
+  RBE.part = P.inst === 'vocals' ? 'vocals' : P.inst; RBE.diff = P.diff;
+  if (P.dev.startsWith('pad:')) RBI.padIdx = +P.dev.slice(4);
+  settings.speed = P.speed; settings.voff = P.voff; saveSettings();
+  return P;
+}
+// and the other way: a change made in the solo setup or on the Start menu sticks to the player
+function lpSoloKeep(){
+  const r = lpReady(); if (r.length !== 1) return;
+  const P = r[0];
+  if (RBE.part && RBE.part !== P.inst && LP_LABEL[RBE.part === 'harmonies' ? 'vocals' : RBE.part]) P.inst = RBE.part === 'harmonies' ? 'vocals' : RBE.part;
+  if (RBE.diff) P.diff = RBE.diff;
+  P.speed = settings.speed; P.voff = settings.voff || 0; lpSave(P);
+}
+// local band slots from the players
+function lpToLBS(){
+  const R = lpReady();
+  LB_INST.forEach(([k]) => { const P = R.find(p => p.inst === k), sl = LBS.slots[k]; sl.in = P ? (k === 'drums' && P.kit === 'midi' ? 'midi' : P.dev) : 'off'; if (P){ sl.diff = P.diff; if (k === 'drums'){ sl.pro = P.pro; sl.x2 = P.x2; } } });
+  const V = R.filter(p => p.inst === 'vocals'); LBS.vox.n = Math.min(3, V.length); if (V.length){ LBS.vox.diff = V[0].diff; if (V.length > 1) LBS.vox.harm = true; }
+  const GP = R.find(p => p.inst === 'gamepad'); LBS.pad = GP ? { in:GP.dev, diff:GP.diff } : { in:'off', diff:'expert' };
+}
+
+/* the players in the song list's side column */
+function lpPanelHTML(){
+  const R = LP.list, ready = lpReady();
+  const rows = R.map(P => `<li><button type="button" class="lp-row" data-lpn="${P.n}" style="--pc:${lpCol(P.n)}"><span class="lp-badge">P${P.n}</span><span><b>${P.pending || !P.inst ? 'Choosing…' : `${LP_LABEL[P.inst]} · ${RB_DIFF_LABEL[P.diff]}`}</b><small>${rbEsc(lpDevLabel(P.dev))}</small></span></button></li>`).join('');
+  const how = !ready.length ? 'Nobody’s joined, so a song plays solo with any controller.' : ready.length === 1 ? (ready[0].inst === 'drums' ? 'One drummer.' : 'Playing solo.') : `Playing as a band of ${ready.length}.`;
+  return `<div class="lp-panel"><div class="lp-ph"><span class="label">Players</span><span class="fine">${how}</span></div>
+    ${rows ? `<ul class="lp-list">${rows}</ul>` : ''}
+    <p class="fine lp-hint">Press <b>Start</b> on a controller or <b>Enter</b> on the keyboard to join.</p>
+    ${lpOf('kbd') ? '' : '<button type="button" class="btn small" id="lpKbd">Join with the keyboard</button>'}</div>`;
+}
+function lpPanelWire(){
+  rbBody.querySelectorAll('[data-lpn]').forEach(b => b.addEventListener('click', () => { const P = LP.list.find(x => x.n === +b.dataset.lpn); if (P) lpOpenPick(P); }));
+  const kb = $('#lpKbd'); if (kb) kb.addEventListener('click', () => lpJoin('kbd'));
+}
+
+/* the Start menu: the player who paused gets their own note speed, visual offset and a way to drop out */
+function lpPauseFill(){
+  const el = $('#pPlayer'); if (!el) return;
+  const LB = RBE.on && RBE.lb, X = LB ? RBE.pauseBy || LB.players[0] || null : null, LPP = X ? lpOf(X.inp) : lpReady().length === 1 ? lpReady()[0] : null;
+  const sp = X ? X.speed || settings.speed : settings.speed, vo = X ? X.voff || 0 : settings.voff || 0;
+  const spRow = $('#pSpeed') && $('#pSpeed').closest('.p-row'); if (spRow) spRow.hidden = !!X;
+  el.hidden = false;
+  el.innerHTML = `${LPP ? `<div class="lp-head" style="--pc:${lpCol(LPP.n)}"><span class="lp-badge">P${LPP.n}</span><b>${rbEsc(X ? X.label : `${LP_LABEL[LPP.inst] || ''} · ${RB_DIFF_LABEL[LPP.diff] || ''}`)}</b></div>` : ''}
+    ${X ? `<div class="p-row"><span class="label">Note speed</span><span class="ctl"><button type="button" class="step" data-pp="sp-1" aria-label="Slower notes">−</button><span class="val">${sp}</span><button type="button" class="step" data-pp="sp1" aria-label="Faster notes">+</button></span></div>` : ''}
+    <div class="p-row"><span class="label">Visual offset</span><span class="ctl"><button type="button" class="step" data-pp="vo-5" aria-label="Notes reach the line 5 ms sooner">−</button><span class="val">${vo > 0 ? '+' : ''}${vo} ms</span><button type="button" class="step" data-pp="vo5" aria-label="Notes reach the line 5 ms later">+</button></span></div>
+    <p class="fine">Visual offset moves where the notes meet the strikeline without changing the timing: + draws them later, if you find yourself hitting ahead of them.</p>
+    ${X ? '<button type="button" class="btn small" data-pp="drop">Drop out of this song</button>' : ''}`;
+  el.querySelectorAll('[data-pp]').forEach(b => b.addEventListener('click', () => {
+    const v = b.dataset.pp;
+    if (v === 'drop'){ lbDropOut(X); return; }
+    if (v.startsWith('sp') && X){ X.speed = clamp((X.speed || settings.speed) + +v.slice(2), 1, 15); if (LPP){ LPP.speed = X.speed; lpSave(LPP); } }
+    if (v.startsWith('vo')){ const nv = clamp((X ? X.voff || 0 : settings.voff || 0) + +v.slice(2), -150, 150); if (X){ X.voff = nv; if (LPP){ LPP.voff = nv; lpSave(LPP); } } else { settings.voff = nv; saveSettings(); lpSoloKeep(); } }
+    lpPauseFill();
+  }));
+}
+function lpPauseClear(){ const el = $('#pPlayer'); if (el){ el.hidden = true; el.innerHTML = ''; } const spRow = $('#pSpeed') && $('#pSpeed').closest('.p-row'); if (spRow) spRow.hidden = false; }
+// Dropping out: that player's highway leaves and the band plays on (unisons no longer wait for them).
+function lbDropOut(X){
+  const LB = RBE.lb; if (!LB || !X) return;
+  LB.players = LB.players.filter(p => p !== X);
+  LB.groups.forEach(g => { g.members = g.members.filter(m => m[0] !== X); });
+  LB.groups = LB.groups.filter(g => g.members.length > 1);
+  LB.prev = null; RBE.pauseBy = null;
+  const L = lpOf(X.inp); if (L) LP.list = LP.list.filter(p => p !== L);
+  if (!LB.players.length && !LB.vox){ rbResume(); lbFinish(false); return; }
+  rbResume();
+}
+
+/* a Gamepad player in the band: the four-lane chart, on a controller's buttons or the keyboard */
+const LB_PAD_W = 0.1;
+function lbPadPlayer(common, midi, song, diff){
+  const src = rbPadSource(midi); if (!src) return null;
+  const ch = rbPadChart(midi, src, diff, song.hopo); if (!ch || !ch.notes.length) return null;
+  ch.kind = 'pad'; ch.notes.forEach(n => { n.state = null; n.holding = false; });
+  ch.phrases.forEach(p => { p.hit = 0; p.live = true; p.done = false; });
+  ch.solos.forEach(s => { s.hit = 0; s.done = false; });
+  return Object.assign(common, { key:'gamepad', kind:'pad', odHint:'SELECT OR SPACE TO DEPLOY', ch, scan:0, drawFrom:0, combo:0, best:0, hits:0, misses:0, over:0, score:0, od:0, odActive:false, odUsed:0, readyAt:Infinity, rock:0.5, cap:4, total:ch.notes.length, pressed:[0, 0, 0, 0], holds:[], flash:[0, 0, 0, 0] });
+}
+function lbPadPress(P, lane, perf){
+  if (!RBE.lb || RBE.mode !== 'play') return;
+  const t = rbTime(perf), N = P.ch.notes, now = performance.now();
+  P.pressed[lane] = 1; P.flash[lane] = now;
+  let best = null, bd = LB_PAD_W + 1e-9;
+  for (let i = P.scan; i < N.length; i++){ const n = N[i]; if (n.t - t > LB_PAD_W) break; if (n.state || n.lane !== lane || n.lift) continue; const d = Math.abs(n.t - t); if (d < bd){ bd = d; best = n; } }
+  if (best){ lbPadCredit(P, best, bd, now, t); return; }
+  // a press with nothing to hit is an overhit, unless it's getting ready for a lift, a bounce, or before the first note
+  let excuse = (P.lastHitT || [])[lane] != null && t - P.lastHitT[lane] < 0.06;
+  for (let i = P.scan; i < N.length && !excuse; i++){ const n = N[i]; if (n.t - t > 0.6) break; if (!n.state && n.lift && n.lane === lane) excuse = true; }
+  if (!excuse && N.length && t > N[0].t - 1) lbOverhit(P, lane, now);
+}
+function lbPadRelease(P, lane, perf){
+  if (!RBE.lb || RBE.mode !== 'play') return;
+  const t = rbTime(perf), N = P.ch.notes, now = performance.now();
+  P.pressed[lane] = 0;
+  const h = P.holds[lane]; if (h){ P.holds[lane] = null; h.holding = false; }
+  for (let i = P.scan; i < N.length; i++){ const n = N[i]; if (n.t - t > LB_PAD_W) break; if (n.state || !n.lift || n.lane !== lane) continue; if (Math.abs(n.t - t) <= LB_PAD_W){ lbPadCredit(P, n, Math.abs(n.t - t), now, t); return; } }
+}
+function lbPadCredit(P, n, bd, now, t){
+  const ch = P.ch;
+  n.state = 'hit'; P.hits++; P.combo++; P.best = Math.max(P.best, P.combo); (P.lastHitT || (P.lastHitT = []))[n.lane] = t;
+  P.score += 25 * lbDrumMult(P);
+  P.rock += P.odActive ? 0.03 : 0.018;
+  burst(n.lane, bd < 0.03 ? 'perfect' : bd < 0.06 ? 'great' : 'good', P.geo, now, false, P.odActive);
+  if (n.end - n.t > 0.25 && !n.lift){ P.holds[n.lane] = n; n.holding = true; n.last = Math.max(n.t, t); }
+  if (n.od >= 0){ const ph = ch.phrases[n.od]; if (ph && ph.live){ ph.hit++; if (ph.hit >= ph.count){ ph.live = false; ph.done = true; P.od = Math.min(1, P.od + 0.25); lbPhraseDone(P, ph); } } }
+  if (n.solo >= 0 && ch.solos[n.solo]) ch.solos[n.solo].hit++;
+}
+function lbPadOD(P){ if (P.odActive || P.od < 0.5 || RBE.mode !== 'play') return; P.odActive = true; P.odUsed++; P.msg = { text:'OVERDRIVE', at:performance.now() }; }
+function lbStepPad(P, st, dt, now){
+  const ch = P.ch, N = ch.notes, bps = rbBpsOf(RBE.lb.beats, st);
+  while (P.scan < N.length && N[P.scan].t < st - LB_PAD_W){
+    const n = N[P.scan++]; if (n.state) continue;
+    n.state = 'miss'; P.misses++; P.combo = 0; P.rock -= 0.055;
+    if (n.od >= 0 && ch.phrases[n.od]) ch.phrases[n.od].live = false;
+    lbWith(P, () => missFx(n.lane));
+  }
+  P.holds.forEach((n, l) => { if (!n) return; const e = Math.min(st, n.end); if (e > n.last){ P.score += 25 * (e - n.last) * bps * lbDrumMult(P); n.last = e; } if (st >= n.end){ n.holding = false; n.done = true; P.holds[l] = null; } });
+  for (const so of ch.solos){ if (!so.done && st > so.t1 + 0.1){ so.done = true; const pct = so.hit / Math.max(1, so.count), b = so.hit * 100 * (pct >= 1 ? 2 : 1); P.score += b; P.bonus = (P.bonus || 0) + b; P.msg = { text:pct >= 1 ? 'PERFECT SOLO' : 'SOLO', sub:`${Math.round(pct * 100)}% · +${fmtNum(b)}`, at:performance.now() }; } }
+  if (P.odActive){ P.od -= dt * bps / 32; if (P.od <= 0){ P.od = 0; P.odActive = false; } }
+}
+function lbPadPoll(P, pad, ts){
+  const on = i => !!(pad.buttons[i] && (pad.buttons[i].pressed || pad.buttons[i].value > 0.5));
+  const lanes = NAV_LANES[4].map(bs => bs.some(on)), od = [3, 8, 10, 11, 12].some(on), start = on(9);
+  const prev = P.prevIn || { lanes:[false, false, false, false], od:false, start:false };
+  P.prevIn = { lanes, od, start };
+  if (start && !prev.start){ lbPauseToggle(P); return; }
+  if (RBE.mode !== 'play') return;
+  lanes.forEach((v, l) => { if (v && !prev.lanes[l]) lbPadPress(P, l, ts); else if (!v && prev.lanes[l]) lbPadRelease(P, l, ts); });
+  if (od && !prev.od) lbPadOD(P);
 }
 
 /* ---------- online bands on the website copy ----------
@@ -10004,7 +10475,10 @@ function navTick(){
       else if (s.guitar ? hit('back') : (hit('back') || hit('ls') || hit('rsb'))) activateOD();
     } else if (!busy){
       NAV.lanes.delete(pad.index);
-      if (!calibEl.hidden && CAL.running){ if (hit('a')) calibTap(ts); else if (hit('b')) closeCalib(); }
+      // players on this computer: the picker belongs to whoever's choosing; anyone's Start joins
+      if (lpNavPad(pad.index, hit)){ /* the picker took it */ }
+      else if (hit('start') && lpCanJoin()) lpJoin('pad:' + pad.index);
+      else if (!calibEl.hidden && CAL.running){ if (hit('a')) calibTap(ts); else if (hit('b')) closeCalib(); }
       else if (!ripEl.hidden){ if (hit('a') && ripCtl) ripCtl.down(); else if (s.a !== P.a && !s.a && ripCtl) ripCtl.up(); if (hit('b')) ripSkip.click(); }
       else {
         const dirs = ['up', 'down', 'left', 'right'];
@@ -10396,7 +10870,8 @@ function drawSparks(g){
   g.globalCompositeOperation = 'source-over';
 }
 function renderScene(sc, now){
-  const g = g2, geo = sc.geo, L = geo.L, t = sc.t, look = sc.look;
+  // the visual offset draws the notes later (or sooner) against the strikeline without moving the timing
+  const g = g2, geo = sc.geo, L = geo.L, t = sc.t - (geo.menu ? 0 : (settings.voff || 0) / 1000), look = sc.look;
   const pulse = beatPulse(sc.beats, t), hs = skinOf('hw');
   drawBeams(geo, now, pulse, sc.odActive);
   const sTop = geo.topScale, yT = yAt(geo, sTop), yB = H + 6, sBot = (yB - geo.vpY) / (geo.hitY - geo.vpY);
