@@ -6664,85 +6664,99 @@ async function rbMix(song, part, onMsg){
   }
 }
 function rbPadSource(midi){ return RB_PAD_SRC.find(p => { const tr = rbFindTrack(midi, p); return tr && tr.notes.some(n => n.note >= 60 && n.note <= 100); }) || null; }
-/* Gamepad from Rock Band's own chart for the same difficulty: the same notes and chords, in the same places, with the
-   five frets laid onto the lanes. Within a run of notes (up to a rest of about a beat) the frets keep their order and
-   spacing: a run that fits in four frets just slides over, and a run that uses all five shares one lane between two
-   neighbouring frets, the pair the riff moves between least. Chords keep their outside notes. Lifts are the up-strums:
-   strum the same fret (or chord) fast and every other one is a lift. Easy has three lanes. */
+/* Gamepad from Rock Band's own chart for the same difficulty: the same notes and chords in the same places, laid onto
+   four lanes (three on Easy) the way the part is played.
+   - Every note sits where its hand position puts it: lane = fret - shift. The shift only moves where the riff moves, so
+     up the neck is right on the pad, a riff keeps its shape and its size, the same fret stays on the same lane through a
+     passage, and two frets (orange and blue, say) only land on one lane when a run uses all five and there's no other
+     way, and then where the notes are furthest apart.
+   - Strumming parts keep their chords and their repeated notes; in fast strumming every other strum of the same fret or
+     chord (the up-strum) is a lift.
+   - Tapping and hammer-on parts flow across the lanes instead: no lifts, never the same lane twice on a fast change of
+     fret, and fast back-and-forth goes between your two hands where it can.
+   - A measure that comes back anywhere in the song is charted exactly the way it was the first time. */
 function rbPadChart(midi, srcPart, diff, hopo){
   const own = rbChart(midi, srcPart, diff, hopo);
   if (!own || !own.chords.length) return rbPadThin(midi, srcPart, diff, hopo);
   rbFixPhrases(own, midi, srcPart);
   const L = diff === 'easy' ? 3 : 4, C = own.chords, bts = own.beats.map(b => b.t);
   const span = bts.length > 1 ? bts[bts.length - 1] - bts[0] : 0, bpm = span > 0 ? 60 * (bts.length - 1) / span : 120;
-  const spbAt = t => {
-    if (bts.length < 2) return 60 / bpm;
-    let lo = 0, hi = bts.length - 1;
-    while (lo < hi){ const m = (lo + hi + 1) >> 1; if (bts[m] <= t) lo = m; else hi = m - 1; }
-    const i = Math.min(lo, bts.length - 2);
-    return clamp(bts[i + 1] - bts[i], 0.2, 1.5);
+  const beatAt = t => { let lo = 0, hi = bts.length - 1; while (lo < hi){ const m = (lo + hi + 1) >> 1; if (bts[m] <= t) lo = m; else hi = m - 1; } return lo; };
+  const spbAt = t => { if (bts.length < 2) return 60 / bpm; const i = Math.min(beatAt(t), bts.length - 2); return clamp(bts[i + 1] - bts[i], 0.2, 1.5); };
+  const posAt = t => { if (bts.length < 2) return t * bpm / 60; const i = Math.min(beatAt(t), bts.length - 2); return i + (t - bts[i]) / Math.max(1e-6, bts[i + 1] - bts[i]); };
+  const barStart = []; { let b = 0; own.beats.forEach((x, i) => { if (x.bar) b = i; barStart.push(b); }); }
+  // each chord: its lowest and highest fret, its measure and where in the measure it falls
+  const lowF = m => { for (let f = 0; f < 5; f++) if (m & (1 << f)) return f; return 0; };
+  const highF = m => { for (let f = 4; f >= 0; f--) if (m & (1 << f)) return f; return 0; };
+  C.forEach(c => { c._lo = lowF(c.mask); c._hi = highF(c.mask); const p = posAt(c.t), b = bts.length > 1 ? barStart[Math.min(Math.floor(p + 1e-6), barStart.length - 1)] : Math.floor(p / 4) * 4; c._bar = b; c._in = Math.round((p - b) * 48); });
+  const bars = []; C.forEach((c, i) => { if (!i || c._bar !== C[i - 1]._bar) bars.push([]); bars[bars.length - 1].push(i); });
+  // strumming or tapping: hammer-ons and pull-offs as a share of the notes in a measure and the measures either side
+  const tapShare = bars.map(ix => ix.filter(i => C[i].hopo).length / ix.length);
+  bars.forEach((ix, k) => { const w = [tapShare[k - 1], tapShare[k], tapShare[k], tapShare[k + 1]].filter(x => x != null), tap = w.reduce((a, x) => a + x, 0) / w.length >= 0.5; ix.forEach(i => { C[i]._tap = tap; }); });
+  // lanes for a chord at a shift; null where it doesn't fit
+  const lanes = (c, o) => {
+    const a = c._lo - o; if (a < 0 || a > L - 1) return null;
+    if (c._hi === c._lo) return [a, a];
+    const b = Math.min(L - 1, c._hi - o); return b > a ? [a, b] : null;
   };
-  const has = (c, f) => (c.mask & (1 << f)) !== 0;
-  // runs of notes, split at rests
-  const runs = []; let cur = [];
-  C.forEach((c, i) => { const p = C[i - 1]; if (p && c.t - Math.max(p.t, p.end) >= Math.max(0.45, spbAt(c.t) * 0.95) && cur.length){ runs.push(cur); cur = []; } cur.push(c); });
-  if (cur.length) runs.push(cur);
-  let lo = 0;
-  for (const run of runs){
-    const used = [0, 1, 2, 3, 4].filter(f => run.some(c => has(c, f))), mn = used[0], mx = used[used.length - 1], map = [-1, -1, -1, -1, -1];
-    if (mx - mn <= L - 1){
-      // it fits: slide it over, staying put if the last run's position still works
-      lo = clamp(lo, Math.max(0, mx - (L - 1)), Math.min(mn, 5 - L));
-      used.forEach(f => { map[f] = f - lo; });
-    } else {
-      // too wide: share a lane between neighbouring frets, choosing the pair the riff jumps between (or chords) least
-      const groups = used.map(f => [f]);
-      const inG = (c, G) => G.some(f => has(c, f));
-      const cost = (A, B) => {
-        let k = 0;
-        run.forEach((c, i) => {
-          const a = inG(c, A), b = inG(c, B);
-          if (a && b) k += 4;
-          if (i){ const p = run[i - 1], pa = inG(p, A), pb = inG(p, B); if ((pa && !pb && b && !a) || (pb && !pa && a && !b)) k += c.t - p.t < 0.25 ? 2 : 1; }
-        });
-        return k;
-      };
-      while (groups.length > L){
-        let bi = 0, bc = Infinity;
-        for (let i = 0; i + 1 < groups.length; i++){ const k = cost(groups[i], groups[i + 1]) + 0.01 * Math.abs(i + 0.5 - (groups.length - 1) / 2); if (k < bc){ bc = k; bi = i; } }
-        groups.splice(bi, 2, groups[bi].concat(groups[bi + 1]));
-      }
-      const m = groups.length, mid = groups.map(G => G.reduce((a, f) => a + f, 0) / G.length);
-      let last = -1;
-      groups.forEach((G, i) => {
-        let ln = m === L ? i : Math.round((mid[i] - mid[0]) / Math.max(1e-6, mid[m - 1] - mid[0]) * (L - 1));
-        ln = Math.min(Math.max(ln, last + 1), L - (m - i)); last = ln;
-        G.forEach(f => { map[f] = ln; });
+  const SH = []; for (let o = -(L - 1); o <= 4; o++) SH.push(o);
+  const hand = l => L === 4 ? (l < 2 ? 0 : 1) : -1;
+  const node = (c, o, ls) => (o < 0 ? -o : o > 5 - L ? o - (5 - L) : 0) * 0.3 + (L === 4 && ls[0] !== ls[1] && hand(ls[0]) === hand(ls[1]) ? 0.25 : 0);
+  const edge = (p, op, pl, c, oc, cl) => {
+    const dt = c.t - p.t, fast = dt < 0.18, med = dt < 0.3;
+    let k = op !== oc ? 0.35 : 0;
+    if (p.mask === c.mask) return k + (op !== oc ? (fast ? 2.5 : 2) : 0);
+    const df = (c._lo + c._hi) - (p._lo + p._hi), dl = (cl[0] + cl[1]) - (pl[0] + pl[1]);
+    if (cl[0] === pl[0] && cl[1] === pl[1]) k += fast ? (c._tap ? 5 : 4) : med ? 3 : 2;
+    else if (Math.sign(dl) !== Math.sign(df)) k += fast ? 2.2 : 2;
+    else k += 0.12 * Math.abs(Math.abs(dl) - Math.abs(df)) / 2;
+    if (fast && L === 4 && pl[0] === pl[1] && cl[0] === cl[1] && pl[0] !== cl[0] && hand(pl[0]) === hand(cl[0])) k += c._tap ? 0.7 : 0.35;
+    return k;
+  };
+  // measure by measure: copy a measure seen before, otherwise find the cheapest shifts through it from where we are
+  const shift = new Array(C.length), seen = new Map();
+  bars.forEach(ix => {
+    const sig = ix.map(i => `${C[i]._in}:${C[i].mask}:${C[i].hopo ? 1 : 0}`).join(' ');
+    const prior = seen.get(sig);
+    if (prior){ ix.forEach((i, j) => { shift[i] = prior[j]; }); return; }
+    const prevI = ix[0] - 1, prev = prevI >= 0 ? C[prevI] : null, prevL = prev ? lanes(prev, shift[prevI]) : null;
+    let cost = new Map(), back = [];
+    SH.forEach(o => { const ls = lanes(C[ix[0]], o); if (!ls) return; cost.set(o, node(C[ix[0]], o, ls) + (prev ? edge(prev, shift[prevI], prevL, C[ix[0]], o, ls) : 0)); });
+    for (let j = 1; j < ix.length; j++){
+      const p = C[ix[j - 1]], c = C[ix[j]], nx = new Map(), bk = new Map();
+      SH.forEach(o => {
+        const ls = lanes(c, o); if (!ls) return;
+        let best = Infinity, from = null;
+        cost.forEach((v, op) => { const w = v + edge(p, op, lanes(p, op), c, o, ls); if (w < best){ best = w; from = op; } });
+        if (from !== null){ nx.set(o, best + node(c, o, ls)); bk.set(o, from); }
       });
-      lo = 0;
+      back.push(bk); cost = nx;
     }
-    run.forEach(c => { c._pad = map; });
-  }
+    let o = null, best = Infinity; cost.forEach((v, k) => { if (v < best || (v === best && Math.abs(k) < Math.abs(o))){ best = v; o = k; } });
+    const seq = new Array(ix.length); seq[ix.length - 1] = o;
+    for (let j = ix.length - 1; j > 0; j--){ o = back[j - 1].get(o); seq[j - 1] = o; }
+    ix.forEach((i, j) => { shift[i] = seq[j]; });
+    seen.set(sig, seq);
+  });
   // notes: a chord keeps its lowest and highest note; sustains stay, let go just before the next note
   const out = [], lanesOf = [];
   C.forEach((c, i) => {
-    const ls = [...new Set([0, 1, 2, 3, 4].filter(f => has(c, f)).map(f => c._pad[f]))].sort((a, b) => a - b);
-    const pick = ls.length > 2 ? [ls[0], ls[ls.length - 1]] : ls, nx = C[i + 1];
+    const ls = lanes(c, shift[i]) || [clamp(c._lo, 0, L - 1), clamp(c._lo, 0, L - 1)], pick = ls[0] === ls[1] ? [ls[0]] : ls, nx = C[i + 1];
     let end = c.sus ? c.end : c.t;
     if (nx) end = Math.min(end, nx.t - Math.max(0.06, spbAt(c.t) * 0.12));
     if (end - c.t < 0.2) end = c.t;
     lanesOf.push(pick.join());
     pick.forEach(l => out.push({ t:c.t, end, lane:l, od:c.od, solo:c.solo, _c:i }));
-    delete c._pad;
   });
-  // lifts: fast strumming on one fret or chord, every other strum (the up-strum) is a lift
+  // lifts are up-strums: fast strumming on one fret or chord, every other strum
   const FAST = 0.21, lastOn = [];
   for (const n of out){
-    const p = lastOn[n.lane];
-    if (p && p._c === n._c - 1 && !p.lift && p.end <= p.t + 1e-6 && n.end <= n.t + 1e-6 && n.t - p.t <= FAST + 1e-6 && lanesOf[n._c] === lanesOf[p._c]) n.lift = true;
+    const p = lastOn[n.lane], c = C[n._c];
+    if (p && p._c === n._c - 1 && !p.lift && !c.hopo && !C[p._c].hopo && p.end <= p.t + 1e-6 && n.end <= n.t + 1e-6 && n.t - p.t <= FAST + 1e-6 && lanesOf[n._c] === lanesOf[p._c]) n.lift = true;
     lastOn[n.lane] = n;
   }
   out.forEach(n => { delete n._c; });
+  C.forEach(c => { delete c._lo; delete c._hi; delete c._bar; delete c._in; delete c._tap; });
   // Overdrive phrases and solos carry over, counted in notes
   const regroup = (key, src, min, make) => {
     const groups = new Map(), list = [];
